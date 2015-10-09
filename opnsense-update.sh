@@ -86,10 +86,8 @@ while getopts bcfkm:n:pr:sv OPT; do
 		# -c only ever checks the embedded version string
 		if [ "${VERSION}-${ARCH}" = "${INSTALLED_KERNEL}" -a \
 		    "${VERSION}-${ARCH}" = "${INSTALLED_BASE}" ]; then
-			echo "Your system is up to date."
 			exit 1
 		fi
-		echo "There are updates available."
 		exit 0
 		;;
 	f)
