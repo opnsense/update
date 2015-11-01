@@ -35,7 +35,7 @@ fi
 MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 MIRROR="http://pkg.opnsense.org"
-VERSION="15.7.12"
+VERSION="15.7.18"
 ARCH=$(uname -m)
 
 # clean up old stale working directories
@@ -167,12 +167,12 @@ if [ -z "${RELEASE}" ]; then
 
 	if [ ${ARCH} = "amd64" ]; then
 		OBSOLETESHA="34f7479276c3b43c73468686dcf6f402c5be4f1d7c1d5761e22d6b52a3d4c174"
-		KERNELSHA="a86eb12b09b8809fb0ddfa78884b46f1e1ff8ba05e03deb46ac03d28d3baccb4"
-		BASESHA="668ee336b876cf97d691b7409b40ef5ebe1d62b9ca53d3d3c7754885dd5888b4"
+		KERNELSHA="1dbc1fe180723540ed8aa6d2f843c5b396f46cb43c875da7361d3a353ffed5ad"
+		BASESHA="f68d62b796f6f1236f5af05772795808a7afc52c1822977f2ade17ba7f36b97f"
 	elif [ ${ARCH} = "i386" ]; then
 		OBSOLETESHA="aefeb0f249ac98948dbaed1d8d4907987b9201f9268fb0498138e3bfe1142b65"
-		KERNELSHA="25dff5c11a4bc20518e128745a7d8708510d798bbc37beea86191750c8c120e6"
-		BASESHA="7cdab6c955a071ad25e4ee6dfe524597b6ccf0ccc50b6ec30355cd34365332e3"
+		KERNELSHA="0f252ea511fd8d0ac515cf8792803a71a476db15df7c7469f4eb628ccb598ecf"
+		BASESHA="94ef29b26d97d8fce66072b16a5e96e5b8ee5b50c05ff1508ba76b8c4c065662"
 	else
 		echo "Unknown architecture ${ARCH}" >&2
 		exit 1
