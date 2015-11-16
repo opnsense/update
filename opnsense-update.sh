@@ -41,23 +41,6 @@ ARCH=$(uname -m)
 # clean up old stale working directories
 rm -rf /tmp/opnsense-update.*
 
-# migrate old marker files
-for SUB in kernel base; do
-	({
-		CURR=opnsense-update.${SUB}
-		PREV=os-update.${SUB}
-
-		cd $(dirname ${MARKER})
-
-		if [ -e ${PREV} ]; then
-			if [ ! -e ${CURR} ]; then
-				mv ${PREV} ${CURR}
-				ln -s ${CURR} ${PREV}
-			fi
-		fi
-	})
-done
-
 INSTALLED_BASE=
 if [ -f ${MARKER}.base ]; then
 	INSTALLED_BASE=$(cat ${MARKER}.base)
