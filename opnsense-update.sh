@@ -34,12 +34,10 @@ fi
 
 MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
+WORKPREFIX="/tmp/opnsense-update"
 MIRROR="http://pkg.opnsense.org"
 VERSION="15.7.18"
 ARCH=$(uname -m)
-
-# clean up old stale working directories
-rm -rf /tmp/opnsense-update.*
 
 INSTALLED_BASE=
 if [ -f ${MARKER}.base ]; then
@@ -190,7 +188,7 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
-WORKDIR=/tmp/opnsense-update.${$}
+WORKDIR=${WORKPREFIX}/${$}
 KERNELDIR=/boot/kernel
 
 fetch_set()
