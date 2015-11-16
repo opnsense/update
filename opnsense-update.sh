@@ -100,7 +100,7 @@ while getopts bcfkm:n:pr:sv OPT; do
 		exit 0
 		;;
 	*)
-		echo "Usage: opnsense-update [-bcfkpsv] [-m mirror] [-r release]" >&2
+		echo "Usage: opnsense-update [-bcfkpsv] [-m mirror] [-n flavour] [-r release]" >&2
 		exit 1
 		;;
 	esac
