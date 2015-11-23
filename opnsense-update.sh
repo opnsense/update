@@ -36,7 +36,7 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/tmp/opnsense-update"
 MIRROR="http://pkg.opnsense.org"
-VERSION="15.7.18"
+VERSION="15.7.20"
 ARCH=$(uname -m)
 
 INSTALLED_BASE=
@@ -148,12 +148,12 @@ if [ -z "${RELEASE}" ]; then
 
 	if [ ${ARCH} = "amd64" ]; then
 		OBSOLETESHA="34f7479276c3b43c73468686dcf6f402c5be4f1d7c1d5761e22d6b52a3d4c174"
-		KERNELSHA="1dbc1fe180723540ed8aa6d2f843c5b396f46cb43c875da7361d3a353ffed5ad"
-		BASESHA="f68d62b796f6f1236f5af05772795808a7afc52c1822977f2ade17ba7f36b97f"
+		KERNELSHA="416dcdb589bbd67c684d01c3d7011f062b1921ed1d670a808ccec4a34aa40b98"
+		BASESHA="7046b73544a8a7824a0fb3d211f3773807c4933ee1cec8ca7b26c75c26f24e0c"
 	elif [ ${ARCH} = "i386" ]; then
 		OBSOLETESHA="aefeb0f249ac98948dbaed1d8d4907987b9201f9268fb0498138e3bfe1142b65"
-		KERNELSHA="0f252ea511fd8d0ac515cf8792803a71a476db15df7c7469f4eb628ccb598ecf"
-		BASESHA="94ef29b26d97d8fce66072b16a5e96e5b8ee5b50c05ff1508ba76b8c4c065662"
+		KERNELSHA="77e68a32caf1724bd03209bbb9333005c05c839d715601ec794a552fcf2c1b2e"
+		BASESHA="049ec7edebe32ef6f1c787a9a7fbd77940114be650ed9b3b2998302e43e338a8"
 	else
 		echo "Unknown architecture ${ARCH}" >&2
 		exit 1
