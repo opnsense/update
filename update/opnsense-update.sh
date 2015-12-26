@@ -184,18 +184,20 @@ KERNELDIR=/boot/kernel
 
 fetch_set()
 {
-	SIGNING="fetch -q ${MIRROR}/sets/${1}.sig -o ${WORKDIR}/${1}.sig &&"
-	SIGNING="${SIGNING} && opnsense-verify ${WORKDIR}/${1}"
+	STAGE1="fetch -q ${MIRROR}/sets/${1}.sig -o ${WORKDIR}/${1}.sig"
+	STAGE2="fetch -q ${MIRROR}/sets/${1} -o ${WORKDIR}/${1}"
+	STAGE3="opnsense-verify ${WORKDIR}/${1}"
 
 	if [ -n "${DO_INSECURE}" ]; then
-		SIGNING=":"
+		# no signature, no cry
+		STAGE1=":"
+		STAGE3=":"
 	fi
 
 	echo -n "Fetching ${1}... "
 
-	mkdir -p ${WORKDIR} && \
-	    fetch -q ${MIRROR}/sets/${1} -o ${WORKDIR}/${1} && \
-	    ${SIGNING} && echo "ok" && return
+	mkdir -p ${WORKDIR} && ${STAGE1} && ${STAGE2} && \
+	    ${STAGE3} && echo "ok" && return
 
 	echo "failed"
 	exit 1
