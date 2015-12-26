@@ -49,6 +49,7 @@ if [ -f ${MARKER}.kernel ]; then
 	INSTALLED_KERNEL=$(cat ${MARKER}.kernel)
 fi
 
+DO_INSECURE=
 DO_RELEASE=
 DO_FLAVOUR=
 DO_MIRROR=
@@ -58,7 +59,7 @@ DO_BASE=
 DO_PKGS=
 DO_SKIP=
 
-while getopts bcfkm:n:pr:sv OPT; do
+while getopts bcfikm:n:pr:sv OPT; do
 	case ${OPT} in
 	b)
 		DO_BASE="-b"
@@ -73,6 +74,9 @@ while getopts bcfkm:n:pr:sv OPT; do
 		;;
 	f)
 		DO_FORCE="-f"
+		;;
+	i)
+		DO_INSECURE="-i"
 		;;
 	k)
 		DO_KERNEL="-k"
@@ -145,19 +149,6 @@ fi
 # if no release was selected we use the embedded defaults
 if [ -z "${RELEASE}" ]; then
 	RELEASE=${VERSION}
-
-	if [ ${ARCH} = "amd64" ]; then
-		OBSOLETESHA="34f7479276c3b43c73468686dcf6f402c5be4f1d7c1d5761e22d6b52a3d4c174"
-		KERNELSHA="416dcdb589bbd67c684d01c3d7011f062b1921ed1d670a808ccec4a34aa40b98"
-		BASESHA="7046b73544a8a7824a0fb3d211f3773807c4933ee1cec8ca7b26c75c26f24e0c"
-	elif [ ${ARCH} = "i386" ]; then
-		OBSOLETESHA="aefeb0f249ac98948dbaed1d8d4907987b9201f9268fb0498138e3bfe1142b65"
-		KERNELSHA="77e68a32caf1724bd03209bbb9333005c05c839d715601ec794a552fcf2c1b2e"
-		BASESHA="049ec7edebe32ef6f1c787a9a7fbd77940114be650ed9b3b2998302e43e338a8"
-	else
-		echo "Unknown architecture ${ARCH}" >&2
-		exit 1
-	fi
 fi
 
 if [ -z "${DO_FORCE}" ]; then
@@ -193,12 +184,18 @@ KERNELDIR=/boot/kernel
 
 fetch_set()
 {
+	SIGNING="fetch -q ${MIRROR}/sets/${1}.sig -o ${WORKDIR}/${1}.sig &&"
+	SIGNING="${SIGNING} && opnsense-verify ${WORKDIR}/${1}"
+
+	if [ -n "${DO_INSECURE}" ]; then
+		SIGNING=":"
+	fi
+
 	echo -n "Fetching ${1}... "
 
 	mkdir -p ${WORKDIR} && \
 	    fetch -q ${MIRROR}/sets/${1} -o ${WORKDIR}/${1} && \
-	    [ -z "${2}" -o "`sha256 -q ${WORKDIR}/${1}`" = "${2}" ] && \
-	    echo "ok" && return
+	    ${SIGNING} && echo "ok" && return
 
 	echo "failed"
 	exit 1
@@ -254,12 +251,12 @@ apply_obsolete()
 }
 
 if [ -n "${DO_KERNEL}" ]; then
-	fetch_set ${KERNELSET} ${KERNELSHA}
+	fetch_set ${KERNELSET}
 fi
 
 if [ -n "${DO_BASE}" ]; then
-	fetch_set ${BASESET} ${BASESHA}
-	fetch_set ${OBSOLETESET} ${OBSOLETESHA}
+	fetch_set ${BASESET}
+	fetch_set ${OBSOLETESET}
 fi
 
 if [ -n "${DO_KERNEL}" ]; then
