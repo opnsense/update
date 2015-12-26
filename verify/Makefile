@@ -1,5 +1,5 @@
 PROG=	opnsense-verify
-MAN=	# XXX
+MAN=	opnsense-verify.8
 
 SRCS=	config.c pkg.c
 
