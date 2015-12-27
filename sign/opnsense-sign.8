@@ -25,36 +25,34 @@
 .\" SUCH DAMAGE.
 .\"
 .Dd December 27, 2015
-.Dt OPNSENSE-VERIFY 8
+.Dt OPNSENSE-SIGN 8
 .Os
 .Sh NAME
-.Nm opnsense-verify
-.Nd OPNsense signature verification
+.Nm opnsense-sign
+.Nd OPNsense signature generation
 .Sh SYNOPSIS
 .Nm
-.Op Fl q
-.Ar file
+.Fl p Ar prefix Ar file
 .Sh DESCRIPTION
 The
 .Nm
-utility verifies
-.Fx Ap s
-.Xr pkg 8
-signatures on arbitrary files.
-A separate file containing the signature with the
+utility signs arbitrary files by creatig a
 .Sq .sig
-extension must be present in order to verify against.
+file, which can then be verified using
+.Xr opnsense-verify 8 .
 .Pp
 The options are as follows:
-.Bl -tag -width ".Fl q" -offset indent
-.It Fl q
-Do not output any text.
+.Bl -tag -width ".Fl p Ar prefix" -offset indent
+.It Fl p Ar prefix
+The prefix to the
+.Sq .key
+and
+.Sq .pub
+files to be used for signing.
 .El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
-.Xr pkg.conf 5 ,
-.Xr opnsense-sign 8 ,
-.Xr pkg 8
+.Xr opnsense-verify 8
 .Sh AUTHORS
 .An Franco Fichtner Aq Mt franco@opnsense.org

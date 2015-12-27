@@ -1,3 +1,3 @@
-SUBDIR=	bootstrap verify update
+SUBDIR=	bootstrap sign verify update
 
 .include <bsd.subdir.mk>
