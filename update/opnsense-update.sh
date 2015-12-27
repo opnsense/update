@@ -186,7 +186,7 @@ fetch_set()
 {
 	STAGE1="fetch -q ${MIRROR}/sets/${1}.sig -o ${WORKDIR}/${1}.sig"
 	STAGE2="fetch -q ${MIRROR}/sets/${1} -o ${WORKDIR}/${1}"
-	STAGE3="opnsense-verify ${WORKDIR}/${1}"
+	STAGE3="opnsense-verify -q ${WORKDIR}/${1}"
 
 	if [ -n "${DO_INSECURE}" ]; then
 		# no signature, no cry

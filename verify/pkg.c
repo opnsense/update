@@ -79,6 +79,8 @@ struct fingerprint {
        STAILQ_ENTRY(fingerprint) next;
 };
 
+static int use_quiet = 0;
+
 STAILQ_HEAD(fingerprint_list, fingerprint);
 
 static struct fingerprint *
@@ -378,11 +380,15 @@ rsa_verify_cert(int fd, const char *sigfile, const unsigned char *key,
 	}
 
 	ret = true;
-	printf("done\n");
+	if (!use_quiet) {
+		printf("done\n");
+	}
 	goto cleanup;
 
 error:
-	printf("failed\n");
+	if (!use_quiet) {
+		printf("failed\n");
+	}
 
 cleanup:
 	if (pkey)
@@ -516,7 +522,9 @@ verify_pubsignature(int fd_pkg, int fd_sig)
 	}
 
 	/* Verify the signature. */
-	printf("Verifying signature with public key %s... ", pubkey);
+	if (!use_quiet) {
+		printf("Verifying signature with public key %s... ", pubkey);
+	}
 	if (rsa_verify_cert(fd_pkg, pubkey, NULL, 0, pk->sig,
 	    pk->siglen) == false) {
 		fprintf(stderr, "Signature is not valid\n");
@@ -611,7 +619,10 @@ verify_signature(int fd_pkg, int fd_sig)
 	}
 
 	/* Verify the signature. */
-	printf("Verifying signature with trusted certificate %s... ", sc->name);
+	if (!use_quiet) {
+		printf("Verifying signature with trusted certificate %s... ",
+		    sc->name);
+	}
 	if (rsa_verify_cert(fd_pkg, NULL, (unsigned char *)sc->cert,
 	    sc->certlen, sc->sig, sc->siglen) == false) {
 		fprintf(stderr, "Signature is not valid\n");
@@ -703,17 +714,40 @@ cleanup:
 	return (ret);
 }
 
+static void
+usage(void)
+{
+	fprintf(stderr, "usage: opnsense-verify [-q] file\n");
+	exit(EXIT_FAILURE);
+}
+
 int
 main(__unused int argc, char *argv[])
 {
 	char pkgpath[MAXPATHLEN];
 	char *filepath;
+	int c;
+
+	while ((c = getopt(argc, argv, "q")) != -1) {
+		switch (c) {
+		case 'q':
+			use_quiet = 1;
+			break;
+		default:
+			usage();
+			/* NOTREACHED */
+		}
+	}
+
+	argc -= optind;
+	argv += optind;
 
 	snprintf(pkgpath, MAXPATHLEN, "%s/sbin/pkg",
 	    getenv("LOCALBASE") ? getenv("LOCALBASE") : _LOCALBASE);
 
-	if (argc < 2 || (filepath = argv[1]) == NULL) {
-		errx(EXIT_FAILURE, "Usage: opnsense-verify file_path");
+	if (argc < 1 || (filepath = argv[0]) == NULL) {
+		usage();
+		/* NOTREACHED */
 	}
 
 	config_init();
