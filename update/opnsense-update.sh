@@ -136,7 +136,7 @@ if [ -n "${DO_PKGS}" ]; then
 	pkg update ${DO_FORCE}
 	pkg upgrade -y ${DO_FORCE}
 	pkg autoremove -y
-	pkg clean -y
+	pkg clean -ya
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} \
