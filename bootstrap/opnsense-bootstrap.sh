@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@ set -e
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 ARCH=$(uname -m)
-VERSION="15.7"
+VERSION="16.1"
 
 DO_FACTORY=
 DO_YES=
