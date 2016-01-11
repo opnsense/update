@@ -64,18 +64,24 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-if [ "$(uname -s)" != "FreeBSD" ]; then
+FBSDNAME=$(uname -s)
+if [ "${FBSDNAME}" != "FreeBSD" ]; then
 	echo "Must be FreeBSD."
 	exit 1
 fi
 
-if [ "$(uname -r | colrm 13)" != "10.1-RELEASE" ]; then
-	echo "Must be 10.1."
+FBSDARCH=$(uname -m)
+if [ "${FBSDARCH}" != "i386" -a "${FBSDARCH}" != "amd64" ]; then
+	echo "Must be i386 or amd64"
 	exit 1
 fi
 
-if [ "$(uname -m)" != "i386" -a "$(uname -m)" != "amd64" ]; then
-	echo "Must be i386 or amd64"
+
+FBSDVER=$(uname -r | colrm 13)
+if [ "${FBSDVER}" != "10.0-RELEASE" -a
+    "${FBSDVER}" != "10.1-RELEASE" -a
+    "${FBSDVER}" != "10.2-RELEASE" ]; then
+	echo "Must be FreeBSD 10.0, 10.1 or 10.2."
 	exit 1
 fi
 
