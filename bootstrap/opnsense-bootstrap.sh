@@ -41,9 +41,7 @@ while getopts fn:vy OPT; do
 		DO_FACTORY="-f"
 		;;
 	n)
-		if [ "${OPTARG}" == "LibreSSL" ]; then
-			FLAVOUR=${OPTARG}
-		fi
+		FLAVOUR=${OPTARG}
 		;;
 	v)
 		echo ${VERSION}-${ARCH}
@@ -78,8 +76,8 @@ fi
 
 
 FBSDVER=$(uname -r | colrm 13)
-if [ "${FBSDVER}" != "10.0-RELEASE" -a
-    "${FBSDVER}" != "10.1-RELEASE" -a
+if [ "${FBSDVER}" != "10.0-RELEASE" -a \
+    "${FBSDVER}" != "10.1-RELEASE" -a \
     "${FBSDVER}" != "10.2-RELEASE" ]; then
 	echo "Must be FreeBSD 10.0, 10.1 or 10.2."
 	exit 1
