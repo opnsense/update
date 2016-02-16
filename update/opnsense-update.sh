@@ -36,7 +36,7 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/tmp/opnsense-update"
 MIRROR="http://pkg.opnsense.org"
-VERSION="16.1.2"
+VERSION="16.1.3"
 ARCH=$(uname -m)
 
 INSTALLED_BASE=
