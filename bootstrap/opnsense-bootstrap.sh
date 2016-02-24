@@ -125,4 +125,4 @@ make bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 pkg bootstrap
 pkg install opnsense
 opnsense-update -bkf
-reboot
+/usr/local/etc/rc.reboot
