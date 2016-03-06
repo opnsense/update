@@ -34,10 +34,15 @@ fi
 
 MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
+URL_KEY="^[[:space:]]*url:[[:space:]]*"
 WORKPREFIX="/tmp/opnsense-update"
-MIRROR="http://pkg.opnsense.org"
 VERSION="16.1.3"
 ARCH=$(uname -m)
+
+if [ ! -f ${ORIGIN} ]; then
+	echo "Missing origin.conf"
+	exit 1
+fi
 
 INSTALLED_BASE=
 if [ -f ${MARKER}.base ]; then
@@ -119,12 +124,12 @@ fi
 
 if [ -n "${DO_FLAVOUR}" ]; then
 	# replace the package repo name
-	sed -i '' "/url:/s/\${ABI}.*/\${ABI}\/${FLAVOUR}\",/" ${ORIGIN}
+	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${FLAVOUR}"'\",/' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRROR}" ]; then
 	# replace the package repo location
-	sed -i '' "/url:/s/pkg\+.*\${ABI}/pkg\+${MIRROR}\/\${ABI}/" ${ORIGIN}
+	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRROR#"-m "}"'\/${ABI}/' ${ORIGIN}
 fi
 
 if [ -n "${DO_SKIP}" ]; then
@@ -175,6 +180,8 @@ echo "!!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!!!"
 echo "! A kernel/base upgrade is in progress. !"
 echo "!  Please do not turn off the system.   !"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
 
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
