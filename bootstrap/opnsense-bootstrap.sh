@@ -36,7 +36,7 @@ VERSION="16.1"
 DO_FACTORY=
 DO_YES=
 
-while getopts fn:vy OPT; do
+while getopts fn:t:vy OPT; do
 	case ${OPT} in
 	f)
 		DO_FACTORY="-f"
