@@ -30,6 +30,7 @@ set -e
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 ARCH=$(uname -m)
+TYPE="opnsense"
 VERSION="16.1"
 
 DO_FACTORY=
@@ -43,6 +44,9 @@ while getopts fn:vy OPT; do
 	n)
 		FLAVOUR=${OPTARG}
 		;;
+	t)
+		TYPE=${OPTARG}
+		;;
 	v)
 		echo ${VERSION}-${ARCH}
 		exit 0
@@ -51,7 +55,8 @@ while getopts fn:vy OPT; do
 		DO_YES="-y"
 		;;
 	*)
-		echo "Usage: opnsense-bootstrap [-fvy] [-n flavour]" >&2
+		echo "Usage: opnsense-bootstrap [-fvy]" >&2
+		echo "       [-n flavour] [-t type]" >&2
 		exit 1
 		;;
 	esac
@@ -123,6 +128,6 @@ fi
 
 make bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 pkg bootstrap
-pkg install opnsense
+pkg install ${TYPE}
 opnsense-update -bkf
 /usr/local/etc/rc.reboot

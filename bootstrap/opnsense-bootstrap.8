@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd November 20, 2015
+.Dd March 8, 2016
 .Dt OPNSENSE-BOOTSTRAP 8
 .Os
 .Sh NAME
@@ -34,6 +34,7 @@
 .Nm
 .Op Fl fy
 .Op Fl n Ar flavour
+.Op Fl t Ar type
 .Nm
 .Op Fl v
 .Sh DESCRIPTION
@@ -63,6 +64,10 @@ and
 .Sq OpenSSL .
 The default is
 .Sq OpenSSL .
+.It Fl t Ar type
+Select the top package to be bootstrapped from the repository.
+The default is
+.Sq opnsense .
 .It Fl v
 Print the current version string.
 .It Fl y
