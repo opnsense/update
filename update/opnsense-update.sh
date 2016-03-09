@@ -59,12 +59,13 @@ DO_RELEASE=
 DO_FLAVOUR=
 DO_MIRROR=
 DO_KERNEL=
+DO_LOCAL=
 DO_FORCE=
 DO_BASE=
 DO_PKGS=
 DO_SKIP=
 
-while getopts bcfikm:n:pr:sv OPT; do
+while getopts bcfikl:m:n:pr:sv OPT; do
 	case ${OPT} in
 	b)
 		DO_BASE="-b"
@@ -86,13 +87,14 @@ while getopts bcfikm:n:pr:sv OPT; do
 	k)
 		DO_KERNEL="-k"
 		;;
+	l)
+		DO_LOCAL="-l ${OPTARG}"
+		;;
 	m)
 		DO_MIRROR="-m ${OPTARG}"
-		MIRROR=${OPTARG}
 		;;
 	n)
 		DO_FLAVOUR="-n ${OPTARG}"
-		FLAVOUR=${OPTARG}
 		;;
 	p)
 		DO_PKGS="-p"
@@ -124,7 +126,7 @@ fi
 
 if [ -n "${DO_FLAVOUR}" ]; then
 	# replace the package repo name
-	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${FLAVOUR}"'\",/' ${ORIGIN}
+	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_FLAVOUR#"-n "}"'\",/' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRROR}" ]; then
@@ -144,7 +146,7 @@ if [ -n "${DO_PKGS}" ]; then
 	pkg clean -ya
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
-		opnsense-update ${DO_BASE} ${DO_KERNEL} \
+		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
 		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR}
 	fi
 	# stop here to prevent the second pass
@@ -189,11 +191,21 @@ BASESET=base-${RELEASE}-${ARCH}.txz
 WORKDIR=${WORKPREFIX}/${$}
 KERNELDIR=/boot/kernel
 
+if [ -n "${DO_LOCAL}" ]; then
+	WORKDIR=${DO_LOCAL#"-l "}
+fi
+
 fetch_set()
 {
 	STAGE1="fetch -q ${MIRROR}/sets/${1}.sig -o ${WORKDIR}/${1}.sig"
 	STAGE2="fetch -q ${MIRROR}/sets/${1} -o ${WORKDIR}/${1}"
 	STAGE3="opnsense-verify -q ${WORKDIR}/${1}"
+
+	if [ -n "${DO_LOCAL}" ]; then
+		# already fetched, just test
+		STAGE1="test -f ${WORKDIR}/${1}.sig"
+		STAGE2="test -f ${WORKDIR}/${1}"
+	fi
 
 	if [ -n "${DO_INSECURE}" ]; then
 		# no signature, no cry
@@ -290,6 +302,8 @@ if [ -n "${DO_BASE}" ]; then
 	echo ${RELEASE}-${ARCH} > ${MARKER}.base
 fi
 
-rm -rf ${WORKDIR}
+if [ -z "${DO_LOCAL}" ]; then
+	rm -rf ${WORKDIR}
+fi
 
 echo "Please reboot."

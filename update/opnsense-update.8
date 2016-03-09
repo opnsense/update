@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -33,6 +33,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl bfikps
+.Op Fl l Ar directory
 .Op Fl m Ar mirror
 .Op Fl n Ar flavour
 .Op Fl r Ar release
@@ -56,7 +57,7 @@ The default is
 attempting to update all components at once.
 .Pp
 The options are as follows:
-.Bl -tag -width ".Fl r Ar release" -offset indent
+.Bl -tag -width ".Fl l Ar directory" -offset indent
 .It Fl b
 Update the base system only.
 .It Fl c
@@ -67,6 +68,9 @@ Force an update even when the latest release is already installed.
 Ignore the signature verification result.
 .It Fl k
 Update the kernel only.
+.It Fl l Ar directory
+Instead of downloading, point to a local directory where the base and
+kernel sets are stored.
 .It Fl m Ar mirror
 Change the set fetch and package location to
 .Ar mirror .
