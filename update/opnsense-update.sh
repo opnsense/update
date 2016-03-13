@@ -36,6 +36,7 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 WORKPREFIX="/tmp/opnsense-update"
+PKG="pkg-static"
 VERSION="16.1.6"
 ARCH=$(uname -m)
 
@@ -140,10 +141,10 @@ if [ -n "${DO_SKIP}" ]; then
 fi
 
 if [ -n "${DO_PKGS}" ]; then
-	pkg update ${DO_FORCE}
-	pkg upgrade -y ${DO_FORCE}
-	pkg autoremove -y
-	pkg clean -ya
+	${PKG} update ${DO_FORCE}
+	${PKG} upgrade -y ${DO_FORCE}
+	${PKG} autoremove -y
+	${PKG} clean -ya
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
