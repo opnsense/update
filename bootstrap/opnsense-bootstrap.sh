@@ -83,8 +83,9 @@ fi
 FBSDVER=$(uname -r | colrm 13)
 if [ "${FBSDVER}" != "10.0-RELEASE" -a \
     "${FBSDVER}" != "10.1-RELEASE" -a \
-    "${FBSDVER}" != "10.2-RELEASE" ]; then
-	echo "Must be FreeBSD 10.0, 10.1 or 10.2."
+    "${FBSDVER}" != "10.2-RELEASE" -a \
+    "${FBSDVER}" != "10.3-RELEASE" ]; then
+	echo "Must be a FreeBSD 10.x release."
 	exit 1
 fi
 
@@ -120,6 +121,7 @@ fetch https://github.com/opnsense/core/archive/stable/${VERSION}.zip
 unzip ${VERSION}.zip
 cd core-stable-${VERSION}
 
+pkg unlock -a
 pkg delete -fa
 rm -rf /usr/local/etc/pkg
 if [ -n "${DO_FACTORY}" ]; then
