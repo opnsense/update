@@ -27,13 +27,7 @@
 
 set -e
 
-# XXX mktemp
-PIDFILE=/tmp/fetch.pid
-
-if [ -f ${PIDFILE} ]; then
-	pkill -qF ${PIDFILE}
-	rm -f ${PIDFILE}
-fi
+PIDFILE=$(mktemp -q /tmp/opnsense-fetch.pid.XXXXXX)
 
 daemon -fp ${PIDFILE} fetch ${@}
 
@@ -43,3 +37,5 @@ while :; do
 	pgrep -qF ${PIDFILE} || break
 	sleep 1
 done
+
+rm -f ${PIDFILE}

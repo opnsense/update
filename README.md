@@ -52,3 +52,12 @@ code present in the FreeBSD 10 base, but may be linked against
 either OpenSSL or LibreSSL from ports.
 
 Both utilities were first introduced in December 2015.
+
+opnsense-fetch
+==============
+
+opnsense-fetch(8) creates a watcher process for fetch(1) and passes
+all arguments to it.  The watcher then prints progress output to the
+actual caller to indicate ongoing download progress.
+
+The utility was first introduced in April 2016.

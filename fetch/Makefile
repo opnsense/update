@@ -1,5 +1,5 @@
 SCRIPTS=opnsense-fetch.sh
-MAN=	#opnsense-fetch.8
+MAN=	opnsense-fetch.8
 
 PREFIX?=${LOCALBASE}
 BINDIR=	${PREFIX}/sbin
