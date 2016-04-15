@@ -198,8 +198,8 @@ fi
 
 fetch_set()
 {
-	STAGE1="fetch -q ${MIRROR}/sets/${1}.sig -o ${WORKDIR}/${1}.sig"
-	STAGE2="fetch -q ${MIRROR}/sets/${1} -o ${WORKDIR}/${1}"
+	STAGE1="opnsense-fetch -q -o ${WORKDIR}/${1}.sig ${MIRROR}/sets/${1}.sig"
+	STAGE2="opnsense-fetch -q -o ${WORKDIR}/${1} ${MIRROR}/sets/${1}"
 	STAGE3="opnsense-verify -q ${WORKDIR}/${1}"
 
 	if [ -n "${DO_LOCAL}" ]; then
@@ -214,12 +214,12 @@ fetch_set()
 		STAGE3=":"
 	fi
 
-	echo -n "Fetching ${1}... "
+	echo -n "Fetching ${1}."
 
 	mkdir -p ${WORKDIR} && ${STAGE1} && ${STAGE2} && \
-	    ${STAGE3} && echo "ok" && return
+	    ${STAGE3} && echo " ok" && return
 
-	echo "failed"
+	echo " failed"
 	exit 1
 }
 
