@@ -214,36 +214,32 @@ fetch_set()
 		STAGE3=":"
 	fi
 
-	echo -n "Fetching ${1}."
+	echo -n "Fetching ${1}: ."
 
 	mkdir -p ${WORKDIR} && ${STAGE1} && ${STAGE2} && \
-	    ${STAGE3} && echo " ok" && return
+	    ${STAGE3} && echo " done" && return
 
 	echo " failed"
 	exit 1
 }
 
-apply_kernel()
+install_kernel()
 {
-	echo -n "Applying ${KERNELSET}... "
+	echo -n "Installing ${KERNELSET}: ... "
 
 	rm -rf ${KERNELDIR}.old && \
 	    mv ${KERNELDIR} ${KERNELDIR}.old && \
 	    tar -C/ -xpf ${WORKDIR}/${KERNELSET} && \
 	    kldxref ${KERNELDIR} && \
-	    echo "ok" && return
+	    echo "done" && return
 
 	echo "failed"
 	exit 1
 }
 
-apply_base()
+install_base()
 {
-	echo -n "Applying ${BASESET}... "
-
-	# Ideally, we don't do any exlcude magic and simply
-	# reapply all the packages on bootup and do another
-	# reboot just to be safe...
+	echo -n "Installing ${BASESET}: ... "
 
 	chflags -R noschg /bin /sbin /lib /libexec \
 	    /usr/bin /usr/sbin /usr/lib && \
@@ -255,21 +251,21 @@ apply_base()
 	    --exclude="./etc/ttys" \
 	    --exclude="./etc/rc" && \
 	    kldxref ${KERNELDIR} && \
-	    echo "ok" && return
+	    echo "done" && return
 
 	echo "failed"
 	exit 1
 }
 
-apply_obsolete()
+install_obsolete()
 {
-	echo -n "Applying ${OBSOLETESET}... "
+	echo -n "Installing ${OBSOLETESET}: ... "
 
 	while read FILE; do
 		rm -f ${FILE}
 	done < ${WORKDIR}/${OBSOLETESET}
 
-	echo "ok"
+	echo "done"
 }
 
 if [ -n "${DO_KERNEL}" ]; then
@@ -282,12 +278,12 @@ if [ -n "${DO_BASE}" ]; then
 fi
 
 if [ -n "${DO_KERNEL}" ]; then
-	apply_kernel
+	install_kernel
 fi
 
 if [ -n "${DO_BASE}" ]; then
-	apply_base
-	apply_obsolete
+	install_base
+	install_obsolete
 fi
 
 # bootstrap the directory  if needed
