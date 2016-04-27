@@ -127,17 +127,17 @@ fi
 
 if [ -n "${DO_CHECK}" ]; then
 	if [ -n "${DO_KERNEL}" ]; then
-		if [ "${VERSION}-${ARCH}" = "${INSTALLED_KERNEL}" ]; then
-			exit 1
+		if [ "${VERSION}-${ARCH}" != "${INSTALLED_KERNEL}" ]; then
+			exit 0
 		fi
 	fi
 	if [ -n "${DO_BASE}" ]; then
-		if [ "${VERSION}-${ARCH}" = "${INSTALLED_BASE}" ]; then
-			exit 1
+		if [ "${VERSION}-${ARCH}" != "${INSTALLED_BASE}" ]; then
+			exit 0
 		fi
 	fi
 	# will not check DO_PKGS, different approach
-	exit 0
+	exit 1
 fi
 
 if [ -n "${DO_FLAVOUR}" ]; then
