@@ -62,11 +62,12 @@ DO_MIRROR=
 DO_KERNEL=
 DO_LOCAL=
 DO_FORCE=
+DO_HIDE=
 DO_BASE=
 DO_PKGS=
 DO_SKIP=
 
-while getopts bcfikl:m:n:pr:sv OPT; do
+while getopts bcfhikl:m:n:pr:sv OPT; do
 	case ${OPT} in
 	b)
 		DO_BASE="-b"
@@ -81,6 +82,9 @@ while getopts bcfikl:m:n:pr:sv OPT; do
 		;;
 	f)
 		DO_FORCE="-f"
+		;;
+	h)
+		DO_HIDE="-h"
 		;;
 	i)
 		DO_INSECURE="-i"
@@ -148,7 +152,7 @@ if [ -n "${DO_PKGS}" ]; then
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
-		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR}
+		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR} ${DO_HIDE}
 	fi
 	# stop here to prevent the second pass
 	exit 0
@@ -288,8 +292,10 @@ fi
 
 # bootstrap the directory  if needed
 mkdir -p $(dirname ${MARKER})
-# remove the file previously used
-rm -f ${MARKER}
+
+if [ -n "${DO_HIDE}" ]; then
+	RELEASE=${VERSION}
+fi
 
 if [ -n "${DO_KERNEL}" ]; then
 	echo ${RELEASE}-${ARCH} > ${MARKER}.kernel
