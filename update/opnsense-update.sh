@@ -62,6 +62,7 @@ DO_MIRROR=
 DO_KERNEL=
 DO_LOCAL=
 DO_FORCE=
+DO_CHECK=
 DO_HIDE=
 DO_BASE=
 DO_PKGS=
@@ -73,12 +74,7 @@ while getopts bcfhikl:m:n:pr:sv OPT; do
 		DO_BASE="-b"
 		;;
 	c)
-		# -c only ever checks the embedded version string
-		if [ "${VERSION}-${ARCH}" = "${INSTALLED_KERNEL}" -a \
-		    "${VERSION}-${ARCH}" = "${INSTALLED_BASE}" ]; then
-			exit 1
-		fi
-		exit 0
+		DO_CHECK="-c"
 		;;
 	f)
 		DO_FORCE="-f"
@@ -127,6 +123,21 @@ if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
 	DO_KERNEL="-k"
 	DO_BASE="-b"
 	DO_PKGS="-p"
+fi
+
+if [ -n "${DO_CHECK}" ]; then
+	if [ -n "${DO_KERNEL}" ]; then
+		if [ "${VERSION}-${ARCH}" = "${INSTALLED_KERNEL}" ]; then
+			exit 1
+		fi
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		if [ "${VERSION}-${ARCH}" = "${INSTALLED_BASE}" ]; then
+			exit 1
+		fi
+	fi
+	# will not check DO_PKGS, different approach
+	exit 0
 fi
 
 if [ -n "${DO_FLAVOUR}" ]; then
