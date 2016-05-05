@@ -36,8 +36,8 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 WORKPREFIX="/tmp/opnsense-update"
+VERSION="16.1.14"
 PKG="pkg-static"
-VERSION="16.1.9"
 ARCH=$(uname -m)
 
 if [ ! -f ${ORIGIN} ]; then
