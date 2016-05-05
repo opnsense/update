@@ -34,8 +34,8 @@ fi
 
 MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
+WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
-WORKPREFIX="/tmp/opnsense-update"
 VERSION="16.1.14"
 PKG="pkg-static"
 ARCH=$(uname -m)
@@ -317,7 +317,8 @@ if [ -n "${DO_BASE}" ]; then
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
-	rm -rf ${WORKDIR}
+	# clear all possible cache directories
+	rm -rf ${WORKPREFIX}/*
 fi
 
 echo "Please reboot."
