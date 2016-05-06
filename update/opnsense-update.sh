@@ -206,6 +206,8 @@ KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 WORKDIR=${WORKPREFIX}/${$}
 KERNELDIR=/boot/kernel
+SET_MAX=0
+SET_CUR=0
 
 if [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
@@ -240,21 +242,27 @@ fetch_set()
 
 install_kernel()
 {
-	echo -n "Installing ${KERNELSET}: ... "
+	PROGRESS="[${SET_CUR}/${SET_MAX}] "
+
+	echo "${PROGRESS}Installing ${KERNELSET}..."
+	echo -n "${PROGRESS}Extracting ${KERNELSET}: ..."
 
 	rm -rf ${KERNELDIR}.old && \
 	    mv ${KERNELDIR} ${KERNELDIR}.old && \
 	    tar -C/ -xpf ${WORKDIR}/${KERNELSET} && \
 	    kldxref ${KERNELDIR} && \
-	    echo "done" && return
+	    echo " done" && return
 
-	echo "failed"
+	echo " failed"
 	exit 1
 }
 
 install_base()
 {
-	echo -n "Installing ${BASESET}: ... "
+	PROGRESS="[${SET_CUR}/${SET_MAX}] "
+
+	echo "${PROGRESS}Installing ${BASESET}..."
+	echo -n "${PROGRESS}Extracting ${BASESET}: ..."
 
 	chflags -R noschg /bin /sbin /lib /libexec \
 	    /usr/bin /usr/sbin /usr/lib && \
@@ -266,38 +274,47 @@ install_base()
 	    --exclude="./etc/ttys" \
 	    --exclude="./etc/rc" && \
 	    kldxref ${KERNELDIR} && \
-	    echo "done" && return
+	    echo " done" && return
 
-	echo "failed"
+	echo " failed"
 	exit 1
 }
 
 install_obsolete()
 {
-	echo -n "Installing ${OBSOLETESET}: ... "
+	PROGRESS="[${SET_CUR}/${SET_MAX}] "
+
+	echo "${PROGRESS}Installing ${OBSOLETESET}..."
+	echo -n "${PROGRESS}Extracting ${OBSOLETESET}: ..."
 
 	while read FILE; do
 		rm -f ${FILE}
 	done < ${WORKDIR}/${OBSOLETESET}
 
-	echo "done"
+	echo " done"
 }
 
 if [ -n "${DO_KERNEL}" ]; then
+	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${KERNELSET}
 fi
 
 if [ -n "${DO_BASE}" ]; then
+	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${BASESET}
+	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${OBSOLETESET}
 fi
 
 if [ -n "${DO_KERNEL}" ]; then
+	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_kernel
 fi
 
 if [ -n "${DO_BASE}" ]; then
+	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_base
+	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_obsolete
 fi
 
