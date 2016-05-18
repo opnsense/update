@@ -61,3 +61,13 @@ all arguments to it.  The watcher then prints progress output to the
 actual caller to indicate ongoing download progress.
 
 The utility was first introduced in April 2016.
+
+opnsense-patch
+==============
+
+opnsense-patch(8) applies upstream git patches in the order that they
+have been given.  This helps to deploy fixes faster without the need
+to run manual edits or file downloads since patch(1) tries to keep the
+file integrity intact.
+
+The utility was first introduced in May 2016.
