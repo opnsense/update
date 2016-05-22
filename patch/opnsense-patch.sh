@@ -39,7 +39,7 @@ fi
 mkdir -p ${WORKDIR}
 
 for ARG in ${@}; do
-	fetch "${SITE}/commit/${ARG}.patch" -o "${WORKDIR}/${ARG}.patch"
+	fetch -q "${SITE}/commit/${ARG}.patch" -o "${WORKDIR}/${ARG}.patch"
 done
 
 for ARG in ${@}; do
