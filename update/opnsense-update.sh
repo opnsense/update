@@ -36,7 +36,7 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
-VERSION="16.1.14"
+VERSION="16.1.16"
 PKG="pkg-static"
 ARCH=$(uname -m)
 
