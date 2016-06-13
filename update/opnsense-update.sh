@@ -55,9 +55,7 @@ if [ -f ${MARKER}.kernel ]; then
 	INSTALLED_KERNEL=$(cat ${MARKER}.kernel)
 fi
 
-DO_CHANGELOG=
 DO_INSECURE=
-DO_INDEXLOG=
 DO_RELEASE=
 DO_FLAVOUR=
 DO_MIRROR=
@@ -70,7 +68,7 @@ DO_BASE=
 DO_PKGS=
 DO_SKIP=
 
-while getopts bcfhikl:m:n:pr:st:uv OPT; do
+while getopts bcfhikl:m:n:pr:sv OPT; do
 	case ${OPT} in
 	b)
 		DO_BASE="-b"
@@ -108,12 +106,6 @@ while getopts bcfhikl:m:n:pr:st:uv OPT; do
 		;;
 	s)
 		DO_SKIP="-s"
-		;;
-	t)
-		DO_CHANGELOG="-t ${OPTARG}"
-		;;
-	u)
-		DO_INDEXLOG="-u"
 		;;
 	v)
 		echo ${VERSION}-${ARCH}
@@ -163,18 +155,6 @@ if [ -n "${DO_SKIP}" ]; then
 	exit 0
 fi
 
-MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
-
-if [ -n "${DO_INDEXLOG}" ]; then
-	fetch -q -o - "${MIRROR}/changelogs/index.json"
-	return ${?}
-fi
-
-if [ -n "${DO_CHANGELOG}" ]; then
-	fetch -q -o - "${MIRROR}/changelogs/${DO_CHANGELOG#"-t "}.html"
-	return ${?}
-fi
-
 if [ -n "${DO_PKGS}" ]; then
 	${PKG} update ${DO_FORCE}
 	${PKG} upgrade -y ${DO_FORCE}
@@ -218,6 +198,8 @@ echo "!!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!!!"
 echo "! A kernel/base upgrade is in progress. !"
 echo "!  Please do not turn off the system.   !"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
 
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
