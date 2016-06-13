@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd May 5, 2016
+.Dd June 13, 2016
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -38,7 +38,8 @@
 .Op Fl n Ar flavour
 .Op Fl r Ar release
 .Nm
-.Op Fl cv
+.Op Fl cuv
+.Op Fl t Ar version
 .Sh DESCRIPTION
 The
 .Nm
@@ -99,6 +100,11 @@ Skip update phase; useful in conjunction with
 .Sq Fl m
 and
 .Sq Fl n .
+.It Fl t Ar version
+Fetch the changelog for the specified
+.Ar version .
+.It Fl u
+Fetch the index file for the changelogs.
 .It Fl v
 Print the latest base/kernel version string.
 .El
