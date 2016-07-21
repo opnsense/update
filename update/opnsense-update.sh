@@ -36,9 +36,9 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
-VERSION="16.1.18"
 PKG="pkg-static"
-ARCH=$(uname -m)
+ARCH=$(uname -p)
+VERSION="16.7"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing origin.conf"
