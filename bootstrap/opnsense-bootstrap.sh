@@ -29,14 +29,13 @@ set -e
 
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
-ARCH=$(uname -m)
 TYPE="opnsense"
-VERSION="16.1"
+VERSION="16.7"
 
 DO_FACTORY=
 DO_YES=
 
-while getopts fn:t:vy OPT; do
+while getopts fn:t:V:vy OPT; do
 	case ${OPT} in
 	f)
 		DO_FACTORY="-f"
@@ -47,8 +46,11 @@ while getopts fn:t:vy OPT; do
 	t)
 		TYPE=${OPTARG}
 		;;
+	V)
+		VERSION=${OPTARG}
+		;;
 	v)
-		echo ${VERSION}-${ARCH}
+		echo ${VERSION}
 		exit 0
 		;;
 	y)
@@ -57,6 +59,7 @@ while getopts fn:t:vy OPT; do
 	*)
 		echo "Usage: opnsense-bootstrap [-fvy]" >&2
 		echo "       [-n flavour] [-t type]" >&2
+		echo "       [-V version]" >&2
 		exit 1
 		;;
 	esac
