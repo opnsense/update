@@ -156,10 +156,10 @@ if [ -n "${DO_SKIP}" ]; then
 fi
 
 if [ -n "${DO_PKGS}" ]; then
-	${PKG} update ${DO_FORCE}
-	${PKG} upgrade -y ${DO_FORCE}
-	${PKG} autoremove -y
-	${PKG} clean -ya
+	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
+		${PKG} autoremove -y
+		${PKG} clean -ya
+	fi
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
