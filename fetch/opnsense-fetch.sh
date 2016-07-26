@@ -32,10 +32,10 @@ PIDFILE=$(mktemp -q /tmp/opnsense-fetch.pid.XXXXXX)
 daemon -fp ${PIDFILE} fetch ${@}
 
 while :; do
+	sleep 1
 	echo -n .
 	[ ! -f ${PIDFILE} ] && break
 	pgrep -qF ${PIDFILE} || break
-	sleep 1
 done
 
 rm -f ${PIDFILE}
