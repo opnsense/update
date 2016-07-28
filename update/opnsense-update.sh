@@ -92,10 +92,14 @@ while getopts bcfhikl:m:n:pr:sv OPT; do
 		DO_LOCAL="-l ${OPTARG}"
 		;;
 	m)
-		DO_MIRROR="-m ${OPTARG}"
+		if [ -n "${OPTARG}" ]; then
+			DO_MIRROR="-m ${OPTARG}"
+		fi
 		;;
 	n)
-		DO_FLAVOUR="-n ${OPTARG}"
+		if [ -n "${OPTARG}" ]; then
+			DO_FLAVOUR="-n ${OPTARG}"
+		fi
 		;;
 	p)
 		DO_PKGS="-p"
