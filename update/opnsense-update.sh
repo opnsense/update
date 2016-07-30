@@ -138,8 +138,8 @@ if [ -n "${DO_TYPE}" ]; then
 	# cache packages in case something goes wrong
 	${PKG} fetch -y ${OLD} ${NEW}
 
-	# strip vital flag from installed package type
-	${PKG} set -yv 0 ${OLD}
+	# remove the old package, force to unistall vital
+	${PKG} delete -fy ${OLD}
 
 	# attempt to install the new package type and...
 	if ! ${PKG} install -y ${DO_FORCE} ${NEW}; then
@@ -153,9 +153,6 @@ if [ -n "${DO_TYPE}" ]; then
 		# always force the second install
 		${PKG} install -fy ${NEW}
 	fi
-
-	# flip vital flag back on
-	${PKG} set -yv 1 ${NEW}
 
 	# set exit code based on transition failed or failed
 	[ "${OLD}" != "${NEW}" ]
