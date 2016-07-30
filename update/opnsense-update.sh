@@ -150,7 +150,8 @@ if [ -n "${DO_TYPE}" ]; then
 	# have problems in a few edge cases that involve
 	# different package dependencies between types
 	if ! ${PKG} query %n ${NEW} > /dev/null; then
-		${PKG} install -y ${NEW}
+		# always force the second install
+		${PKG} install -fy ${NEW}
 	fi
 
 	# flip vital flag back on
