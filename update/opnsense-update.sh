@@ -67,8 +67,9 @@ DO_HIDE=
 DO_BASE=
 DO_PKGS=
 DO_SKIP=
+DO_TYPE=
 
-while getopts bcfhikl:m:n:pr:sv OPT; do
+while getopts bcfhikl:m:n:pr:st:v OPT; do
 	case ${OPT} in
 	b)
 		DO_BASE="-b"
@@ -111,6 +112,9 @@ while getopts bcfhikl:m:n:pr:sv OPT; do
 	s)
 		DO_SKIP="-s"
 		;;
+	t)
+		DO_TYPE="-t ${OPTARG}"
+		;;
 	v)
 		echo ${VERSION}-${ARCH}
 		exit 0
@@ -121,6 +125,41 @@ while getopts bcfhikl:m:n:pr:sv OPT; do
 		;;
 	esac
 done
+
+if [ -n "${DO_TYPE}" ]; then
+	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
+	NEW=${DO_TYPE#"-t "}
+
+	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
+		echo "The package type '${OLD}' is already installed."
+		exit 0
+	fi
+
+	# cache packages in case something goes wrong
+	${PKG} fetch -y ${OLD} ${NEW}
+
+	# strip vital flag from installed package type
+	${PKG} set -yv 0 ${OLD}
+
+	# attempt to install the new package type and...
+	if ! ${PKG} install -y ${DO_FORCE} ${NEW}; then
+		NEW=${OLD}
+	fi
+
+	# ...recover in both cases as pkg(8) seems to
+	# have problems in a few edge cases that involve
+	# different package dependencies between types
+	if ! ${PKG} query %n ${NEW} > /dev/null; then
+		${PKG} install -y ${NEW}
+	fi
+
+	# flip vital flag back on
+	${PKG} set -yv 1 ${NEW}
+
+	# set exit code based on transition failed or failed
+	[ "${OLD}" != "${NEW}" ]
+	exit 0
+fi
 
 if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
 	# default is enable all
