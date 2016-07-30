@@ -138,8 +138,8 @@ if [ -n "${DO_TYPE}" ]; then
 	# cache packages in case something goes wrong
 	${PKG} fetch -y ${OLD} ${NEW}
 
-	# remove the old package, force to unistall vital
-	${PKG} delete -fy ${OLD}
+	# strip vital flag from installed package type
+	${PKG} set -yv 0 ${OLD}
 
 	# attempt to install the new package type and...
 	if ! ${PKG} install -y ${DO_FORCE} ${NEW}; then
