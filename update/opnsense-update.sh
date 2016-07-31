@@ -196,6 +196,25 @@ if [ -n "${DO_SKIP}" ]; then
 	exit 0
 fi
 
+# if no release was selected we use the embedded defaults
+if [ -z "${RELEASE}" ]; then
+	RELEASE=${VERSION}
+fi
+
+MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
+
+OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
+KERNELSET=kernel-${RELEASE}-${ARCH}.txz
+BASESET=base-${RELEASE}-${ARCH}.txz
+WORKDIR=${WORKPREFIX}/${$}
+KERNELDIR=/boot/kernel
+SET_MAX=0
+SET_CUR=0
+
+if [ -n "${DO_LOCAL}" ]; then
+	WORKDIR=${DO_LOCAL#"-l "}
+fi
+
 if [ -n "${DO_PKGS}" ]; then
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
 		${PKG} autoremove -y
@@ -208,11 +227,6 @@ if [ -n "${DO_PKGS}" ]; then
 	fi
 	# stop here to prevent the second pass
 	exit 0
-fi
-
-# if no release was selected we use the embedded defaults
-if [ -z "${RELEASE}" ]; then
-	RELEASE=${VERSION}
 fi
 
 if [ -z "${DO_FORCE}" ]; then
@@ -233,25 +247,6 @@ if [ -z "${DO_FORCE}" ]; then
 		echo "Your system is up to date."
 		exit 0
 	fi
-fi
-
-echo "!!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!!!"
-echo "! A kernel/base upgrade is in progress. !"
-echo "!  Please do not turn off the system.   !"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
-MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
-
-OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
-KERNELSET=kernel-${RELEASE}-${ARCH}.txz
-BASESET=base-${RELEASE}-${ARCH}.txz
-WORKDIR=${WORKPREFIX}/${$}
-KERNELDIR=/boot/kernel
-SET_MAX=0
-SET_CUR=0
-
-if [ -n "${DO_LOCAL}" ]; then
-	WORKDIR=${DO_LOCAL#"-l "}
 fi
 
 fetch_set()
@@ -334,6 +329,11 @@ install_obsolete()
 
 	echo " done"
 }
+
+echo "!!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!!!"
+echo "! A kernel/base upgrade is in progress. !"
+echo "!  Please do not turn off the system.   !"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 if [ -n "${DO_KERNEL}" ]; then
 	SET_MAX=$(expr ${SET_MAX} + 1)
