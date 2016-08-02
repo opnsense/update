@@ -38,6 +38,13 @@ root file system.
 What it will likely do at some point in the future is moving an
 installation from FreeBSD/OPNsense to HardenedBSD/OPNsense or back.
 
+The usage is simple, starting with a FreeBSD 10.3-RELEASE image:
+
+    # fetch https://raw.githubusercontent.com/opnsense/update/master/bootstrap/opnsense-bootstrap.sh
+    # sh ./opnsense-bootstrap.sh
+
+After successful reboot, OPNsense should be up and running.  :)
+
 The utility was first introduced in November 2015.
 
 opnsense-sign && opnsense-verify
