@@ -38,7 +38,7 @@ WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 PKG="pkg-static"
 ARCH=$(uname -p)
-VERSION="16.7"
+VERSION="16.7.1"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing origin.conf"
@@ -219,12 +219,17 @@ if [ -n "${DO_PKGS}" ]; then
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
 		${PKG} autoremove -y
 		${PKG} clean -ya
+	else
+		# cannot continue after failed upgrade
+		exit 1
 	fi
+
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
 		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR} ${DO_HIDE}
 	fi
+
 	# stop here to prevent the second pass
 	exit 0
 fi
