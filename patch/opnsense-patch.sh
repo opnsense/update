@@ -30,7 +30,7 @@ set -e
 # internal vars
 WORKDIR="/tmp/opnsense-patch"
 PREFIX="/usr/local"
-SCRUB_ARGS=
+SCRUB_ARGS=:
 
 # fetch defaults
 SITE="https://github.com"
