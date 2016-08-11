@@ -32,7 +32,7 @@ WORKDIR="/tmp/opnsense-patch"
 PREFIX="/usr/local"
 
 # fetch defaults
-SITE="https://github.com/"
+SITE="https://github.com"
 ACCOUNT="opnsense"
 REPOSITORY="core"
 PATCHLEVEL="2"
@@ -41,6 +41,43 @@ if [ "$(id -u)" != "0" ]; then
 	echo "Must be root."
 	exit 1
 fi
+
+while getopts a:c:p:r:s: OPT; do
+	case ${OPT} in
+	a)
+		ACCOUNT=${OPTARG}
+		;;
+	c)
+		case ${OPTARG} in
+		core)
+			REPOSITORY="core"
+			PATCHLEVEL="2"
+			;;
+		plugins)
+			REPOSITORY="plugins"
+			PATCHLEVEL="4"
+			;;
+		*)
+			echo "Unknown repository default: ${OPTARG}" >&2
+			exit 1
+			;;
+		esac
+		;;
+	p)
+		PATCHLEVEL=${OPTARG}
+		;;
+	r)
+		REPOSITORY=${OPTARG}
+		;;
+	s)
+		SITE=${OPTARG}
+		;;
+	*)
+		echo "Usage: opnsense-patch [-c repo_default] commit_hash ..." >&2
+		exit 1
+		;;
+	esac
+done
 
 mkdir -p ${WORKDIR}
 
