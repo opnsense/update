@@ -27,9 +27,15 @@
 
 set -e
 
-SITE="https://github.com/opnsense/core"
+# internal vars
 WORKDIR="/tmp/opnsense-patch"
 PREFIX="/usr/local"
+
+# fetch defaults
+SITE="https://github.com/"
+ACCOUNT="opnsense"
+REPOSITORY="core"
+PATCHLEVEL="2"
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root."
@@ -39,11 +45,12 @@ fi
 mkdir -p ${WORKDIR}
 
 for ARG in ${@}; do
-	fetch -q "${SITE}/commit/${ARG}.patch" -o "${WORKDIR}/${ARG}.patch"
+	fetch -q "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch" \
+	    -o "${WORKDIR}/${ARG}.patch"
 done
 
 for ARG in ${@}; do
-	patch -Et -p 2 -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"
+	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"
 done
 
 rm -rf ${WORKDIR}/*
