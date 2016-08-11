@@ -38,7 +38,7 @@ WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 PKG="pkg-static"
 ARCH=$(uname -p)
-VERSION="16.7.1"
+VERSION="16.7.2"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing origin.conf"
