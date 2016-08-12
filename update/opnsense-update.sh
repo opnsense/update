@@ -154,8 +154,10 @@ if [ -n "${DO_TYPE}" ]; then
 		${PKG} install -fy ${NEW}
 	fi
 
-	# set exit code based on transition failed or failed
+	# set exit code based on transition status
 	[ "${OLD}" != "${NEW}" ]
+
+	# and we're done :)
 	exit 0
 fi
 
