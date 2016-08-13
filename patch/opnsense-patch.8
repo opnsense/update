@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd August 11, 2016
+.Dd August 13, 2016
 .Dt OPNSENSE-PATCH 8
 .Os
 .Sh NAME
@@ -47,6 +47,9 @@ utility treats all arguments as upstream
 .Xr git 1
 repository commit hashes, downloads them and finally applies
 them in order.
+.Pp
+Patches can also be reversed by reapplying them, but multiple
+patches must be given in reverse order to succeed.
 .Pp
 The options are as follows:
 .Bl -tag -width ".Fl c Ar repo_default" -offset indent
@@ -84,6 +87,3 @@ of the fetch URL.
 .Xr patch 1
 .Sh AUTHORS
 .An Franco Fichtner Aq Mt franco@opnsense.org
-.Sh BUGS
-Patches cannot be reversed directly.
-Use with care.
