@@ -40,6 +40,7 @@ installation from FreeBSD/OPNsense to HardenedBSD/OPNsense or back.
 
 The usage is simple, starting with a FreeBSD 10.3-RELEASE image:
 
+    # pkg install ca_root_nss
     # fetch https://raw.githubusercontent.com/opnsense/update/master/bootstrap/opnsense-bootstrap.sh
     # sh ./opnsense-bootstrap.sh
 
