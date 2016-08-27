@@ -1,0 +1,79 @@
+.\"
+.\" Copyright (c) 2016 Franco Fichtner <franco@opnsense.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.Dd August 27, 2016
+.Dt OPNSENSE-CODE 8
+.Os
+.Sh NAME
+.Nm opnsense-code
+.Nd OPNsense code utility
+.Sh SYNOPSIS
+.Nm
+.Op Fl fn
+.Op Fl a Ar account
+.Op Fl d Ar directory
+.Op Fl s Ar site
+.Ar repo ...
+.Sh DESCRIPTION
+The
+.Nm
+utility helps with handling code repositories using
+.Xr git 1
+or simple fallback methods.
+It is
+.Ud .
+.Pp
+The options are as follows:
+.Bl -tag -width ".Fl d Ar directory" -offset indent
+.It Fl a Ar account
+Set the
+.Ar account
+name of the repository URL.
+Defaults to
+.Sq opnsense .
+.It Fl d Ar directory
+Set the target
+.Ar directory
+of the repository.
+Defaults to
+.Sq /usr .
+.It Fl f
+Forcefully remove a previously available repository directory.
+.It Fl n
+Allow to run the command as a non-root user.
+.It Fl s Ar site
+Set the
+.Ar site
+of the fetch URL.
+Defaults to
+.Sq https://github.com .
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr git 1
+.Sh AUTHORS
+.An Franco Fichtner Aq Mt franco@opnsense.org
