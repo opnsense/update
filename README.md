@@ -79,3 +79,13 @@ to run manual edits or file downloads since patch(1) tries to keep the
 file integrity intact.
 
 The utility was first introduced in May 2016.
+
+opnsense-code
+=============
+
+Deriving from the utility of opnsense-patch(8), its younger sibling
+opnsense-code(8) can handle full code repositories, either by means
+of using git(1) or simpler fallback methods in order to fetch or
+update the full source code on an installed system.
+
+The utility was first introduced in August 2016.
