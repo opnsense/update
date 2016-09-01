@@ -69,8 +69,13 @@ DO_PKGS=
 DO_SKIP=
 DO_TYPE=
 
-while getopts bcfhikl:m:n:pr:st:v OPT; do
+while getopts Bbcd:fhiKkl:m:n:Ppr:st:v OPT; do
 	case ${OPT} in
+	B)
+		DO_BASE="-B"
+		# not yet
+		exit 1
+		;;
 	b)
 		DO_BASE="-b"
 		;;
@@ -85,6 +90,11 @@ while getopts bcfhikl:m:n:pr:st:v OPT; do
 		;;
 	i)
 		DO_INSECURE="-i"
+		;;
+	K)
+		DO_KERNEL="-K"
+		# not yet
+		exit 1
 		;;
 	k)
 		DO_KERNEL="-k"
@@ -101,6 +111,11 @@ while getopts bcfhikl:m:n:pr:st:v OPT; do
 		if [ -n "${OPTARG}" ]; then
 			DO_FLAVOUR="-n ${OPTARG}"
 		fi
+		;;
+	P)
+		DO_PKGS="-P"
+		# not yet
+		exit 1
 		;;
 	p)
 		DO_PKGS="-p"
@@ -120,7 +135,7 @@ while getopts bcfhikl:m:n:pr:st:v OPT; do
 		exit 0
 		;;
 	*)
-		echo "Usage: opnsense-update [-bcfkpsv] [-m mirror] [-n flavour] [-r release]" >&2
+		echo "Usage: man opnsense-update" >&2
 		exit 1
 		;;
 	esac
