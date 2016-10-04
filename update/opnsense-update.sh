@@ -306,6 +306,7 @@ install_kernel()
 	echo -n "${PROGRESS}Extracting ${KERNELSET}: ..."
 
 	rm -rf ${KERNELDIR}.old && \
+	    mkdir -p ${KERNELDIR} && \
 	    mv ${KERNELDIR} ${KERNELDIR}.old && \
 	    tar -C/ -xpf ${WORKDIR}/${KERNELSET} && \
 	    kldxref ${KERNELDIR} && \
