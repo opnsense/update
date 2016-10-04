@@ -356,21 +356,23 @@ install_obsolete()
 	echo " done"
 }
 
-echo "!!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!!!"
-echo "! A kernel/base upgrade is in progress. !"
-echo "!  Please do not turn off the system.   !"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
 if [ -n "${DO_KERNEL}" ]; then
 	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${KERNELSET}
 fi
 
-if [ -n "${DO_BASE}" ]; then
+if [ "${DO_BASE}" = "-b" ]; then
 	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${BASESET}
 	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${OBSOLETESET}
+fi
+
+if [ -n "${DO_KERNEL}${DO_BASE}" ]; then
+	echo "!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!"
+	echo "! A critical upgrade is in progress. !"
+	echo "! Please do not turn off the system. !"
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 fi
 
 if [ -n "${DO_KERNEL}" ]; then
