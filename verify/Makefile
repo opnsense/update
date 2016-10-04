@@ -7,7 +7,9 @@ CFLAGS+=-I/usr/local/include
 LDADD+=	-lelf -lsbuf -lssl -lcrypto
 LDADD+=	-L/usr/local/lib -lucl
 
+LOCALBASE?=${DESTDIR}/usr/local
 PREFIX?=${LOCALBASE}
+
 BINDIR=	${PREFIX}/sbin
 MANDIR=	${PREFIX}/man/man
 
