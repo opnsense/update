@@ -141,6 +141,8 @@ while getopts Bbcd:fhiKkl:m:n:Ppr:st:v OPT; do
 	esac
 done
 
+mkdir -p ${WORKPREFIX}
+
 if [ -n "${DO_TYPE}" ]; then
 	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
 	NEW=${DO_TYPE#"-t "}
@@ -382,7 +384,6 @@ if [ -n "${DO_BASE}" ]; then
 	install_obsolete
 fi
 
-# bootstrap the directory  if needed
 mkdir -p $(dirname ${MARKER})
 
 if [ -n "${DO_HIDE}" ]; then
@@ -398,7 +399,6 @@ if [ -n "${DO_BASE}" ]; then
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
-	# clear all possible cache directories
 	rm -rf ${WORKPREFIX}/*
 fi
 
