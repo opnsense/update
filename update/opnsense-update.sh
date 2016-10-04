@@ -320,13 +320,14 @@ install_kernel()
 
 install_base()
 {
+	NOSCHGDIRS="/bin /sbin /lib /libexec /usr/bin /usr/sbin /usr/lib /var/empty"
 	PROGRESS="[${SET_CUR}/${SET_MAX}] "
 
 	echo "${PROGRESS}Installing ${BASESET}..."
 	echo -n "${PROGRESS}Extracting ${BASESET}: ..."
 
-	chflags -R noschg /bin /sbin /lib /libexec \
-	    /usr/bin /usr/sbin /usr/lib && \
+	mkdir -p ${NOSCHGDIRS} && \
+	    chflags -R noschg ${NOSCHGDIRS} && \
 	    tar -C/ -xpf ${WORKDIR}/${BASESET} \
 	    --exclude="./etc/group" \
 	    --exclude="./etc/master.passwd" \
