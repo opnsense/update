@@ -36,6 +36,8 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
+WORKDIR=${WORKPREFIX}/${$}
+KERNELDIR=/boot/kernel
 PKG="pkg-static"
 ARCH=$(uname -p)
 VERSION="16.7.5"
@@ -73,6 +75,7 @@ DO_TYPE=
 while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 	case ${OPT} in
 	B)
+		DO_FORCE="-f"
 		DO_BASE="-B"
 		# not yet
 		exit 1
@@ -86,7 +89,7 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 	e)
 		if [ -d ${WORKPREFIX} ]; then
 			# completely empty cache as per request
-			rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.*
+			rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.??*
 		fi
 		;;
 	f)
@@ -115,6 +118,7 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 		fi
 		;;
 	P)
+		DO_FORCE="-f"
 		DO_PKGS="-P"
 		# not yet
 		exit 1
@@ -147,8 +151,6 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 		;;
 	esac
 done
-
-mkdir -p $(dirname ${MARKER})
 
 if [ -n "${DO_TYPE}" ]; then
 	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
@@ -227,16 +229,6 @@ if [ -z "${RELEASE}" ]; then
 	RELEASE=${VERSION}
 fi
 
-MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
-
-OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
-KERNELSET=kernel-${RELEASE}-${ARCH}.txz
-BASESET=base-${RELEASE}-${ARCH}.txz
-WORKDIR=${WORKPREFIX}/${$}
-KERNELDIR=/boot/kernel
-SET_MAX=0
-SET_CUR=0
-
 if [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
 fi
@@ -274,11 +266,18 @@ if [ -z "${DO_FORCE}" ]; then
 	fi
 
 	# nothing to do
-	if [ -z "${DO_KERNEL}${DO_BASE}" ]; then
+	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
 		echo "Your system is up to date."
 		exit 0
 	fi
 fi
+
+MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
+OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
+KERNELSET=kernel-${RELEASE}-${ARCH}.txz
+BASESET=base-${RELEASE}-${ARCH}.txz
+SET_MAX=0
+SET_CUR=0
 
 fetch_set()
 {
@@ -363,16 +362,16 @@ install_obsolete()
 	echo " done"
 }
 
-if [ "${DO_KERNEL}" = "-k" ]; then
-	SET_MAX=$(expr ${SET_MAX} + 1)
-	fetch_set ${KERNELSET}
-fi
-
 if [ "${DO_BASE}" = "-b" ]; then
 	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${BASESET}
 	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${OBSOLETESET}
+fi
+
+if [ "${DO_KERNEL}" = "-k" ]; then
+	SET_MAX=$(expr ${SET_MAX} + 1)
+	fetch_set ${KERNELSET}
 fi
 
 if [ -n "${DO_KERNEL}${DO_BASE}" ]; then
@@ -394,10 +393,11 @@ if [ -n "${DO_BASE}" ]; then
 	install_obsolete
 fi
 
-
 if [ -n "${DO_HIDE}" ]; then
 	RELEASE=${VERSION}
 fi
+
+mkdir -p $(dirname ${MARKER})
 
 if [ -n "${DO_KERNEL}" ]; then
 	echo ${RELEASE}-${ARCH} > ${MARKER}.kernel
