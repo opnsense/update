@@ -276,8 +276,6 @@ MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
-SET_MAX=0
-SET_CUR=0
 
 fetch_set()
 {
@@ -308,10 +306,7 @@ fetch_set()
 
 install_kernel()
 {
-	PROGRESS="[${SET_CUR}/${SET_MAX}] "
-
-	echo "${PROGRESS}Installing ${KERNELSET}..."
-	echo -n "${PROGRESS}Extracting ${KERNELSET}: ..."
+	echo -n "Installing ${KERNELSET}..."
 
 	rm -rf ${KERNELDIR}.old && \
 	    mkdir -p ${KERNELDIR} && \
@@ -327,10 +322,8 @@ install_kernel()
 install_base()
 {
 	NOSCHGDIRS="/bin /sbin /lib /libexec /usr/bin /usr/sbin /usr/lib /var/empty"
-	PROGRESS="[${SET_CUR}/${SET_MAX}] "
 
-	echo "${PROGRESS}Installing ${BASESET}..."
-	echo -n "${PROGRESS}Extracting ${BASESET}: ..."
+	echo -n "Installing ${BASESET}..."
 
 	mkdir -p ${NOSCHGDIRS} && \
 	    chflags -R noschg ${NOSCHGDIRS} && \
@@ -350,10 +343,7 @@ install_base()
 
 install_obsolete()
 {
-	PROGRESS="[${SET_CUR}/${SET_MAX}] "
-
-	echo "${PROGRESS}Installing ${OBSOLETESET}..."
-	echo -n "${PROGRESS}Extracting ${OBSOLETESET}: ..."
+	echo -n "Installing ${OBSOLETESET}..."
 
 	while read FILE; do
 		rm -f ${FILE}
@@ -363,14 +353,11 @@ install_obsolete()
 }
 
 if [ "${DO_BASE}" = "-b" ]; then
-	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${BASESET}
-	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${OBSOLETESET}
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
-	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${KERNELSET}
 fi
 
@@ -382,14 +369,11 @@ if [ -n "${DO_KERNEL}${DO_BASE}" ]; then
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
-	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_kernel
 fi
 
 if [ -n "${DO_BASE}" ]; then
-	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_base
-	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_obsolete
 fi
 
