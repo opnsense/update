@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd August 18, 2016
+.Dd October 4, 2016
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -32,7 +32,7 @@
 .Nd OPNsense update utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl BbfhiKkPps
+.Op Fl BbfhikPpsu
 .Op Fl l Ar directory
 .Op Fl m Ar mirror
 .Op Fl n Ar flavour
@@ -62,7 +62,7 @@ attempting to update all components at once.
 The options are as follows:
 .Bl -tag -width ".Fl l Ar directory" -offset indent
 .It Fl b
-Update the base system only.
+Update the base system.
 .It Fl c
 Check wether a base/kernel update can be performed, but don't install it.
 .It Fl f
@@ -80,7 +80,7 @@ by registering the version that would have been installed by default
 .It Fl i
 Ignore the signature verification result.
 .It Fl k
-Update the kernel only.
+Update the kernel.
 .It Fl l Ar directory
 Instead of downloading, point to a local directory where the base and
 kernel sets are stored.
@@ -91,7 +91,7 @@ Change the set fetch and package location to
 Change the package repository to
 .Ar flavour .
 .It Fl p
-Update the packages only.
+Update the packages.
 .It Fl r Ar release
 Select the
 .Ar release

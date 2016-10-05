@@ -58,6 +58,7 @@ fi
 DO_INSECURE=
 DO_RELEASE=
 DO_FLAVOUR=
+DO_UPGRADE=
 DO_MIRROR=
 DO_KERNEL=
 DO_LOCAL=
@@ -69,7 +70,7 @@ DO_PKGS=
 DO_SKIP=
 DO_TYPE=
 
-while getopts Bbcd:fhiKkl:m:n:Ppr:st:v OPT; do
+while getopts Bbcd:fhikl:m:n:Ppr:st:uv OPT; do
 	case ${OPT} in
 	B)
 		DO_BASE="-B"
@@ -90,11 +91,6 @@ while getopts Bbcd:fhiKkl:m:n:Ppr:st:v OPT; do
 		;;
 	i)
 		DO_INSECURE="-i"
-		;;
-	K)
-		DO_KERNEL="-K"
-		# not yet
-		exit 1
 		;;
 	k)
 		DO_KERNEL="-k"
@@ -130,6 +126,11 @@ while getopts Bbcd:fhiKkl:m:n:Ppr:st:v OPT; do
 	t)
 		DO_TYPE="-t ${OPTARG}"
 		;;
+	u)
+		DO_UPGRADE="-u"
+		# not yet
+		exit 1
+		;;
 	v)
 		echo ${VERSION}-${ARCH}
 		exit 0
@@ -141,7 +142,7 @@ while getopts Bbcd:fhiKkl:m:n:Ppr:st:v OPT; do
 	esac
 done
 
-mkdir -p ${WORKPREFIX}
+mkdir -p $(dirname ${MARKER})
 
 if [ -n "${DO_TYPE}" ]; then
 	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
@@ -356,7 +357,7 @@ install_obsolete()
 	echo " done"
 }
 
-if [ -n "${DO_KERNEL}" ]; then
+if [ "${DO_KERNEL}" = "-k" ]; then
 	SET_MAX=$(expr ${SET_MAX} + 1)
 	fetch_set ${KERNELSET}
 fi
@@ -375,7 +376,7 @@ if [ -n "${DO_KERNEL}${DO_BASE}" ]; then
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 fi
 
-if [ -n "${DO_KERNEL}" ]; then
+if [ "${DO_KERNEL}" = "-k" ]; then
 	SET_CUR=$(expr ${SET_CUR} + 1)
 	install_kernel
 fi
@@ -387,7 +388,6 @@ if [ -n "${DO_BASE}" ]; then
 	install_obsolete
 fi
 
-mkdir -p $(dirname ${MARKER})
 
 if [ -n "${DO_HIDE}" ]; then
 	RELEASE=${VERSION}
