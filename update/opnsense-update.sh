@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2013 Dag-Erling Smørgrav
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -37,7 +39,7 @@ ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 WORKDIR=${WORKPREFIX}/${$}
-KERNELDIR=/boot/kernel
+KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
 VERSION="16.7.5"
@@ -56,6 +58,29 @@ INSTALLED_KERNEL=
 if [ -f ${MARKER}.kernel ]; then
 	INSTALLED_KERNEL=$(cat ${MARKER}.kernel)
 fi
+
+kernel_version() {
+	KERNEL_REGEX='^@(#)FreeBSD \([-.0-9A-Za-z]\{1,\}\) .*$'
+	KERNEL_FILE=$(sysctl -n kern.bootfile 2> /dev/null)
+
+	if [ -f "${KERNEL_FILE}" ]; then
+		strings "${KERNEL_FILE}" | sed -n "s/${KERNEL_REGEX}/\\1/p"
+	fi
+}
+
+base_version() {
+	FREEBSD_VERSION="${1}/bin/freebsd-version"
+	if [ -f "${FREEBSD_VERSION}" ]; then
+		${FREEBSD_VERSION}
+	fi
+}
+
+empty_cache() {
+	if [ -d ${WORKPREFIX} ]; then
+		# completely empty cache as per request
+		rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.??*
+	fi
+}
 
 DO_INSECURE=
 DO_RELEASE=
@@ -87,10 +112,7 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 		DO_CHECK="-c"
 		;;
 	e)
-		if [ -d ${WORKPREFIX} ]; then
-			# completely empty cache as per request
-			rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.??*
-		fi
+		empty_cache
 		;;
 	f)
 		DO_FORCE="-f"
