@@ -70,7 +70,7 @@ DO_PKGS=
 DO_SKIP=
 DO_TYPE=
 
-while getopts Bbcd:fhikl:m:n:Ppr:st:uv OPT; do
+while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 	case ${OPT} in
 	B)
 		DO_BASE="-B"
@@ -82,6 +82,12 @@ while getopts Bbcd:fhikl:m:n:Ppr:st:uv OPT; do
 		;;
 	c)
 		DO_CHECK="-c"
+		;;
+	e)
+		if [ -d ${WORKPREFIX} ]; then
+			# completely empty cache as per request
+			rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.*
+		fi
 		;;
 	f)
 		DO_FORCE="-f"
