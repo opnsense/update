@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
-# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -67,7 +66,7 @@ kernel_version() {
 
 base_version() {
 	# The utility has the version embedded, so
-	# we exectute it to check which one it is.
+	# we execute it to check which one it is.
 	FREEBSD_VERSION="${1}/bin/freebsd-version"
 	if [ -f "${FREEBSD_VERSION}" ]; then
 		${FREEBSD_VERSION}
@@ -398,11 +397,11 @@ if [ -n "${DO_BASE}" ]; then
 	install_obsolete
 fi
 
+mkdir -p $(dirname ${MARKER})
+
 if [ -n "${DO_HIDE}" ]; then
 	RELEASE=${VERSION}
 fi
-
-mkdir -p $(dirname ${MARKER})
 
 if [ -n "${DO_KERNEL}" ]; then
 	echo ${RELEASE}-${ARCH} > ${MARKER}.kernel
