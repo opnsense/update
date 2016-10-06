@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
-# Copyright (c) 2013 Dag-Erling Smørgrav
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,15 +59,15 @@ if [ -f ${MARKER}.kernel ]; then
 fi
 
 kernel_version() {
-	KERNEL_REGEX='^@(#)FreeBSD \([-.0-9A-Za-z]\{1,\}\) .*$'
-	KERNEL_FILE=$(sysctl -n kern.bootfile 2> /dev/null)
-
-	if [ -f "${KERNEL_FILE}" ]; then
-		strings "${KERNEL_FILE}" | sed -n "s/${KERNEL_REGEX}/\\1/p"
-	fi
+	# It's faster to ask uname as long as the base
+	# system is consistent that should work instead
+	# of doing the magic of `freebsd-version -k'.
+	uname -r
 }
 
 base_version() {
+	# The utility has the version embedded, so
+	# we exectute it to check which one it is.
 	FREEBSD_VERSION="${1}/bin/freebsd-version"
 	if [ -f "${FREEBSD_VERSION}" ]; then
 		${FREEBSD_VERSION}
