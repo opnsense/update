@@ -28,6 +28,8 @@
 set -e
 
 # internals
+GIT="/usr/local/bin/git"
+PKG="/usr/sbin/pkg"
 NONROOT=
 FORCE=
 
@@ -75,6 +77,19 @@ $(${SCRUB_ARGS})
 if [ -z "${*}" ]; then
 	echo "Nothing to do."
 	exit 0
+fi
+
+if [ ! -f ${GIT} ]; then
+	echo -n "git(1) is required but not installed.  Install now? [Y/n]: "
+	read YN
+	case ${YN} in
+	[nN])
+		exit 0
+		;;
+	*)
+		;;
+	esac
+	${PKG} install -y git
 fi
 
 for ARG in ${@}; do
