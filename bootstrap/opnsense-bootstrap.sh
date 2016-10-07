@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2017 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -31,7 +31,7 @@ URL="https://github.com/opnsense/core/archive/stable"
 WORKPREFIX="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
-VERSION="16.7"
+VERSION="17.1"
 
 DO_INSECURE=
 DO_FACTORY=
@@ -91,11 +91,8 @@ fi
 
 
 FBSDVER=$(uname -r | colrm 13)
-if [ "${FBSDVER}" != "10.0-RELEASE" -a \
-    "${FBSDVER}" != "10.1-RELEASE" -a \
-    "${FBSDVER}" != "10.2-RELEASE" -a \
-    "${FBSDVER}" != "10.3-RELEASE" ]; then
-	echo "Must be a FreeBSD 10.x release." >&2
+if [ "${FBSDVER}" != "11.0-RELEASE" ]; then
+	echo "Must be a FreeBSD 11 release." >&2
 	exit 1
 fi
 
