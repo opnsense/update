@@ -57,10 +57,19 @@ and
 may be stacked to create selective updates.
 The default is
 .Sq Fl bkp ,
-attempting to update all components at once.
+attempting to update all components at once using a minor
+upgrade sequence.
+Major upgrades are invoked using e.g.\&
+.Sq Fl u Fl r Ar 17.1 ,
+instead.
 .Pp
 The options are as follows:
 .Bl -tag -width ".Fl l Ar directory" -offset indent
+.It Fl B
+Execute single-step base system upgrade after use of
+.Sq Fl u .
+Implies
+.Sq Fl f .
 .It Fl b
 Update the base system.
 .It Fl c
@@ -92,13 +101,19 @@ Change the set fetch and package location to
 .It Fl n Ar flavour
 Change the package repository to
 .Ar flavour .
+.It Fl P
+Execute single-step packages upgrade after use of
+.Sq Fl u .
+Implies
+.Sq Fl f .
 .It Fl p
 Update the packages.
 .It Fl r Ar release
 Select the
 .Ar release
 to be installed.
-Package upgrades are unaffected by this option.
+Package upgrades are unaffected by this option when not using
+.Sq Fl u .
 .It Fl s
 Skip update phase; useful in conjunction with
 .Sq Fl m
@@ -111,6 +126,15 @@ properly handling the
 .Xr pkg 8
 .Sq vital
 flag transition.
+.It Fl u
+Invoke a major upgrade, which requires explicit use of
+.Sq Fl r .
+In order to finish the upgrade,
+.Sq Fl B
+and
+.Sq Fl P
+must be invoked in this particular order, accompanied by a reboot
+after each individual step.
 .It Fl v
 Print the latest base/kernel version string.
 .El

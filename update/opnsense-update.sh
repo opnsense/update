@@ -36,10 +36,13 @@ MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
+PENDINGDIR="${WORKPREFIX}/.sets.pending"
+OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
 KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
+FLAVOUR="OpenSSL"
 VERSION="16.7.5"
 
 if [ ! -f ${ORIGIN} ]; then
@@ -100,8 +103,8 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 	B)
 		DO_FORCE="-f"
 		DO_BASE="-B"
-		# not yet
-		exit 1
+		DO_KERNEL=
+		DO_PKGS=
 		;;
 	b)
 		DO_BASE="-b"
@@ -140,8 +143,8 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 	P)
 		DO_FORCE="-f"
 		DO_PKGS="-P"
-		# not yet
-		exit 1
+		DO_KERNEL=
+		DO_BASE=
 		;;
 	p)
 		DO_PKGS="-p"
@@ -158,8 +161,6 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 		;;
 	u)
 		DO_UPGRADE="-u"
-		# not yet
-		exit 1
 		;;
 	v)
 		echo ${VERSION}-${ARCH}
@@ -249,11 +250,34 @@ if [ -z "${RELEASE}" ]; then
 	RELEASE=${VERSION}
 fi
 
-if [ -n "${DO_LOCAL}" ]; then
+if [ "${DO_BASE}" = "-B" ]; then
+	if [ ! -f "${WORKPREFIX}/.base.pending" ]; then
+		# must error out to prevent reboot
+		exit 1
+	fi
+
+	RELEASE=$(cat "${WORKPREFIX}/.base.pending")
+	WORKDIR=${PENDINGDIR}
+
+	rm -f "${WORKPREFIX}/.base.pending"
+elif [ "${DO_PKGS}" = "-P" ]; then
+	if [ ! -f "${WORKPREFIX}/.pkgs.pending" ]; then
+		# must error out to prevent reboot
+		exit 1
+	fi
+
+	RELEASE=$(cat "${WORKPREFIX}/.pkgs.pending")
+	WORKDIR=${PENDINGDIR}
+
+	rm -f "${WORKPREFIX}/.pkgs.pending"
+elif [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
 fi
 
-if [ -n "${DO_PKGS}" ]; then
+if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}" ]; then
+	# clean up deferred sets that could be there
+	rm -rf ${PENDINGDIR}/packages-*
+
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
 		${PKG} autoremove -y
 		${PKG} clean -ya
@@ -292,7 +316,12 @@ if [ -z "${DO_FORCE}" ]; then
 	fi
 fi
 
+if [ -f ${OPENSSL} ]; then
+	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
+fi
+
 MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
+PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
@@ -372,6 +401,23 @@ install_obsolete()
 	echo " done"
 }
 
+install_pkgs()
+{
+	echo "Installing ${PACKAGESSET}..."
+
+	# We can't recover from this replacement, but
+	# since the manual says we require a reboot
+	# after `-P', it is to be considered a feature.
+	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*/file:\/\/\/var\/cache\/opnsense-update\/.sets.pending\/packages-'"${RELEASE}"'\",/' ${ORIGIN}
+
+	# run full upgrade from the local repository
+	${PKG} upgrade -fy
+}
+
+if [ "${DO_PKGS}" = "-p" ]; then
+	fetch_set ${PACKAGESSET}
+fi
+
 if [ "${DO_BASE}" = "-b" ]; then
 	fetch_set ${BASESET}
 	fetch_set ${OBSOLETESET}
@@ -381,7 +427,9 @@ if [ "${DO_KERNEL}" = "-k" ]; then
 	fetch_set ${KERNELSET}
 fi
 
-if [ -n "${DO_KERNEL}${DO_BASE}" ]; then
+if [ "${DO_KERNEL}" = "-k" ] || \
+    [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ] || \
+    [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 	echo "!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!"
 	echo "! A critical upgrade is in progress. !"
 	echo "! Please do not turn off the system. !"
@@ -392,9 +440,66 @@ if [ "${DO_KERNEL}" = "-k" ]; then
 	install_kernel
 fi
 
-if [ -n "${DO_BASE}" ]; then
+if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
+	if [ "${DO_BASE}" = "-B" ]; then
+		mkdir -p ${WORKDIR}/base-freebsd-version
+		tar -C${WORKDIR}/base-freebsd-version -xpf \
+		    ${WORKDIR}/${BASESET} ./bin/freebsd-version
+
+		BASE_VER=$(base_version ${WORKDIR}/base-freebsd-version)
+		KERNEL_VER=$(kernel_version)
+
+		BASE_VER=${BASE_VER%%-*}
+		KERNEL_VER=${KERNEL_VER%%-*}
+
+		if [ "${BASE_VER}" != "${KERNEL_VER}" ]; then
+			echo "Version number mismatch, aborting."
+			echo "    Kernel: ${KERNEL_VER}"
+			echo "    Base:   ${BASE_VER}"
+			# Clean all the pending updates, so that
+			# packages are not upgraded as well.
+			empty_cache
+			exit 1
+		fi
+	fi
+
 	install_base
 	install_obsolete
+
+	# clean up deferred sets that could be there
+	rm -rf ${PENDINGDIR}/base-*
+fi
+
+if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
+	# clean up from a potential previous run
+	rm -rf ${PENDINGDIR}/base-*
+	mkdir -p ${PENDINGDIR}
+
+	# push pending base update to deferred
+	mv ${WORKDIR}/${BASESET} ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
+
+	# add action marker for next run
+	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
+fi
+
+if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
+	install_pkgs
+
+	# clean up deferred sets that could be there
+	rm -rf ${PENDINGDIR}/packages-*
+fi
+
+if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
+	# clean up from a potential previous run
+	rm -rf ${PENDINGDIR}/packages-*
+	mkdir -p ${PENDINGDIR}/packages-${RELEASE}
+
+	# extract packages to avoid unpacking after reboot
+	tar -C${PENDINGDIR}/packages-${RELEASE} -xpf \
+	    ${WORKDIR}/${PACKAGESSET}
+
+	# add action marker for next run
+	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
 fi
 
 mkdir -p $(dirname ${MARKER})
@@ -407,7 +512,7 @@ if [ -n "${DO_KERNEL}" ]; then
 	echo ${RELEASE}-${ARCH} > ${MARKER}.kernel
 fi
 
-if [ -n "${DO_BASE}" ]; then
+if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
 	echo ${RELEASE}-${ARCH} > ${MARKER}.base
 fi
 

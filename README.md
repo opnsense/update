@@ -17,7 +17,8 @@ The process relies on signature verification for all moving parts
 (packages and sets) by plugging into pkg(8)'s native verification
 mechanisms.
 
-The utility was first introduced in February 2015.
+The utility was first introduced in February 2015.  In October 2016,
+major FreeBSD version upgrade support was added.
 
 opnsense-bootstrap
 ==================
