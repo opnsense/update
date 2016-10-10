@@ -43,7 +43,7 @@ KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
 FLAVOUR="OpenSSL"
-VERSION="16.7.5"
+VERSION="16.7.7"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing origin.conf"
