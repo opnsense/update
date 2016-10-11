@@ -27,18 +27,23 @@
 
 set -e
 
+URL="https://github.com/opnsense/core/archive/stable"
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
 VERSION="16.7"
 
+DO_INSECURE=
 DO_FACTORY=
 DO_YES=
 
-while getopts fn:t:V:vy OPT; do
+while getopts fin:t:V:vy OPT; do
 	case ${OPT} in
 	f)
 		DO_FACTORY="-f"
+		;;
+	i)
+		DO_INSECURE="--no-verify-peer"
 		;;
 	n)
 		FLAVOUR=${OPTARG}
@@ -66,19 +71,21 @@ while getopts fn:t:V:vy OPT; do
 done
 
 if [ "$(id -u)" != "0" ]; then
-	echo "Must be root."
+	echo "Must be root." >&2
 	exit 1
 fi
 
 FBSDNAME=$(uname -s)
 if [ "${FBSDNAME}" != "FreeBSD" ]; then
-	echo "Must be FreeBSD."
+	echo "Must be FreeBSD." >&2
 	exit 1
 fi
 
-FBSDARCH=$(uname -m)
-if [ "${FBSDARCH}" != "i386" -a "${FBSDARCH}" != "amd64" ]; then
-	echo "Must be i386 or amd64"
+FBSDARCH=$(uname -p)
+if [ "${FBSDARCH}" != "i386" -a \
+    "${FBSDARCH}" != "amd64" -a \
+    "${FBSDARCH}" != "armv6" ]; then
+	echo "Must be i386 or amd64 or armv6" >&2
 	exit 1
 fi
 
@@ -88,7 +95,7 @@ if [ "${FBSDVER}" != "10.0-RELEASE" -a \
     "${FBSDVER}" != "10.1-RELEASE" -a \
     "${FBSDVER}" != "10.2-RELEASE" -a \
     "${FBSDVER}" != "10.3-RELEASE" ]; then
-	echo "Must be a FreeBSD 10.x release."
+	echo "Must be a FreeBSD 10.x release." >&2
 	exit 1
 fi
 
@@ -113,20 +120,27 @@ fi
 
 echo
 
+# point of no return: flush all localised repo info
+rm -rf /usr/local/etc/pkg
+
 export ASSUME_ALWAYS_YES=yes
 
-pkg bootstrap
-pkg install ca_root_nss
+if [ -z "${DO_INSECURE}" ]; then
+	pkg bootstrap
+	pkg install ca_root_nss
+fi
 
 mkdir -p ${WORKDIR}/${$}
 cd ${WORKDIR}/${$}
-fetch https://github.com/opnsense/core/archive/stable/${VERSION}.zip
+fetch ${DO_INSECURE} "${URL}/${VERSION}.zip"
 unzip ${VERSION}.zip
 cd core-stable-${VERSION}
 
-pkg unlock -a
-pkg delete -fa
-rm -rf /usr/local/etc/pkg
+if pkg -N; then
+	pkg unlock -a
+	pkg delete -fa
+fi
+
 if [ -n "${DO_FACTORY}" ]; then
 	rm -rf /conf/*
 fi
