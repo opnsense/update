@@ -28,7 +28,7 @@
 set -e
 
 URL="https://github.com/opnsense/core/archive/stable"
-WORKDIR="/tmp/opnsense-bootstrap"
+WORKPREFIX="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
 VERSION="16.7"
@@ -130,11 +130,16 @@ if [ -z "${DO_INSECURE}" ]; then
 	pkg install ca_root_nss
 fi
 
-mkdir -p ${WORKDIR}/${$}
-cd ${WORKDIR}/${$}
-fetch ${DO_INSECURE} "${URL}/${VERSION}.zip"
-unzip ${VERSION}.zip
-cd core-stable-${VERSION}
+WORKDIR=${WORKPREFIX}/${$}
+
+mkdir -p ${WORKDIR}
+fetch ${DO_INSECURE} -o ${WORKDIR}/core.tar.gz "${URL}/${VERSION}.tar.gz"
+tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
+
+make -C ${WORKDIR}/core-stable-${VERSION} \
+    bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
+
+rm -rf ${WORKPREFIX}/*
 
 if pkg -N; then
 	pkg unlock -a
@@ -145,7 +150,6 @@ if [ -n "${DO_FACTORY}" ]; then
 	rm -rf /conf/*
 fi
 
-make bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 pkg bootstrap
 pkg install ${TYPE}
 opnsense-update -bkf
