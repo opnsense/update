@@ -44,7 +44,6 @@ __FBSDID("$FreeBSD$");
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 #include <ucl.h>
 
@@ -57,7 +56,7 @@ struct sig_cert {
 	char *name;
 	unsigned char *sig;
 	int siglen;
-	char *cert;
+	unsigned char *cert;
 	int certlen;
 	bool trusted;
 };
@@ -68,15 +67,15 @@ struct pubkey {
 };
 
 typedef enum {
-       HASH_UNKNOWN,
-       HASH_SHA256,
+	HASH_UNKNOWN,
+	HASH_SHA256,
 } hash_t;
 
 struct fingerprint {
-       hash_t type;
-       char *name;
-       char hash[BUFSIZ];
-       STAILQ_ENTRY(fingerprint) next;
+	hash_t type;
+	char *name;
+	char hash[BUFSIZ];
+	STAILQ_ENTRY(fingerprint) next;
 };
 
 static int use_quiet = 0;
@@ -132,8 +131,7 @@ free_fingerprint_list(struct fingerprint_list* list)
 	struct fingerprint *fingerprint, *tmp;
 
 	STAILQ_FOREACH_SAFE(fingerprint, list, next, tmp) {
-		if (fingerprint->name)
-			free(fingerprint->name);
+		free(fingerprint->name);
 		free(fingerprint);
 	}
 	free(list);
@@ -187,8 +185,11 @@ load_fingerprints(const char *path, int *count)
 		return (NULL);
 	STAILQ_INIT(fingerprints);
 
-	if ((d = opendir(path)) == NULL)
+	if ((d = opendir(path)) == NULL) {
+		free(fingerprints);
+
 		return (NULL);
+	}
 
 	while ((ent = readdir(d))) {
 		if (strcmp(ent->d_name, ".") == 0 ||
@@ -493,7 +494,7 @@ parse_cert(int fd) {
 	memcpy(sc->sig, sbuf_data(sig), sc->siglen);
 
 	sc->certlen = sbuf_len(cert);
-	sc->cert = strdup(sbuf_data(cert));
+	sc->cert = (unsigned char *)strdup(sbuf_data(cert));
 
 	sbuf_delete(sig);
 	sbuf_delete(cert);
@@ -590,7 +591,7 @@ verify_signature(int fd_pkg, int fd_sig)
 	sc->trusted = false;
 
 	/* Parse signature and pubkey out of the certificate */
-	sha256_buf(sc->cert, sc->certlen, hash);
+	sha256_buf((char *)sc->cert, sc->certlen, hash);
 
 	/* Check if this hash is revoked */
 	if (revoked != NULL) {
@@ -623,8 +624,8 @@ verify_signature(int fd_pkg, int fd_sig)
 		printf("Verifying signature with trusted certificate %s... ",
 		    sc->name);
 	}
-	if (rsa_verify_cert(fd_pkg, NULL, (unsigned char *)sc->cert,
-	    sc->certlen, sc->sig, sc->siglen) == false) {
+	if (rsa_verify_cert(fd_pkg, NULL, sc->cert, sc->certlen, sc->sig,
+	    sc->siglen) == false) {
 		fprintf(stderr, "Signature is not valid\n");
 		goto cleanup;
 	}
@@ -637,12 +638,9 @@ cleanup:
 	if (revoked)
 		free_fingerprint_list(revoked);
 	if (sc) {
-		if (sc->cert)
-			free(sc->cert);
-		if (sc->sig)
-			free(sc->sig);
-		if (sc->name)
-			free(sc->name);
+		free(sc->cert);
+		free(sc->sig);
+		free(sc->name);
 		free(sc);
 	}
 
@@ -666,7 +664,7 @@ verify_local(const char *pkgpath)
 
 	if (config_string(SIGNATURE_TYPE, &signature_type) != 0) {
 		warnx("Error looking up SIGNATURE_TYPE");
-		return (-1);
+		goto cleanup;
 	}
 	if (signature_type != NULL &&
 	    strcasecmp(signature_type, "NONE") != 0) {

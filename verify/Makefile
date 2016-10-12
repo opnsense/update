@@ -4,7 +4,7 @@ MAN=	opnsense-verify.8
 SRCS=	config.c pkg.c
 
 CFLAGS+=-I/usr/local/include
-LDADD+=	-lelf -lsbuf -lssl -lcrypto
+LDADD+=	-lsbuf -lssl -lcrypto
 LDADD+=	-L/usr/local/lib -lucl
 
 LOCALBASE?=${DESTDIR}/usr/local
