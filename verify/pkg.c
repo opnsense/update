@@ -722,9 +722,8 @@ usage(void)
 }
 
 int
-main(__unused int argc, char *argv[])
+main(int argc, char *argv[])
 {
-	char pkgpath[MAXPATHLEN];
 	char *filepath;
 	int c;
 
@@ -741,9 +740,6 @@ main(__unused int argc, char *argv[])
 
 	argc -= optind;
 	argv += optind;
-
-	snprintf(pkgpath, MAXPATHLEN, "%s/sbin/pkg",
-	    getenv("LOCALBASE") ? getenv("LOCALBASE") : _LOCALBASE);
 
 	if (argc < 1 || (filepath = argv[0]) == NULL) {
 		usage();
