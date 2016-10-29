@@ -179,30 +179,29 @@ if [ -n "${DO_TYPE}" ]; then
 
 	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
 		echo "The package type '${OLD}' is already installed."
-		exit 0
+	else
+		# cache packages in case something goes wrong
+		${PKG} fetch -y ${OLD} ${NEW}
+
+		# strip vital flag from installed package type
+		${PKG} set -yv 0 ${OLD}
+
+		# attempt to install the new package type and...
+		if ! ${PKG} install -y ${DO_FORCE} ${NEW}; then
+			NEW=${OLD}
+		fi
+
+		# ...recover in both cases as pkg(8) seems to
+		# have problems in a few edge cases that involve
+		# different package dependencies between types
+		if ! ${PKG} query %n ${NEW} > /dev/null; then
+			# always force the second install
+			${PKG} install -fy ${NEW}
+		fi
+
+		# set exit code based on transition status
+		[ "${OLD}" != "${NEW}" ]
 	fi
-
-	# cache packages in case something goes wrong
-	${PKG} fetch -y ${OLD} ${NEW}
-
-	# strip vital flag from installed package type
-	${PKG} set -yv 0 ${OLD}
-
-	# attempt to install the new package type and...
-	if ! ${PKG} install -y ${DO_FORCE} ${NEW}; then
-		NEW=${OLD}
-	fi
-
-	# ...recover in both cases as pkg(8) seems to
-	# have problems in a few edge cases that involve
-	# different package dependencies between types
-	if ! ${PKG} query %n ${NEW} > /dev/null; then
-		# always force the second install
-		${PKG} install -fy ${NEW}
-	fi
-
-	# set exit code based on transition status
-	[ "${OLD}" != "${NEW}" ]
 fi
 
 if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
