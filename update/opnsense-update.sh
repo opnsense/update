@@ -203,9 +203,6 @@ if [ -n "${DO_TYPE}" ]; then
 
 	# set exit code based on transition status
 	[ "${OLD}" != "${NEW}" ]
-
-	# and we're done :)
-	exit 0
 fi
 
 if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
