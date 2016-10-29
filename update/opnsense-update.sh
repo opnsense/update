@@ -205,7 +205,7 @@ if [ -n "${DO_TYPE}" ]; then
 	[ "${OLD}" != "${NEW}" ]
 fi
 
-if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
+if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
 	# default is enable all
 	DO_KERNEL="-k"
 	DO_BASE="-b"
