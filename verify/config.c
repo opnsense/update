@@ -135,7 +135,7 @@ static struct config_entry c[] = {
 	}
 };
 
-static int
+int
 pkg_get_myabi(char *dest, size_t sz)
 {
 	struct utsname uts;

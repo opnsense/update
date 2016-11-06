@@ -725,8 +725,19 @@ main(int argc, char *argv[])
 	char *filepath;
 	int c;
 
-	while ((c = getopt(argc, argv, "q")) != -1) {
+	while ((c = getopt(argc, argv, "aq")) != -1) {
 		switch (c) {
+		case 'a': {
+			char abi[BUFSIZ];
+
+			if (pkg_get_myabi(abi, sizeof(abi)) != 0) {
+				errx(EXIT_FAILURE, "Failed to determine "
+				    "the system ABI");
+			}
+			printf("%s\n", abi);
+
+			return (EXIT_SUCCESS);
+		}
 		case 'q':
 			use_quiet = 1;
 			break;

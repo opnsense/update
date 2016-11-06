@@ -60,4 +60,6 @@ void config_finish(void);
 int config_string(pkg_config_key, const char **);
 int config_bool(pkg_config_key, bool *);
 
+int pkg_get_myabi(char *dest, size_t sz);
+
 #endif
