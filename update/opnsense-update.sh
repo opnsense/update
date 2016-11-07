@@ -324,8 +324,8 @@ BASESET=base-${RELEASE}-${ARCH}.txz
 
 fetch_set()
 {
-	STAGE1="opnsense-fetch -q -o ${WORKDIR}/${1}.sig ${MIRROR}/sets/${1}.sig"
-	STAGE2="opnsense-fetch -q -o ${WORKDIR}/${1} ${MIRROR}/sets/${1}"
+	STAGE1="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/sets/${1}.sig"
+	STAGE2="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/sets/${1}"
 	STAGE3="opnsense-verify -q ${WORKDIR}/${1}"
 
 	if [ -n "${DO_LOCAL}" ]; then
