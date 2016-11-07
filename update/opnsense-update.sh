@@ -316,11 +316,16 @@ if [ -f ${OPENSSL} ]; then
 	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
 fi
 
-MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\)\/${ABI}\/.*/\1/p' ${ORIGIN})
 PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
+
+# the first part after ABI is our suffix and
+# we need all of it to find the correct sets
+MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
+ABI=$(opnsense-verify -a 2> /dev/null)
+eval MIRROR=${MIRROR}
 
 fetch_set()
 {
