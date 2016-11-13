@@ -715,7 +715,7 @@ cleanup:
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: man opnsense-verify\n");
+	fprintf(stderr, "Usage: man opnsense-verify\n");
 	exit(EXIT_FAILURE);
 }
 
