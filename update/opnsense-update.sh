@@ -226,6 +226,11 @@ if [ -n "${DO_CHECK}" ]; then
 	exit 1
 fi
 
+if [ -n "${DO_FORCE}" -a -n "${DO_FLAVOUR}${DO_MIRROR}" ]; then
+	# restore origin.conf before running replace
+	cp ${ORIGIN}.sample ${ORIGIN}
+fi
+
 if [ -n "${DO_FLAVOUR}" ]; then
 	# replace the package repo name
 	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_FLAVOUR#"-n "}"'\",/' ${ORIGIN}
