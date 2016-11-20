@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd October 31, 2016
+.Dd November 20, 2016
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -32,7 +32,7 @@
 .Nd OPNsense update utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl BbefhikPpsu
+.Op Fl BbdefhikPpsu
 .Op Fl l Ar directory
 .Op Fl m Ar mirror
 .Op Fl n Ar flavour
@@ -73,6 +73,8 @@ Implies
 Update the base system.
 .It Fl c
 Check wether a base/kernel update can be performed, but don't install it.
+.It Fl d
+Restore the repository defaults.
 .It Fl e
 Empty the cache directory.
 .It Fl f
@@ -144,6 +146,7 @@ The
 .Xr pkg.conf 5
 file used to configure the packages mirror.
 The file is rewritten in case of
+.Sq Fl d ,
 .Sq Fl m
 or
 .Sq Fl n .

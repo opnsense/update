@@ -83,6 +83,7 @@ empty_cache() {
 	fi
 }
 
+DO_DEFAULTS=
 DO_INSECURE=
 DO_RELEASE=
 DO_FLAVOUR=
@@ -98,7 +99,7 @@ DO_PKGS=
 DO_SKIP=
 DO_TYPE=
 
-while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
+while getopts Bbcdefhikl:m:n:Ppr:st:uv OPT; do
 	case ${OPT} in
 	B)
 		DO_FORCE="-f"
@@ -111,6 +112,9 @@ while getopts Bbcefhikl:m:n:Ppr:st:uv OPT; do
 		;;
 	c)
 		DO_CHECK="-c"
+		;;
+	d)
+		DO_DEFAULTS="-d"
 		;;
 	e)
 		empty_cache
@@ -226,8 +230,8 @@ if [ -n "${DO_CHECK}" ]; then
 	exit 1
 fi
 
-if [ -n "${DO_FORCE}" -a -n "${DO_FLAVOUR}${DO_MIRROR}" ]; then
-	# restore origin.conf before running replace
+if [ -n "${DO_DEFAULTS}" ]; then
+	# restore origin.conf before potential replace
 	cp ${ORIGIN}.sample ${ORIGIN}
 fi
 
