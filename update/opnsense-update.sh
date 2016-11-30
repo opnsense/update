@@ -471,6 +471,22 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 	echo "done"
 fi
 
+if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
+	echo -n "Extracting ${BASESET}..."
+
+	# clean up from a potential previous run
+	rm -rf ${PENDINGDIR}/base-*
+	mkdir -p ${PENDINGDIR}
+
+	# push pending base update to deferred
+	mv ${WORKDIR}/${BASESET} ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
+
+	# add action marker for next run
+	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
+
+	echo "done"
+fi
+
 if [ "${DO_KERNEL}" = "-k" ]; then
 	install_kernel
 fi
@@ -503,22 +519,6 @@ if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/base-*
-fi
-
-if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
-	echo -n "Extracting ${BASESET}..."
-
-	# clean up from a potential previous run
-	rm -rf ${PENDINGDIR}/base-*
-	mkdir -p ${PENDINGDIR}
-
-	# push pending base update to deferred
-	mv ${WORKDIR}/${BASESET} ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
-
-	# add action marker for next run
-	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
-
-	echo "done"
 fi
 
 if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
