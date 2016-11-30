@@ -454,6 +454,19 @@ if [ "${DO_KERNEL}" = "-k" ] || \
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 fi
 
+if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
+	# clean up from a potential previous run
+	rm -rf ${PENDINGDIR}/packages-*
+	mkdir -p ${PENDINGDIR}/packages-${RELEASE}
+
+	# extract packages to avoid unpacking after reboot
+	tar -C${PENDINGDIR}/packages-${RELEASE} -xpf \
+	    ${WORKDIR}/${PACKAGESSET}
+
+	# add action marker for next run
+	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
+fi
+
 if [ "${DO_KERNEL}" = "-k" ]; then
 	install_kernel
 fi
@@ -505,19 +518,6 @@ if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
-fi
-
-if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
-	# clean up from a potential previous run
-	rm -rf ${PENDINGDIR}/packages-*
-	mkdir -p ${PENDINGDIR}/packages-${RELEASE}
-
-	# extract packages to avoid unpacking after reboot
-	tar -C${PENDINGDIR}/packages-${RELEASE} -xpf \
-	    ${WORKDIR}/${PACKAGESSET}
-
-	# add action marker for next run
-	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
 fi
 
 mkdir -p $(dirname ${MARKER})
