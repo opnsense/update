@@ -468,23 +468,28 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 	# add action marker for next run
 	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
 
-	echo "done"
+	echo " done"
 fi
 
 if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
-	echo -n "Extracting ${BASESET}..."
+	echo -n "Moving ${BASESET}..."
 
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/base-*
 	mkdir -p ${PENDINGDIR}
 
 	# push pending base update to deferred
-	mv ${WORKDIR}/${BASESET} ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
+	mv ${WORKDIR}/${BASESET} ${PENDINGDIR}
+
+	echo " done"
+	echo -n "Moving ${OBSOLETESET}..."
+
+        mv ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
 
 	# add action marker for next run
 	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
 
-	echo "done"
+	echo " done"
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
