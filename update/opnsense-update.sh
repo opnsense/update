@@ -437,8 +437,8 @@ if [ "${DO_PKGS}" = "-p" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" ]; then
-	fetch_set ${BASESET}
 	fetch_set ${OBSOLETESET}
+	fetch_set ${BASESET}
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
