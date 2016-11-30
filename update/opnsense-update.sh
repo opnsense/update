@@ -98,9 +98,13 @@ DO_BASE=
 DO_PKGS=
 DO_SKIP=
 DO_TYPE=
+DO_ABI=
 
-while getopts Bbcdefhikl:m:n:Ppr:st:uv OPT; do
+while getopts a:Bbcdefhikl:m:n:Ppr:st:uv OPT; do
 	case ${OPT} in
+	a)
+		DO_ABI="-a ${OPTARG}"
+		;;
 	B)
 		DO_FORCE="-f"
 		DO_BASE="-B"
@@ -294,7 +298,8 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}" ]; then
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
-		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR} ${DO_HIDE}
+		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR} ${DO_HIDE} \
+		    ${DO_ABI}
 	fi
 
 	# stop here to prevent the second pass
@@ -334,6 +339,9 @@ BASESET=base-${RELEASE}-${ARCH}.txz
 # we need all of it to find the correct sets
 MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
 ABI=$(opnsense-verify -a 2> /dev/null)
+if [ -n "${DO_ABI}" ]; then
+	ABI=${DO_ABI#"-a "}
+fi
 eval MIRROR=${MIRROR}
 
 fetch_set()
