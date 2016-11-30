@@ -455,6 +455,8 @@ if [ "${DO_KERNEL}" = "-k" ] || \
 fi
 
 if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
+	echo -n "Extracting ${PACKAGESSET}..."
+
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/packages-*
 	mkdir -p ${PENDINGDIR}/packages-${RELEASE}
@@ -465,6 +467,8 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 
 	# add action marker for next run
 	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
+
+	echo "done"
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
@@ -502,6 +506,8 @@ if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
+	echo -n "Extracting ${BASESET}..."
+
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/base-*
 	mkdir -p ${PENDINGDIR}
@@ -511,6 +517,8 @@ if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
 
 	# add action marker for next run
 	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
+
+	echo "done"
 fi
 
 if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
