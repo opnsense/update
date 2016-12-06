@@ -335,19 +335,23 @@ OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 
-# the first part after ABI is our suffix and
-# we need all of it to find the correct sets
+# The first part after ABI is our suffix and
+# we need all of it to find the correct sets.
 MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
 ABI=$(opnsense-verify -a 2> /dev/null)
 if [ -n "${DO_ABI}" ]; then
 	ABI=${DO_ABI#"-a "}
 fi
-eval MIRROR=${MIRROR}
+# This is a currently inflexible: with it
+# we cannot escape the sets directory, so
+# that e.g. using a "snapshots" directory
+# for testing is not easily possible.
+eval MIRROR="${MIRROR}/sets"
 
 fetch_set()
 {
-	STAGE1="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/sets/${1}.sig"
-	STAGE2="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/sets/${1}"
+	STAGE1="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/${1}.sig"
+	STAGE2="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/${1}"
 	STAGE3="opnsense-verify -q ${WORKDIR}/${1}"
 
 	if [ -n "${DO_LOCAL}" ]; then
