@@ -377,14 +377,19 @@ fetch_set()
 
 install_kernel()
 {
+	KLDXREF="kldxref ${KERNELDIR}"
+
+	if [ -n "${DO_UPGRADE}" ]; then
+		KLDXREF=":"
+	fi
+
 	echo -n "Installing ${KERNELSET}..."
 
 	rm -rf ${KERNELDIR}.old && \
 	    mkdir -p ${KERNELDIR} && \
 	    mv ${KERNELDIR} ${KERNELDIR}.old && \
 	    tar -C/ -xpf ${WORKDIR}/${KERNELSET} && \
-	    kldxref ${KERNELDIR} && \
-	    echo " done" && return
+	    ${KLDXREF} && echo " done" && return
 
 	echo " failed"
 	exit 1
