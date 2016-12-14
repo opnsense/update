@@ -481,7 +481,7 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
-	echo -n "Moving ${BASESET}..."
+	echo -n "Extracting ${BASESET}..."
 
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/base-*
@@ -491,7 +491,7 @@ if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
 	mv ${WORKDIR}/${BASESET} ${PENDINGDIR}
 
 	echo " done"
-	echo -n "Moving ${OBSOLETESET}..."
+	echo -n "Extracting ${OBSOLETESET}..."
 
         mv ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
 
