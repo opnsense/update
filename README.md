@@ -89,3 +89,12 @@ opnsense-code(8) can handle full code repositories using git(1)
 in order to fetch or update the full source code on an installed system.
 
 The utility was first introduced in August 2016.
+
+opnsense-revert
+===============
+
+In the available scope of the package mirrors, this utility can
+revert any package to a previous state of a particular OPNsense
+release.
+
+The utility was first introduced in January 2016.

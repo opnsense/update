@@ -1,0 +1,67 @@
+.\"
+.\" Copyright (c) 2016 Franco Fichtner <franco@opnsense.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.Dd December 29, 2016
+.Dt OPNSENSE-REVERT 8
+.Os
+.Sh NAME
+.Nm opnsense-revert
+.Nd OPNsense revert utility
+.Sh SYNOPSIS
+.Nm
+.Op Fl i
+.Op Fl r Ar release
+.Ar package
+.Sh DESCRIPTION
+The
+.Nm
+utility offers to securely install a previous version of a package found
+in an OPNsense release as long as the selected mirror caches said release.
+.Pp
+The options are as follows:
+.Bl -tag -width ".Fl r Ar release" -offset indent
+.It Fl i
+Ignore the signature verification result.
+.It Fl r Ar release
+Select the
+.Ar release
+of the package to be installed.
+Note that the release is not the individual package version.
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa /usr/local/etc/pkg/repos/origin.conf
+The
+.Xr pkg.conf 5
+file used to extract the packages mirror.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr opnsense-update 8 ,
+.Xr opnsense-verify 8
+.Sh AUTHORS
+.An Franco Fichtner Aq Mt franco@opnsense.org
