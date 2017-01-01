@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2017 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd November 30, 2016
+.Dd January 1, 2017
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -35,12 +35,15 @@
 .Op Fl BbdefhikPpsu
 .Op Fl a Ar abi
 .Op Fl l Ar directory
-.Op Fl m Ar mirror
-.Op Fl n Ar flavour
+.Op Fl m Ar mirror_url
+.Op Fl n Ar mirror_dir
+.Op Fl N Ar crypto_lib
 .Op Fl r Ar release
 .Op Fl t Ar type
 .Nm
 .Op Fl cv
+.Nm
+.Op Fl M
 .Sh DESCRIPTION
 The
 .Nm
@@ -64,7 +67,7 @@ Major upgrades are invoked using e.g.\&
 instead.
 .Pp
 The options are as follows:
-.Bl -tag -width ".Fl l Ar directory" -offset indent
+.Bl -tag -width ".Fl m Ar mirror_url" -offset indent
 .It Fl a Ar abi
 Change the
 .Ar abi
@@ -103,10 +106,23 @@ Update the kernel.
 .It Fl l Ar directory
 Instead of downloading, point to a local directory where the base and
 kernel sets are stored.
-.It Fl m Ar mirror
+.It Fl M
+Return the full release URL of the selected mirror.
+.It Fl m Ar mirror_url
 Change the set fetch and package location to
 .Ar mirror .
-.It Fl n Ar flavour
+.It Fl N Ar crypto_lib
+When using
+.Sq Fl up ,
+the cryptographic library may be specified.
+Possible values are
+.Sq OpenSSL
+or
+.Sq LibreSSL .
+The value
+.Sq Base
+is reserved for future use.
+.It Fl n Ar mirror_dir
 Change the package repository to
 .Ar flavour .
 .It Fl P

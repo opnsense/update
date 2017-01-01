@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,11 +33,9 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
-URL_KEY="^[[:space:]]*url:[[:space:]]*"
 WORKPREFIX="/tmp/opnsense-revert"
 OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
-FLAVOUR="OpenSSL"
 PKG="pkg-static"
 
 INSECURE=
@@ -69,13 +67,12 @@ if [ -z "${RELEASE}" ]; then
 	exit 0
 fi
 
+FLAVOUR="Base"
 if [ -f ${OPENSSL} ]; then
 	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
 fi
 
-MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
-ABI=$(opnsense-verify -a 2> /dev/null)
-eval MIRROR="${MIRROR}/MINT/${RELEASE}/${FLAVOUR}/Latest"
+MIRROR="$(opnsense-update -M)/MINT/${RELEASE}/${FLAVOUR}/Latest"
 
 fetch()
 {

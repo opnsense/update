@@ -42,7 +42,6 @@ WORKDIR=${WORKPREFIX}/${$}
 KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
-FLAVOUR="OpenSSL"
 VERSION="16.7.11"
 
 if [ ! -f ${ORIGIN} ]; then
@@ -76,6 +75,19 @@ base_version() {
 	fi
 }
 
+mirror_abi()
+{
+	# The first part after ABI is our suffix and
+	# we need all of it to find the correct sets.
+	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
+	ABI=$(opnsense-verify -a 2> /dev/null)
+	if [ -n "${DO_ABI}" ]; then
+		ABI=${DO_ABI#"-a "}
+	fi
+	eval MIRROR="${MIRROR}"
+	echo "${MIRROR}"
+}
+
 empty_cache() {
 	if [ -d ${WORKPREFIX} ]; then
 		# completely empty cache as per request
@@ -83,12 +95,13 @@ empty_cache() {
 	fi
 }
 
+DO_MIRRORDIR=
+DO_MIRRORURL=
 DO_DEFAULTS=
 DO_INSECURE=
 DO_RELEASE=
 DO_FLAVOUR=
 DO_UPGRADE=
-DO_MIRROR=
 DO_KERNEL=
 DO_LOCAL=
 DO_FORCE=
@@ -100,7 +113,7 @@ DO_SKIP=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:Bbcdefhikl:m:n:Ppr:st:uv OPT; do
+while getopts a:Bbcdefhikl:Mm:N:n:Ppr:st:uv OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -138,14 +151,21 @@ while getopts a:Bbcdefhikl:m:n:Ppr:st:uv OPT; do
 	l)
 		DO_LOCAL="-l ${OPTARG}"
 		;;
+	M)
+		mirror_abi
+		exit 0
+		;;
 	m)
 		if [ -n "${OPTARG}" ]; then
-			DO_MIRROR="-m ${OPTARG}"
+			DO_MIRRORURL="-m ${OPTARG}"
 		fi
+		;;
+	N)
+		DO_FLAVOUR="-N ${OPTARG}"
 		;;
 	n)
 		if [ -n "${OPTARG}" ]; then
-			DO_FLAVOUR="-n ${OPTARG}"
+			DO_MIRRORDIR="-n ${OPTARG}"
 		fi
 		;;
 	P)
@@ -239,14 +259,14 @@ if [ -n "${DO_DEFAULTS}" ]; then
 	cp ${ORIGIN}.sample ${ORIGIN}
 fi
 
-if [ -n "${DO_FLAVOUR}" ]; then
+if [ -n "${DO_MIRRORDIR}" ]; then
 	# replace the package repo name
-	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_FLAVOUR#"-n "}"'\",/' ${ORIGIN}
+	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_MIRRORDIR#"-n "}"'\",/' ${ORIGIN}
 fi
 
-if [ -n "${DO_MIRROR}" ]; then
+if [ -n "${DO_MIRRORURL}" ]; then
 	# replace the package repo location
-	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRROR#"-m "}"'\/${ABI}/' ${ORIGIN}
+	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
 fi
 
 if [ -n "${DO_SKIP}" ]; then
@@ -298,7 +318,8 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}" ]; then
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
-		    ${DO_FORCE} ${DO_RELEASE} ${DO_MIRROR} ${DO_HIDE} \
+		    ${DO_FORCE} ${DO_RELEASE} ${DO_DEFAULTS} \
+		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_HIDE} \
 		    ${DO_ABI}
 	fi
 
@@ -326,7 +347,10 @@ if [ -z "${DO_FORCE}" ]; then
 	fi
 fi
 
-if [ -f ${OPENSSL} ]; then
+FLAVOUR="Base"
+if [ -n "${DO_FLAVOUR}" ]; then
+	FLAVOUR=${DO_FLAVOUR#"-N "}
+elif [ -f ${OPENSSL} ]; then
 	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
 fi
 
@@ -335,18 +359,11 @@ OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 
-# The first part after ABI is our suffix and
-# we need all of it to find the correct sets.
-MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
-ABI=$(opnsense-verify -a 2> /dev/null)
-if [ -n "${DO_ABI}" ]; then
-	ABI=${DO_ABI#"-a "}
-fi
 # This is a currently inflexible: with it
 # we cannot escape the sets directory, so
 # that e.g. using a "snapshots" directory
 # for testing is not easily possible.
-eval MIRROR="${MIRROR}/sets"
+MIRROR="$(mirror_abi)/sets"
 
 fetch_set()
 {
