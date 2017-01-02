@@ -318,7 +318,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}" ]; then
 	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
-		    ${DO_FORCE} ${DO_RELEASE} ${DO_DEFAULTS} \
+		    ${DO_FORCE} ${DO_RELEASE} ${DO_DEFAULTS} \
 		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_HIDE} \
 		    ${DO_ABI}
 	fi
