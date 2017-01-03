@@ -426,7 +426,8 @@ install_base()
 	    --exclude="./etc/passwd" \
 	    --exclude="./etc/shells" \
 	    --exclude="./etc/ttys" \
-	    --exclude="./etc/rc" && \
+	    --exclude="./etc/rc" \
+	    --exclude="./etc/rc.shutdown" && \
 	    kldxref ${KERNELDIR} && \
 	    echo " done" && return
 
