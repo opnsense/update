@@ -63,6 +63,7 @@ $(${SCRUB_ARGS})
 PACKAGE=${1}
 
 if [ -z "${RELEASE}" ]; then
+	${PKG} delete -yf ${PACKAGE}
 	${PKG} install -yf ${PACKAGE}
 	exit 0
 fi
@@ -96,5 +97,6 @@ fetch()
 }
 
 fetch ${PACKAGE}.txz
-pkg install -yf ${WORKDIR}/${PACKAGE}.txz
+${PKG} delete -yf ${PACKAGE}
+${PKG} add -yf ${WORKDIR}/${PACKAGE}.txz
 rm -rf ${WORKPREFIX}/*
