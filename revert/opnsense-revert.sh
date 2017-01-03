@@ -62,9 +62,19 @@ $(${SCRUB_ARGS})
 
 PACKAGE=${1}
 
+if [ -z "${PACKAGE}" ]; then
+	echo "Usage: man opnsense-revert" >&2
+	exit 1
+fi
+
+export ASSUME_ALWAYS_YES=yes
+
 if [ -z "${RELEASE}" ]; then
-	${PKG} delete -yf ${PACKAGE}
-	${PKG} install -yf ${PACKAGE}
+	${PKG} unlock ${PACKAGE}
+	if [ ${PACKAGE} != pkg ]; then
+		${PKG} delete -f ${PACKAGE}
+	fi
+	${PKG} install -f ${PACKAGE}
 	exit 0
 fi
 
@@ -97,6 +107,9 @@ fetch()
 }
 
 fetch ${PACKAGE}.txz
-${PKG} delete -yf ${PACKAGE}
-${PKG} add -yf ${WORKDIR}/${PACKAGE}.txz
+${PKG} unlock ${PACKAGE}
+if [ ${PACKAGE} != pkg ]; then
+	${PKG} delete -f ${PACKAGE}
+fi
+${PKG} add -f ${WORKDIR}/${PACKAGE}.txz
 rm -rf ${WORKPREFIX}/*
