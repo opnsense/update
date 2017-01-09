@@ -80,15 +80,6 @@ if [ -z "${*}" ]; then
 fi
 
 if [ ! -f ${GIT} ]; then
-	echo -n "git(1) is required but not installed.  Install now? [Y/n]: "
-	read YN
-	case ${YN} in
-	[nN])
-		exit 0
-		;;
-	*)
-		;;
-	esac
 	${PKG} install -y git
 fi
 
@@ -96,5 +87,17 @@ for ARG in ${@}; do
 	if [ -n "${FORCE}" ]; then
 		rm -rf "${DIRECTORY}/${ARG}"
 	fi
+
 	git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
+
+	case ${ARG} in
+	tools)
+		rm /etc/make.conf
+		SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
+		ln -s "${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf" \
+		    /etc/make.conf
+		;;
+	*)
+		;;
+	esac
 done
