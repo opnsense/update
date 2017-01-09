@@ -88,7 +88,11 @@ for ARG in ${@}; do
 		rm -rf "${DIRECTORY}/${ARG}"
 	fi
 
-	git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
+	if [ -d "${DIRECTORY}/${ARG}" ]; then
+		(cd "${DIRECTORY}/${ARG}"; git pull)
+	else
+		git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
+	fi
 
 	case ${ARG} in
 	tools)
