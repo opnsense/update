@@ -96,6 +96,7 @@ for ARG in ${@}; do
 
 	case ${ARG} in
 	tools)
+		touch /etc/make.conf
 		rm /etc/make.conf
 		SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
 		ln -s "${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf" \
