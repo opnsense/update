@@ -70,6 +70,7 @@ fi
 export ASSUME_ALWAYS_YES=yes
 
 if [ -z "${RELEASE}" ]; then
+	${PKG} fetch ${PACKAGE}
 	${PKG} unlock ${PACKAGE}
 	if [ ${PACKAGE} != pkg ]; then
 		${PKG} delete -f ${PACKAGE}
