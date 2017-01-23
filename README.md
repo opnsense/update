@@ -32,14 +32,14 @@ It will automatically pick up the latest available version and
 build a chain of trust by using current package fingerprints -> CA
 root certificates -> HTTPS -> OPNsense package fingerprints.
 
-What it will also do is turn a supported stock FreeBSD 10 release into
+What it will also do is turn a supported stock FreeBSD 11 release into
 an OPNsense installation, given that UFS was used to install the
 root file system.
 
 What it will likely do at some point in the future is moving an
 installation from FreeBSD/OPNsense to HardenedBSD/OPNsense or back.
 
-The usage is simple, starting with a FreeBSD 10.3-RELEASE image:
+The usage is simple, starting with a FreeBSD 11.0-RELEASE image:
 
     # pkg install ca_root_nss
     # fetch https://raw.githubusercontent.com/opnsense/update/master/bootstrap/opnsense-bootstrap.sh
@@ -57,7 +57,7 @@ files using signature verification methods available by pkg(8),
 so that a single key store can be used for packages and sets.
 
 opnsense-verify(8) is almost entirely based on the pkg bootstrap
-code present in the FreeBSD 10 base, but may be linked against
+code present in the FreeBSD base code, but may be linked against
 either OpenSSL or LibreSSL from ports.
 
 Both utilities were first introduced in December 2015.
