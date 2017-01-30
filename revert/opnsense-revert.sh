@@ -67,7 +67,17 @@ if [ -z "${PACKAGE}" ]; then
 	exit 1
 fi
 
+if ! pkg query %n ${PACKAGE} > /dev/null; then
+	echo "Package ${PACKAGE} is not installed" >&2
+	exit 1
+fi
+
 export ASSUME_ALWAYS_YES=yes
+
+AUTOMATIC=
+if [ "$(${PKG} query %a ${PKGNAME} || true)" = "1" ]; then
+	AUTOMATIC="-A"
+fi
 
 if [ -z "${RELEASE}" ]; then
 	${PKG} fetch ${PACKAGE}
@@ -75,7 +85,7 @@ if [ -z "${RELEASE}" ]; then
 	if [ ${PACKAGE} != pkg ]; then
 		${PKG} delete -f ${PACKAGE}
 	fi
-	${PKG} install -f ${PACKAGE}
+	${PKG} install -f ${AUTOMATIC} ${PACKAGE}
 	exit 0
 fi
 
@@ -112,5 +122,5 @@ ${PKG} unlock ${PACKAGE}
 if [ ${PACKAGE} != pkg ]; then
 	${PKG} delete -f ${PACKAGE}
 fi
-${PKG} add -f ${WORKDIR}/${PACKAGE}.txz
+${PKG} add -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
 rm -rf ${WORKPREFIX}/*
