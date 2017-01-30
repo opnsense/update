@@ -67,15 +67,15 @@ if [ -z "${PACKAGE}" ]; then
 	exit 1
 fi
 
+export ASSUME_ALWAYS_YES=yes
+
 if ! pkg query %n ${PACKAGE} > /dev/null; then
 	echo "Package ${PACKAGE} is not installed" >&2
 	exit 1
 fi
 
-export ASSUME_ALWAYS_YES=yes
-
 AUTOMATIC=
-if [ "$(${PKG} query %a ${PKGNAME} || true)" = "1" ]; then
+if [ "$(${PKG} query %a ${PACKAGE})" = "1" ]; then
 	AUTOMATIC="-A"
 fi
 
