@@ -456,6 +456,7 @@ install_pkgs()
 	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*/file:\/\/\/var\/cache\/opnsense-update\/.sets.pending\/packages-'"${RELEASE}"'\",/' ${ORIGIN}
 
 	# run full upgrade from the local repository
+	${PKG} unlock -ay
 	${PKG} upgrade -fy
 }
 
