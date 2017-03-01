@@ -117,6 +117,8 @@ fi
 
 echo
 
+rm -rf /usr/local/etc/pkg
+
 export ASSUME_ALWAYS_YES=yes
 
 if [ -z "${DO_INSECURE}" ]; then
