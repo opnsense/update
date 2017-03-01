@@ -117,9 +117,6 @@ fi
 
 echo
 
-# point of no return: flush all localised repo info
-rm -rf /usr/local/etc/pkg
-
 export ASSUME_ALWAYS_YES=yes
 
 if [ -z "${DO_INSECURE}" ]; then
@@ -133,15 +130,17 @@ mkdir -p ${WORKDIR}
 fetch ${DO_INSECURE} -o ${WORKDIR}/core.tar.gz "${URL}/${VERSION}.tar.gz"
 tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
-make -C ${WORKDIR}/core-stable-${VERSION} \
-    bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
-
-rm -rf ${WORKPREFIX}/*
-
 if pkg -N; then
 	pkg unlock -a
 	pkg delete -fa
 fi
+
+rm -rf /usr/local/etc/pkg
+
+make -C ${WORKDIR}/core-stable-${VERSION} \
+    bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
+
+rm -rf ${WORKPREFIX}/*
 
 if [ -n "${DO_FACTORY}" ]; then
 	rm -rf /conf/*
@@ -150,4 +149,4 @@ fi
 pkg bootstrap
 pkg install ${TYPE}
 opnsense-update -bkf
-/usr/local/etc/rc.reboot
+reboot
