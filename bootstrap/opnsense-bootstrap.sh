@@ -137,8 +137,6 @@ if pkg -N; then
 	pkg delete -fa
 fi
 
-rm -rf /usr/local/etc/pkg
-
 make -C ${WORKDIR}/core-stable-${VERSION} \
     bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 
