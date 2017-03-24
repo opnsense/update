@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -31,6 +31,7 @@ set -e
 WORKDIR="/tmp/opnsense-patch"
 PREFIX="/usr/local"
 SCRUB_ARGS=:
+INSECURE=
 
 # fetch defaults
 SITE="https://github.com"
@@ -66,6 +67,10 @@ while getopts a:c:p:r:s: OPT; do
 			;;
 		esac
 		;;
+	i)
+		SCRUB_ARGS=${SCRUB_ARGS};shift
+		INSECURE="--no-verify-peer"
+		;;
 	p)
 		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		PATCHLEVEL=${OPTARG}
@@ -90,7 +95,8 @@ $(${SCRUB_ARGS})
 mkdir -p ${WORKDIR}
 
 for ARG in ${@}; do
-	fetch -q "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch" \
+	fetch ${INSECURE} -q \
+	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch" \
 	    -o "${WORKDIR}/${ARG}.patch"
 done
 
