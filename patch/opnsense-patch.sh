@@ -44,7 +44,7 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-while getopts a:c:p:r:s: OPT; do
+while getopts a:c:ip:r:s: OPT; do
 	case ${OPT} in
 	a)
 		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
