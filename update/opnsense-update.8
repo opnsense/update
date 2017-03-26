@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd January 1, 2017
+.Dd March 26, 2017
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -173,12 +173,18 @@ The file is rewritten in case of
 .Sq Fl m
 or
 .Sq Fl n .
-.It Pa /usr/local/opnsense/version/opnsense-update.base
+.It Pa /usr/local/opnsense/version/base
 The file is used to check if a base system upgrade is necessary.
-After a successful update, the file is rewritten.
-.It Pa /usr/local/opnsense/version/opnsense-update.kernel
+The set provides this file by default and it is only overwritten
+if the
+.Sq Fl h
+option was requested.
+.It Pa /usr/local/opnsense/version/kernel
 The file is used to check if a kernel upgrade is necessary.
-After a successful update, the file is rewritten.
+The set provides this file by default and it is only overwritten
+if the
+.Sq Fl h
+option was requested.
 .It Pa /var/cache/opnsense-update
 The local cache storage directory.
 .El

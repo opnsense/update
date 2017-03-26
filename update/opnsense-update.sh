@@ -32,8 +32,8 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-MARKER="/usr/local/opnsense/version/opnsense-update"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
+VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
@@ -50,13 +50,13 @@ if [ ! -f ${ORIGIN} ]; then
 fi
 
 INSTALLED_BASE=
-if [ -f ${MARKER}.base ]; then
-	INSTALLED_BASE=$(cat ${MARKER}.base)
+if [ -f ${VERSIONDIR}/base ]; then
+	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
 fi
 
 INSTALLED_KERNEL=
-if [ -f ${MARKER}.kernel ]; then
-	INSTALLED_KERNEL=$(cat ${MARKER}.kernel)
+if [ -f ${VERSIONDIR}/kernel ]; then
+	INSTALLED_KERNEL=$(cat ${VERSIONDIR}/kernel)
 fi
 
 kernel_version() {
@@ -561,18 +561,17 @@ if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 	rm -rf ${PENDINGDIR}/packages-*
 fi
 
-mkdir -p $(dirname ${MARKER})
-
 if [ -n "${DO_HIDE}" ]; then
-	RELEASE=${VERSION}
-fi
+	# hide the version info in case it was requested
+	mkdir -p ${VERSIONDIR}
 
-if [ -n "${DO_KERNEL}" ]; then
-	echo ${RELEASE}-${ARCH} > ${MARKER}.kernel
-fi
+	if [ -n "${DO_KERNEL}" ]; then
+		echo ${VERSION}-${ARCH} > ${VERSIONDIR}/kernel
+	fi
 
-if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
-	echo ${RELEASE}-${ARCH} > ${MARKER}.base
+	if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
+		echo ${VERSION}-${ARCH} > ${VERSIONDIR}/base
+	fi
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
