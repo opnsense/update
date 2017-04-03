@@ -457,7 +457,10 @@ install_pkgs()
 
 	# run full upgrade from the local repository
 	${PKG} unlock -ay
-	${PKG} upgrade -fy
+	if ${PKG} upgrade -fy; then
+		${PKG} autoremove -y
+		${PKG} clean -ya
+	fi
 }
 
 if [ "${DO_PKGS}" = "-p" ]; then
