@@ -491,6 +491,7 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/packages-*
 	mkdir -p ${PENDINGDIR}/packages-${RELEASE}
+	${PKG} clean -ya
 
 	# extract packages to avoid unpacking after reboot
 	tar -C${PENDINGDIR}/packages-${RELEASE} -xpf \
