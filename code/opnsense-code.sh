@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -41,23 +41,18 @@ DIRECTORY="/usr"
 while getopts a:d:fns: OPT; do
 	case ${OPT} in
 	a)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		ACCOUNT=${OPTARG}
 		;;
 	d)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		ACCOUNT=${OPTARG}
 		;;
 	f)
-		SCRUB_ARGS=${SCRUB_ARGS};shift
 		FORCE="-f"
 		;;
 	n)
-		SCRUB_ARGS=${SCRUB_ARGS};shift
 		NONROOT="-n"
 		;;
 	s)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		SITE=${OPTARG}
 		;;
 	*)
@@ -67,12 +62,12 @@ while getopts a:d:fns: OPT; do
 	esac
 done
 
+shift $((${OPTIND} - 1))
+
 if [ -z "${NONROOT}" -a "$(id -u)" != "0" ]; then
 	echo "Must be root."
 	exit 1
 fi
-
-$(${SCRUB_ARGS})
 
 if [ -z "${*}" ]; then
 	echo "Nothing to do."

@@ -44,11 +44,9 @@ RELEASE=
 while getopts ir: OPT; do
 	case ${OPT} in
 	i)
-		SCRUB_ARGS=${SCRUB_ARGS};shift
 		INSECURE="insecure"
 		;;
 	r)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		RELEASE="${OPTARG}"
 		;;
 	*)
@@ -58,7 +56,7 @@ while getopts ir: OPT; do
 	esac
 done
 
-$(${SCRUB_ARGS})
+shift $((${OPTIND} - 1))
 
 PACKAGE=${1}
 

@@ -30,7 +30,6 @@ set -e
 # internal vars
 WORKDIR="/tmp/opnsense-patch"
 PREFIX="/usr/local"
-SCRUB_ARGS=:
 INSECURE=
 
 # fetch defaults
@@ -47,11 +46,9 @@ fi
 while getopts a:c:ip:r:s: OPT; do
 	case ${OPT} in
 	a)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		ACCOUNT=${OPTARG}
 		;;
 	c)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		case ${OPTARG} in
 		core)
 			REPOSITORY="core"
@@ -68,19 +65,15 @@ while getopts a:c:ip:r:s: OPT; do
 		esac
 		;;
 	i)
-		SCRUB_ARGS=${SCRUB_ARGS};shift
 		INSECURE="--no-verify-peer"
 		;;
 	p)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		PATCHLEVEL=${OPTARG}
 		;;
 	r)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		REPOSITORY=${OPTARG}
 		;;
 	s)
-		SCRUB_ARGS=${SCRUB_ARGS};shift;shift
 		SITE=${OPTARG}
 		;;
 	*)
@@ -90,7 +83,7 @@ while getopts a:c:ip:r:s: OPT; do
 	esac
 done
 
-$(${SCRUB_ARGS})
+shift $((${OPTIND} - 1))
 
 mkdir -p ${WORKDIR}
 
