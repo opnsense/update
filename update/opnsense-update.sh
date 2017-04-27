@@ -201,6 +201,8 @@ while getopts a:Bbcdefhikl:Mm:N:n:Ppr:st:uv OPT; do
 	esac
 done
 
+shift $((${OPTIND} - 1))
+
 if [ -n "${DO_TYPE}" ]; then
 	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
 	NEW=${DO_TYPE#"-t "}

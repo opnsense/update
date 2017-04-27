@@ -70,6 +70,8 @@ while getopts fin:t:V:vy OPT; do
 	esac
 done
 
+shift $((${OPTIND} - 1))
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
 	exit 1

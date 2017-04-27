@@ -35,15 +35,12 @@ while getopts c:k:p: OPT; do
 	case ${OPT} in
 	c)
 		CERT=${OPTARG}
-		shift;shift
 		;;
 	k)
 		KEY=${OPTARG}
-		shift;shift
 		;;
 	p)
 		PREFIX=${OPTARG}
-		shift;shift
 		;;
 	*)
 		echo "Usage: opnsense-sign -p prefix file" >&2
@@ -51,6 +48,8 @@ while getopts c:k:p: OPT; do
 		;;
 	esac
 done
+
+shift $((${OPTIND} - 1))
 
 FILE=${1}
 
