@@ -42,7 +42,7 @@ WORKDIR=${WORKPREFIX}/${$}
 KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
-VERSION="17.1.4"
+VERSION="17.1.7"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing origin.conf"
