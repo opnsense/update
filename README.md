@@ -97,4 +97,4 @@ In the available scope of the package mirrors, this utility can
 revert any package to a previous state of a particular OPNsense
 release.
 
-The utility was first introduced in January 2016.
+The utility was first introduced in January 2017.
