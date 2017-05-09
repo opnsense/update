@@ -81,7 +81,12 @@ if [ -z "${RELEASE}" ]; then
 	${PKG} fetch ${PACKAGE}
 	${PKG} unlock ${PACKAGE}
 	if [ ${PACKAGE} != pkg ]; then
+		mkdir -p ${WORKDIR}
+		tar -C /usr/local/etc/pkg -cf ${WORKDIR}/pkg.tar .
 		${PKG} delete -f ${PACKAGE}
+		mkdir -p /usr/local/etc/pkg
+		tar -C /usr/local/etc/pkg -xf ${WORKDIR}/pkg.tar
+		rm -rf ${WORKPREFIX}/*
 	fi
 	${PKG} install -f ${AUTOMATIC} ${PACKAGE}
 	exit 0
