@@ -147,7 +147,7 @@ make -C ${WORKDIR}/core-stable-${VERSION} \
 
 rm -rf ${WORKPREFIX}/*
 
-if [ -z "${DO_BARE}" ]; then
+if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
 		rm -rf /conf/*
 	fi
