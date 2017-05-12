@@ -33,12 +33,16 @@ FLAVOUR="OpenSSL"
 TYPE="opnsense"
 VERSION="17.1"
 
+DO_BARE=
 DO_INSECURE=
 DO_FACTORY=
 DO_YES=
 
-while getopts fin:t:V:vy OPT; do
+while getopts bfin:t:V:vy OPT; do
 	case ${OPT} in
+	b)
+		DO_BARE="-b"
+		;;
 	f)
 		DO_FACTORY="-f"
 		;;
@@ -62,9 +66,7 @@ while getopts fin:t:V:vy OPT; do
 		DO_YES="-y"
 		;;
 	*)
-		echo "Usage: opnsense-bootstrap [-fvy]" >&2
-		echo "       [-n flavour] [-t type]" >&2
-		echo "       [-V version]" >&2
+		echo "Usage: man opnsense-bootstrap" >&2
 		exit 1
 		;;
 	esac
@@ -90,7 +92,6 @@ if [ "${FBSDARCH}" != "i386" -a \
 	echo "Must be i386 or amd64 or armv6" >&2
 	exit 1
 fi
-
 
 FBSDVER=$(uname -r | colrm 13)
 if [ "${FBSDVER}" != "11.0-RELEASE" ]; then
@@ -134,9 +135,11 @@ mkdir -p ${WORKDIR}
 fetch ${DO_INSECURE} -o ${WORKDIR}/core.tar.gz "${URL}/${VERSION}.tar.gz"
 tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
-if pkg -N; then
-	pkg unlock -a
-	pkg delete -fa
+if [ -z "${DO_BARE}" ]; then
+	if pkg -N; then
+		pkg unlock -a
+		pkg delete -fa
+	fi
 fi
 
 make -C ${WORKDIR}/core-stable-${VERSION} \
@@ -144,11 +147,13 @@ make -C ${WORKDIR}/core-stable-${VERSION} \
 
 rm -rf ${WORKPREFIX}/*
 
-if [ -n "${DO_FACTORY}" ]; then
-	rm -rf /conf/*
-fi
+if [ -z "${DO_BARE}" ]; then
+	if [ -n "${DO_FACTORY}" ]; then
+		rm -rf /conf/*
+	fi
 
-pkg bootstrap
-pkg install ${TYPE}
-opnsense-update -bkf
-reboot
+	pkg bootstrap
+	pkg install ${TYPE}
+	opnsense-update -bkf
+	reboot
+fi

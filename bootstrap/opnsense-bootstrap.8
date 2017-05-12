@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015-2016 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2017 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd October 11, 2016
+.Dd May 12, 2017
 .Dt OPNSENSE-BOOTSTRAP 8
 .Os
 .Sh NAME
@@ -32,7 +32,7 @@
 .Nd OPNsense bootstrap utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl fiy
+.Op Fl bfiy
 .Op Fl n Ar flavour
 .Op Fl t Ar type
 .Op Fl V Ar version
@@ -53,6 +53,8 @@ is subject to change and
 .Pp
 The options are as follows:
 .Bl -tag -width ".Fl n Ar flavour" -offset indent
+.It Fl b
+Do a bare-mode bootstrap, installing the package repository files only.
 .It Fl f
 Do a full factory reset, removing all previous OPNsense configuration
 files.
