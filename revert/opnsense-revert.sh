@@ -114,8 +114,5 @@ fetch()
 
 fetch ${PACKAGE}.txz
 ${PKG} unlock ${PACKAGE}
-if [ ${PACKAGE} != pkg ]; then
-	${PKG} delete -f ${PACKAGE}
-fi
-${PKG} add -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
+${PKG} install -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
 rm -rf ${WORKPREFIX}/*
