@@ -58,31 +58,14 @@ done
 
 shift $((${OPTIND} - 1))
 
-PACKAGE=${1}
-
-if [ -z "${PACKAGE}" ]; then
-	echo "Usage: man opnsense-revert" >&2
-	exit 1
-fi
+for PACKAGE in ${@}; do
+	if ! pkg query %n ${PACKAGE} > /dev/null; then
+		echo "Package ${PACKAGE} is not installed" >&2
+		exit 1
+	fi
+done
 
 export ASSUME_ALWAYS_YES=yes
-
-if ! pkg query %n ${PACKAGE} > /dev/null; then
-	echo "Package ${PACKAGE} is not installed" >&2
-	exit 1
-fi
-
-AUTOMATIC=
-if [ "$(${PKG} query %a ${PACKAGE})" = "1" ]; then
-	AUTOMATIC="-A"
-fi
-
-if [ -z "${RELEASE}" ]; then
-	${PKG} fetch ${PACKAGE}
-	${PKG} unlock ${PACKAGE}
-	${PKG} install -f ${AUTOMATIC} ${PACKAGE}
-	exit 0
-fi
 
 FLAVOUR="Base"
 if [ -f ${OPENSSL} ]; then
@@ -112,7 +95,21 @@ fetch()
 	exit 1
 }
 
-fetch ${PACKAGE}.txz
-${PKG} unlock ${PACKAGE}
-${PKG} install -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
+for PACKAGE in ${@}; do
+	AUTOMATIC=
+	if [ "$(${PKG} query %a ${PACKAGE})" = "1" ]; then
+		AUTOMATIC="-A"
+	fi
+
+	if [ -z "${RELEASE}" ]; then
+		${PKG} fetch ${PACKAGE}
+		${PKG} unlock ${PACKAGE}
+		${PKG} install -f ${AUTOMATIC} ${PACKAGE}
+	else
+		fetch ${PACKAGE}.txz
+		${PKG} unlock ${PACKAGE}
+		${PKG} install -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
+	fi
+done
+
 rm -rf ${WORKPREFIX}/*
