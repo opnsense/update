@@ -60,7 +60,7 @@ shift $((${OPTIND} - 1))
 
 for PACKAGE in ${@}; do
 	if ! pkg query %n ${PACKAGE} > /dev/null; then
-		echo "Package ${PACKAGE} is not installed" >&2
+		echo "Package '${PACKAGE}' is not installed" >&2
 		exit 1
 	fi
 done
