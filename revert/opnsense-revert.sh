@@ -96,18 +96,24 @@ fetch()
 }
 
 for PACKAGE in ${@}; do
+	if [ -z "${RELEASE}" ]; then
+		${PKG} fetch ${PACKAGE}
+	else
+		fetch ${PACKAGE}.txz
+	fi
+done
+
+for PACKAGE in ${@}; do
 	AUTOMATIC=
 	if [ "$(${PKG} query %a ${PACKAGE})" = "1" ]; then
 		AUTOMATIC="-A"
 	fi
 
+	${PKG} unlock ${PACKAGE}
+
 	if [ -z "${RELEASE}" ]; then
-		${PKG} fetch ${PACKAGE}
-		${PKG} unlock ${PACKAGE}
 		${PKG} install -f ${AUTOMATIC} ${PACKAGE}
 	else
-		fetch ${PACKAGE}.txz
-		${PKG} unlock ${PACKAGE}
 		${PKG} install -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
 	fi
 done
