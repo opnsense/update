@@ -97,19 +97,33 @@ for ARG in ${@}; do
 	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"
 	cat "${WORKDIR}/${ARG}.patch" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
-		"diff --git "*" b/src/"*)
-			PATCHFILE=$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 7-)
+		"diff --git a/src/"*" b/src/"*)
+			OLDFILE="${PREFIX}/$(echo "${PATCHLINE}" | awk '{print $3 }' | cut -c 7-)"
+			NEWFILE="${PREFIX}/$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 7-)"
+			;;
+		"deleted file mode "*)
+			PATCHMODE=$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 4-6)
+			if [ "${PATCHMODE}" = "644" -o "${PATCHMODE}" = "755" ]; then
+				if [ -f "${OLDFILE}" ]; then
+					chmod ${PATCHMODE} "${OLDFILE}"
+				fi
+			fi
 			;;
 		"new file mode "*)
 			PATCHMODE=$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 4-6)
 			if [ "${PATCHMODE}" = "644" -o "${PATCHMODE}" = "755" ]; then
-				chmod ${PATCHMODE} "${PREFIX}/${PATCHFILE}"
+				if [ -f "${NEWFILE}" ]; then
+					chmod ${PATCHMODE} "${NEWFILE}"
+				fi
 			fi
 			;;
 		"index "*|"new mode "*)
+			# we can't figure out if we are new or old, thus no "old mode " handling
 			PATCHMODE=$(echo "${PATCHLINE}" | awk '{print $3 }' | cut -c 4-6)
 			if [ "${PATCHMODE}" = "644" -o "${PATCHMODE}" = "755" ]; then
-				chmod ${PATCHMODE} "${PREFIX}/${PATCHFILE}"
+				if [ -f "${NEWFILE}" ]; then
+					chmod ${PATCHMODE} "${NEWFILE}"
+				fi
 			fi
 			;;
 		esac
