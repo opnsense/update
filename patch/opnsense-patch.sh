@@ -97,18 +97,19 @@ for ARG in ${@}; do
 	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"
 	cat "${WORKDIR}/${ARG}.patch" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
-		"diff --git "*)
-			PATCHMODE=
+		"diff --git "*" b/src/"*)
+			PATCHFILE=$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 7-)
 			;;
 		"new file mode "*)
 			PATCHMODE=$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 4-6)
+			if [ "${PATCHMODE}" = "644" -o "${PATCHMODE}" = "755" ]; then
+				chmod ${PATCHMODE} "${PREFIX}/${PATCHFILE}"
+			fi
 			;;
 		"index "*|"new mode "*)
 			PATCHMODE=$(echo "${PATCHLINE}" | awk '{print $3 }' | cut -c 4-6)
-			;;
-		"+++ b/src/"*)
 			if [ "${PATCHMODE}" = "644" -o "${PATCHMODE}" = "755" ]; then
-				chmod ${PATCHMODE} "${PREFIX}/${PATCHLINE##"+++ b/src/"}"
+				chmod ${PATCHMODE} "${PREFIX}/${PATCHFILE}"
 			fi
 			;;
 		esac
