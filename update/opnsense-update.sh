@@ -102,6 +102,7 @@ DO_INSECURE=
 DO_RELEASE=
 DO_FLAVOUR=
 DO_UPGRADE=
+DO_VERSION=
 DO_KERNEL=
 DO_LOCAL=
 DO_FORCE=
@@ -191,8 +192,7 @@ while getopts a:Bbcdefhikl:Mm:N:n:Ppr:st:uv OPT; do
 		DO_UPGRADE="-u"
 		;;
 	v)
-		echo ${VERSION}-${ARCH}
-		exit 0
+		DO_VERSION="-v"
 		;;
 	*)
 		echo "Usage: man opnsense-update" >&2
@@ -202,6 +202,17 @@ while getopts a:Bbcdefhikl:Mm:N:n:Ppr:st:uv OPT; do
 done
 
 shift $((${OPTIND} - 1))
+
+if [ -n "${DO_VERSION}" ]; then
+	if [ -n "${DO_BASE}" ]; then
+		echo ${INSTALLED_BASE}
+	elif [ -n "${DO_KERNEL}" ]; then
+		echo ${INSTALLED_KERNEL}
+	else
+		echo ${VERSION}-${ARCH}
+	fi
+	exit 0
+fi
 
 if [ -n "${DO_TYPE}" ]; then
 	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
