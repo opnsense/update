@@ -27,6 +27,22 @@
 
 set -e
 
+OUTFILE=
+
+while getopts ao:qT: OPT; do
+	case ${OPT} in
+	o)
+		OUTFILE="${OPTARG}"
+		;;
+	a|q|T)
+		;;
+	*)
+		echo "Usage: opnsense-fetch [-aq] [-o file] [-T timeout] url" >&2
+		exit 1
+		;;
+	esac
+done
+
 PIDFILE=$(mktemp -q /tmp/opnsense-fetch.pid.XXXXXX)
 
 daemon -fp ${PIDFILE} fetch ${@}
@@ -39,3 +55,10 @@ while :; do
 done
 
 rm -f ${PIDFILE}
+
+# if we got an output file, we can return a failure
+if [ -n "${OUTFILE}" -a ! -f "${OUTFILE}" ]; then
+	exit 1
+fi
+
+exit 0
