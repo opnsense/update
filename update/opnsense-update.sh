@@ -203,6 +203,11 @@ done
 
 shift $((${OPTIND} - 1))
 
+if [ -n "${*}" ]; then
+	echo "Arguments are not supported" >&2
+	exit 1
+fi
+
 if [ -n "${DO_VERSION}" ]; then
 	if [ -n "${DO_BASE}" ]; then
 		echo ${INSTALLED_BASE}
