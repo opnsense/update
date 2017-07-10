@@ -124,7 +124,7 @@ rm -rf /usr/local/etc/pkg
 export ASSUME_ALWAYS_YES=yes
 
 if [ -z "${DO_INSECURE}" ]; then
-	pkg bootstrap
+	pkg bootstrap -f
 	pkg install ca_root_nss
 fi
 
