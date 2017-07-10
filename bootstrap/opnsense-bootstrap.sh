@@ -87,14 +87,13 @@ fi
 
 FBSDARCH=$(uname -p)
 if [ "${FBSDARCH}" != "i386" -a \
-    "${FBSDARCH}" != "amd64" -a \
-    "${FBSDARCH}" != "armv6" ]; then
-	echo "Must be i386 or amd64 or armv6" >&2
+    "${FBSDARCH}" != "amd64" ]; then
+	echo "Must be i386 or amd64" >&2
 	exit 1
 fi
 
-FBSDVER=$(uname -r | colrm 13)
-if [ "${FBSDVER}" != "11.0-RELEASE" ]; then
+FBSDVER=$(uname -r | colrm 4)
+if [ "${FBSDVER}" != "11." ]; then
 	echo "Must be a FreeBSD 11 release." >&2
 	exit 1
 fi
@@ -140,6 +139,7 @@ if [ -z "${DO_BARE}" ]; then
 		pkg unlock -a
 		pkg delete -fa
 	fi
+	rm -f /var/db/pkg/*
 fi
 
 make -C ${WORKDIR}/core-stable-${VERSION} \
