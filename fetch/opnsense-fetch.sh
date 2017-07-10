@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -29,15 +29,15 @@ set -e
 
 OUTFILE=
 
-while getopts ao:qT: OPT; do
+while getopts aio:qT: OPT; do
 	case ${OPT} in
 	o)
 		OUTFILE="${OPTARG}"
 		;;
-	a|q|T)
+	a|i|q|T)
 		;;
 	*)
-		echo "Usage: opnsense-fetch [-aq] [-o file] [-T timeout] url" >&2
+		echo "Usage: opnsense-fetch [-aiq] [-o file] [-T timeout] url" >&2
 		exit 1
 		;;
 	esac
