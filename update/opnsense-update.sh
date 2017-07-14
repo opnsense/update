@@ -385,8 +385,8 @@ MIRROR="$(mirror_abi)/sets"
 
 fetch_set()
 {
-	STAGE1="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/${1}.sig"
-	STAGE2="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/${1}"
+	STAGE1="opnsense-fetch ${DO_INSECURE} -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/${1}.sig"
+	STAGE2="opnsense-fetch ${DO_INSECURE} -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/${1}"
 	STAGE3="opnsense-verify -q ${WORKDIR}/${1}"
 
 	if [ -n "${DO_LOCAL}" ]; then
