@@ -32,10 +32,12 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
+SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
+URL_KEY="^[[:space:]]*url:[[:space:]]*"
+
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
-URL_KEY="^[[:space:]]*url:[[:space:]]*"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
@@ -316,7 +318,12 @@ elif [ "${DO_PKGS}" = "-P" ]; then
 	RELEASE=$(cat "${WORKPREFIX}/.pkgs.pending")
 	WORKDIR=${PENDINGDIR}
 
+	if [ -f "${WORKPREFIX}/.pkgs.insecure" ]; then
+		DO_INSECURE="-i"
+	fi
+
 	rm -f "${WORKPREFIX}/.pkgs.pending"
+	rm -f "${WORKPREFIX}/.pkgs.insecure"
 elif [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
 fi
@@ -473,6 +480,13 @@ install_pkgs()
 	# after `-P', it is to be considered a feature.
 	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*/file:\/\/\/var\/cache\/opnsense-update\/.sets.pending\/packages-'"${RELEASE}"'\",/' ${ORIGIN}
 
+	if [ -n "${DO_INSECURE}" ]; then
+		# Insecure meant we didn't have any sets signatures,
+		# and now the packages are internally signed again,
+		# so we need to disable its native verification, too.
+		sed -i '' '/'"${SIG_KEY}"'/s/\"fingerprints\"/\"none\"/' ${ORIGIN}
+	fi
+
 	# run full upgrade from the local repository
 	${PKG} unlock -ay
 	if ${PKG} upgrade -fy; then
@@ -517,6 +531,10 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 
 	# add action marker for next run
 	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
+
+	if [ -n "${DO_INSECURE}" ]; then
+		touch "${WORKPREFIX}/.pkgs.insecure"
+	fi
 
 	echo " done"
 fi
