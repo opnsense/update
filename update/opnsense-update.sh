@@ -318,7 +318,7 @@ elif [ "${DO_PKGS}" = "-P" ]; then
 	RELEASE=$(cat "${WORKPREFIX}/.pkgs.pending")
 	WORKDIR=${PENDINGDIR}
 
-	if [ -f "${WORKPREFIX}/.pkgs.insecure" ]; then
+	if [ -f "${WORKPREFIX}/.pkgs.insecure" ]; then
 		DO_INSECURE="-i"
 	fi
 
