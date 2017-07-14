@@ -44,7 +44,7 @@ RELEASE=
 while getopts ir: OPT; do
 	case ${OPT} in
 	i)
-		INSECURE="insecure"
+		INSECURE="-i"
 		;;
 	r)
 		RELEASE="${OPTARG}"
@@ -76,8 +76,8 @@ MIRROR="$(opnsense-update -M)/MINT/${RELEASE}/${FLAVOUR}/Latest"
 
 fetch()
 {
-	STAGE1="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/${1}.sig"
-	STAGE2="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/${1}"
+	STAGE1="opnsense-fetch ${INSECURE} -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/${1}.sig"
+	STAGE2="opnsense-fetch ${INSECURE} -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/${1}"
 	STAGE3="opnsense-verify ${WORKDIR}/${1}"
 
 	if [ -n "${INSECURE}" ]; then
