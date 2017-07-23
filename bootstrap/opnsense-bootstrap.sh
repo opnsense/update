@@ -31,7 +31,7 @@ URL="https://github.com/opnsense/core/archive/stable"
 WORKPREFIX="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
-VERSION="17.1"
+VERSION="17.7"
 
 DO_BARE=
 DO_INSECURE=
