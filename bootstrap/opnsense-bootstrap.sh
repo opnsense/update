@@ -31,14 +31,14 @@ URL="https://github.com/opnsense/core/archive/stable"
 WORKPREFIX="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
-VERSION="17.7"
+RELEASE="17.7"
 
 DO_BARE=
 DO_INSECURE=
 DO_FACTORY=
 DO_YES=
 
-while getopts bfin:t:V:vy OPT; do
+while getopts bfinr::t:vy OPT; do
 	case ${OPT} in
 	b)
 		DO_BARE="-b"
@@ -52,14 +52,14 @@ while getopts bfin:t:V:vy OPT; do
 	n)
 		FLAVOUR=${OPTARG}
 		;;
+	r)
+		RELEASE=${OPTARG}
+		;;
 	t)
 		TYPE=${OPTARG}
 		;;
-	V)
-		VERSION=${OPTARG}
-		;;
 	v)
-		echo ${VERSION}
+		echo ${RELEASE}
 		exit 0
 		;;
 	y)
@@ -99,7 +99,7 @@ if [ "${FBSDVER}" != "11." ]; then
 fi
 
 echo "This utility will attempt to turn this installation into the latest"
-echo "OPNsense ${VERSION} release.  All packages will be deleted, the base"
+echo "OPNsense ${RELEASE} release.  All packages will be deleted, the base"
 echo "system and kernel will be replaced, and if all went well the system"
 echo "will automatically reboot."
 
@@ -131,7 +131,7 @@ fi
 WORKDIR=${WORKPREFIX}/${$}
 
 mkdir -p ${WORKDIR}
-fetch ${DO_INSECURE} -o ${WORKDIR}/core.tar.gz "${URL}/${VERSION}.tar.gz"
+fetch ${DO_INSECURE} -o ${WORKDIR}/core.tar.gz "${URL}/${RELEASE}.tar.gz"
 tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
 if [ -z "${DO_BARE}" ]; then
@@ -142,7 +142,7 @@ if [ -z "${DO_BARE}" ]; then
 	rm -f /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-stable-${VERSION} \
+make -C ${WORKDIR}/core-stable-${RELEASE} \
     bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 
 rm -rf ${WORKPREFIX}/*
