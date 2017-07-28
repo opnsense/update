@@ -38,7 +38,7 @@ DO_INSECURE=
 DO_FACTORY=
 DO_YES=
 
-while getopts bfinr::t:vy OPT; do
+while getopts bfin:r:t:vy OPT; do
 	case ${OPT} in
 	b)
 		DO_BARE="-b"
