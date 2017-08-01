@@ -91,7 +91,9 @@ for ARG in ${@}; do
 
 	case ${ARG} in
 	tools)
-		touch /etc/make.conf
+		if [ ! -L /etc/make.conf ]; then
+			touch /etc/make.conf
+		fi
 		rm /etc/make.conf
 		SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
 		ln -s "${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf" \
