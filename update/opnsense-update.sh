@@ -41,6 +41,7 @@ WORKPREFIX="/var/cache/opnsense-update"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
+DEBUGDIR="/usr/lib/debug"
 KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
@@ -106,6 +107,7 @@ DO_FLAVOUR=
 DO_UPGRADE=
 DO_VERSION=
 DO_KERNEL=
+DO_DEBUG=
 DO_LOCAL=
 DO_FORCE=
 DO_CHECK=
@@ -116,7 +118,7 @@ DO_SKIP=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:Bbcdefhikl:Mm:N:n:Ppr:st:uv OPT; do
+while getopts a:Bbcdefghikl:Mm:N:n:Ppr:st:uv OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -135,6 +137,9 @@ while getopts a:Bbcdefhikl:Mm:N:n:Ppr:st:uv OPT; do
 		;;
 	d)
 		DO_DEFAULTS="-d"
+		;;
+	g)
+		DO_DEBUG="-dbg"
 		;;
 	e)
 		empty_cache
@@ -380,8 +385,8 @@ elif [ -f ${OPENSSL} ]; then
 fi
 
 PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
+KERNELSET=kernel${DO_DEBUG}-${RELEASE}-${ARCH}.txz
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
-KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 
 # This is a currently inflexible: with it
@@ -427,8 +432,8 @@ install_kernel()
 
 	echo -n "Installing ${KERNELSET}..."
 
-	rm -rf ${KERNELDIR}.old && \
-	    mkdir -p ${KERNELDIR} && \
+	mkdir -p ${KERNELDIR} ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR} && \
+	    rm -r ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR} && \
 	    mv ${KERNELDIR} ${KERNELDIR}.old && \
 	    tar -C/ -xpf ${WORKDIR}/${KERNELSET} && \
 	    ${KLDXREF} && echo " done" && return
