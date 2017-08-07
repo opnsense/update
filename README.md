@@ -18,7 +18,8 @@ The process relies on signature verification for all moving parts
 mechanisms.
 
 The utility was first introduced in February 2015.  In October 2016,
-major FreeBSD version upgrade support was added.
+major FreeBSD version upgrade support was added.  In August 2017,
+debug kernel support was added.
 
 opnsense-bootstrap
 ==================
