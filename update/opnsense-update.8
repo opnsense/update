@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd August 7, 2017
+.Dd August 10, 2017
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -41,7 +41,9 @@
 .Op Fl r Ar release
 .Op Fl t Ar type
 .Nm
-.Op Fl cv
+.Op Fl S Op Fl bkp
+.Nm
+.Op Fl cv Op Fl bk
 .Nm
 .Op Fl M
 .Sh DESCRIPTION
@@ -145,6 +147,8 @@ Skip update phase; useful in conjunction with
 .Sq Fl m
 and
 .Sq Fl n .
+.It Fl S
+Check the size of the requested remote base, kernel or package set.
 .It Fl t Ar type
 Switch the top package
 .Ar type ,

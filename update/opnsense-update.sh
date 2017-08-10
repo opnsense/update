@@ -115,10 +115,11 @@ DO_HIDE=
 DO_BASE=
 DO_PKGS=
 DO_SKIP=
+DO_SIZE=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:Bbcdefghikl:Mm:N:n:Ppr:st:uv OPT; do
+while getopts a:Bbcdefghikl:Mm:N:n:Ppr:Sst:uv OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -191,6 +192,9 @@ while getopts a:Bbcdefghikl:Mm:N:n:Ppr:st:uv OPT; do
 		;;
 	s)
 		DO_SKIP="-s"
+		;;
+	S)
+		DO_SIZE="-S"
 		;;
 	t)
 		DO_TYPE="-t ${OPTARG}"
@@ -333,7 +337,7 @@ elif [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
 fi
 
-if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}" ]; then
+if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
 
@@ -357,6 +361,38 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}" ]; then
 	exit 0
 fi
 
+FLAVOUR="Base"
+if [ -n "${DO_FLAVOUR}" ]; then
+	FLAVOUR=${DO_FLAVOUR#"-N "}
+elif [ -f ${OPENSSL} ]; then
+	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
+fi
+
+PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
+KERNELSET=kernel${DO_DEBUG}-${RELEASE}-${ARCH}.txz
+OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
+BASESET=base-${RELEASE}-${ARCH}.txz
+
+# This is a currently inflexible: with it
+# we cannot escape the sets directory, so
+# that e.g. using a "snapshots" directory
+# for testing is not easily possible.
+MIRROR="$(mirror_abi)/sets"
+
+if [ -n "${DO_SIZE}" ]; then
+	KERNEL_SIZE=$(fetch -s ${MIRROR}/${KERNELSET} 2> /dev/null)
+	PKGS_SIZE=$(fetch -s ${MIRROR}/${PACKAGESSET} 2> /dev/null)
+	BASE_SIZE=$(fetch -s ${MIRROR}/${BASESET} 2> /dev/null)
+	if [ -n "${DO_BASE}" ]; then
+		echo ${BASE_SIZE}
+	elif [ -n "${DO_KERNEL}" ]; then
+		echo ${KERNEL_SIZE}
+	elif [ -n "${DO_PKGS}" ]; then
+		echo ${PKGS_SIZE}
+	fi
+	exit 0
+fi
+
 if [ -z "${DO_FORCE}" ]; then
 	# disable kernel update if up-to-date
 	if [ "${RELEASE}-${ARCH}" = "${INSTALLED_KERNEL}" -a \
@@ -376,24 +412,6 @@ if [ -z "${DO_FORCE}" ]; then
 		exit 0
 	fi
 fi
-
-FLAVOUR="Base"
-if [ -n "${DO_FLAVOUR}" ]; then
-	FLAVOUR=${DO_FLAVOUR#"-N "}
-elif [ -f ${OPENSSL} ]; then
-	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
-fi
-
-PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
-KERNELSET=kernel${DO_DEBUG}-${RELEASE}-${ARCH}.txz
-OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
-BASESET=base-${RELEASE}-${ARCH}.txz
-
-# This is a currently inflexible: with it
-# we cannot escape the sets directory, so
-# that e.g. using a "snapshots" directory
-# for testing is not easily possible.
-MIRROR="$(mirror_abi)/sets"
 
 fetch_set()
 {
