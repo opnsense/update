@@ -373,10 +373,6 @@ KERNELSET=kernel${DO_DEBUG}-${RELEASE}-${ARCH}.txz
 OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 BASESET=base-${RELEASE}-${ARCH}.txz
 
-# This is a currently inflexible: with it
-# we cannot escape the sets directory, so
-# that e.g. using a "snapshots" directory
-# for testing is not easily possible.
 MIRROR="$(mirror_abi)/sets"
 
 if [ -n "${DO_SIZE}" ]; then
