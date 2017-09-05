@@ -1,6 +1,6 @@
 .\"
 .\" Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
-.\" Copyright (c)      2017 Marco Woitschitzky <woi@posteo.de>
+.\" Copyright (c) 2017 Marco Woitschitzky <woi@posteo.de>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -51,19 +51,23 @@ Select the
 .Ar release
 of the package to be installed.
 Note that the release is not the individual package version,
-but the version found in said OPNsense release.
+but rather the version found in said OPNsense release.
 .El
 .Sh EXIT STATUS
 .Ex -std
-.Sh USAGE EXAMPLES
+.Sh EXAMPLES
 Revert unbound to the version found in OPNsense 17.7.1:
+.Pp
 opnsense-revert -r 17.7.1 unbound
 .Pp
-Revert OPNsense inculding all packages back to release 17.7:
-opnsense-revert -r 17.7 opnsense
+Bring unbound back to the current version:
 .Pp
-Bring back unbound to the current version:
-opnsense-revert unbound
+.Dl # opnsense-revert unbound
+.Pp
+.Dl # Revert OPNsense inculding all packages back to release 17.7:
+.Pp
+.Dl # opnsense-revert -r 17.7 opnsense
+.Pp
 .Sh SEE ALSO
 .Xr opnsense-update 8 ,
 .Xr opnsense-verify 8
