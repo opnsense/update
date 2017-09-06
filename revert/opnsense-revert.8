@@ -1,5 +1,6 @@
 .\"
 .\" Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2017 Marco Woitschitzky <woi@posteo.de>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +25,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd June 10, 2017
+.Dd September 5, 2017
 .Dt OPNSENSE-REVERT 8
 .Os
 .Sh NAME
@@ -49,10 +50,20 @@ Ignore the signature verification result.
 Select the
 .Ar release
 of the package to be installed.
-Note that the release is not the individual package version.
+Note that the release is not the individual package version,
+but rather the version found in said OPNsense release.
 .El
 .Sh EXIT STATUS
 .Ex -std
+.Sh EXAMPLES
+Revert unbound to the version found in OPNsense 17.7.1:
+.Pp
+.Dl # opnsense-revert -r 17.7.1 unbound
+.Pp
+Bring unbound back to the current version:
+.Pp
+.Dl # opnsense-revert unbound
+.Pp
 .Sh SEE ALSO
 .Xr opnsense-update 8 ,
 .Xr opnsense-verify 8
