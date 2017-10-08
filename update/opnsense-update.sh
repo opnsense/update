@@ -561,13 +561,17 @@ if [ "${DO_PKGS}" = "-p" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" ]; then
-	rm -f ${VERSIONDIR}/base.lock
+	if [ -z "${DO_FORCE}" ]; then
+		rm -f ${VERSIONDIR}/base.lock
+	fi
 	fetch_set ${OBSOLETESET}
 	fetch_set ${BASESET}
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
-	rm -f ${VERSIONDIR}/kernel.lock
+	if [ -z "${DO_FORCE}" ]; then
+		rm -f ${VERSIONDIR}/kernel.lock
+	fi
 	fetch_set ${KERNELSET}
 fi
 
