@@ -57,9 +57,19 @@ if [ -f ${VERSIONDIR}/base ]; then
 	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
 fi
 
+LOCKED_BASE=
+if [ -f ${VERSIONDIR}/base.lock ]; then
+	LOCKED_BASE=1
+fi
+
 INSTALLED_KERNEL=
 if [ -f ${VERSIONDIR}/kernel ]; then
 	INSTALLED_KERNEL=$(cat ${VERSIONDIR}/kernel)
+fi
+
+LOCKED_KERNEL=
+if [ -f ${VERSIONDIR}/kernel.lock ]; then
+	LOCKED_KERNEL=1
 fi
 
 kernel_version() {
@@ -107,11 +117,12 @@ DO_FLAVOUR=
 DO_UPGRADE=
 DO_VERSION=
 DO_KERNEL=
+DO_UNLOCK=
 DO_DEBUG=
 DO_LOCAL=
+DO_LOCK=
 DO_FORCE=
 DO_CHECK=
-DO_HIDE=
 DO_BASE=
 DO_PKGS=
 DO_SKIP=
@@ -119,7 +130,7 @@ DO_SIZE=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:Bbcdefghikl:Mm:N:n:Ppr:Sst:uv OPT; do
+while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:Uuv OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -148,14 +159,14 @@ while getopts a:Bbcdefghikl:Mm:N:n:Ppr:Sst:uv OPT; do
 	f)
 		DO_FORCE="-f"
 		;;
-	h)
-		DO_HIDE="-h"
-		;;
 	i)
 		DO_INSECURE="-i"
 		;;
 	k)
 		DO_KERNEL="-k"
+		;;
+	L)
+		DO_LOCK="-L"
 		;;
 	l)
 		DO_LOCAL="-l ${OPTARG}"
@@ -199,6 +210,9 @@ while getopts a:Bbcdefghikl:Mm:N:n:Ppr:Sst:uv OPT; do
 	t)
 		DO_TYPE="-t ${OPTARG}"
 		;;
+	U)
+		DO_UNLOCK="-U"
+		;;
 	u)
 		DO_UPGRADE="-u"
 		;;
@@ -226,6 +240,23 @@ if [ -n "${DO_VERSION}" ]; then
 		echo ${INSTALLED_KERNEL}
 	else
 		echo ${VERSION}-${ARCH}
+	fi
+	exit 0
+elif [ -n "${DO_LOCK}" ]; then
+	mkdir -p ${VERSIONDIR}
+	if [ -n "${DO_KERNEL}" ]; then
+		touch ${VERSIONDIR}/kernel.lock
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		touch ${VERSIONDIR}/base.lock
+	fi
+	exit 0
+elif [ -n "${DO_UNLOCK}" ]; then
+	if [ -n "${DO_KERNEL}" ]; then
+		rm -f ${VERSIONDIR}/kernel.lock
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		rm -f ${VERSIONDIR}/base.lock
 	fi
 	exit 0
 fi
@@ -353,8 +384,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
 		    ${DO_FORCE} ${DO_RELEASE} ${DO_DEFAULTS} \
-		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_HIDE} \
-		    ${DO_ABI}
+		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_ABI}
 	fi
 
 	# stop here to prevent the second pass
@@ -390,6 +420,18 @@ if [ -n "${DO_SIZE}" ]; then
 fi
 
 if [ -z "${DO_FORCE}" ]; then
+	# disable kernel if locked
+	if [ -n "${LOCKED_KERNEL}" -a -z "${DO_UPGRADE}" ]; then
+		echo "Kernel locked, skipping."
+		DO_KERNEL=
+	fi
+
+	# disable base if locked
+	if [ -n "${LOCKED_BASE}"  -a -z "${DO_UPGRADE}" ]; then
+		echo "Base locked, skipping."
+		DO_BASE=
+	fi
+
 	# disable kernel update if up-to-date
 	if [ "${RELEASE}-${ARCH}" = "${INSTALLED_KERNEL}" -a \
 	    -n "${DO_KERNEL}" ]; then
@@ -519,11 +561,13 @@ if [ "${DO_PKGS}" = "-p" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" ]; then
+	rm -f ${VERSIONDIR}/base.lock
 	fetch_set ${OBSOLETESET}
 	fetch_set ${BASESET}
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
+	rm -f ${VERSIONDIR}/kernel.lock
 	fetch_set ${KERNELSET}
 fi
 
@@ -618,19 +662,6 @@ if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
-fi
-
-if [ -n "${DO_HIDE}" ]; then
-	# hide the version info in case it was requested
-	mkdir -p ${VERSIONDIR}
-
-	if [ -n "${DO_KERNEL}" ]; then
-		echo ${VERSION}-${ARCH} > ${VERSIONDIR}/kernel
-	fi
-
-	if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
-		echo ${VERSION}-${ARCH} > ${VERSIONDIR}/base
-	fi
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
