@@ -299,6 +299,20 @@ if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
 	DO_PKGS="-p"
 fi
 
+if [ -z "${DO_FORCE}" ]; then
+	# disable kernel if locked
+	if [ -n "${LOCKED_KERNEL}" -a -z "${DO_UPGRADE}" ]; then
+		echo "Kernel locked, skipping."
+		DO_KERNEL=
+	fi
+
+	# disable base if locked
+	if [ -n "${LOCKED_BASE}" -a -z "${DO_UPGRADE}" ]; then
+		echo "Base locked, skipping."
+		DO_BASE=
+	fi
+fi
+
 if [ -n "${DO_CHECK}" ]; then
 	if [ -n "${DO_KERNEL}" ]; then
 		if [ "${VERSION}-${ARCH}" != "${INSTALLED_KERNEL}" ]; then
@@ -420,18 +434,6 @@ if [ -n "${DO_SIZE}" ]; then
 fi
 
 if [ -z "${DO_FORCE}" ]; then
-	# disable kernel if locked
-	if [ -n "${LOCKED_KERNEL}" -a -z "${DO_UPGRADE}" ]; then
-		echo "Kernel locked, skipping."
-		DO_KERNEL=
-	fi
-
-	# disable base if locked
-	if [ -n "${LOCKED_BASE}"  -a -z "${DO_UPGRADE}" ]; then
-		echo "Base locked, skipping."
-		DO_BASE=
-	fi
-
 	# disable kernel update if up-to-date
 	if [ "${RELEASE}-${ARCH}" = "${INSTALLED_KERNEL}" -a \
 	    -n "${DO_KERNEL}" ]; then
