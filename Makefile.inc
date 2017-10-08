@@ -1,0 +1,1 @@
+upgrade: all install clean
