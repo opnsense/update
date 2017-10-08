@@ -242,23 +242,6 @@ if [ -n "${DO_VERSION}" ]; then
 		echo ${VERSION}-${ARCH}
 	fi
 	exit 0
-elif [ -n "${DO_LOCK}" ]; then
-	mkdir -p ${VERSIONDIR}
-	if [ -n "${DO_KERNEL}" ]; then
-		touch ${VERSIONDIR}/kernel.lock
-	fi
-	if [ -n "${DO_BASE}" ]; then
-		touch ${VERSIONDIR}/base.lock
-	fi
-	exit 0
-elif [ -n "${DO_UNLOCK}" ]; then
-	if [ -n "${DO_KERNEL}" ]; then
-		rm -f ${VERSIONDIR}/kernel.lock
-	fi
-	if [ -n "${DO_BASE}" ]; then
-		rm -f ${VERSIONDIR}/base.lock
-	fi
-	exit 0
 fi
 
 if [ -n "${DO_TYPE}" ]; then
@@ -297,6 +280,25 @@ if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
 	DO_KERNEL="-k"
 	DO_BASE="-b"
 	DO_PKGS="-p"
+fi
+
+if [ -n "${DO_LOCK}" ]; then
+	mkdir -p ${VERSIONDIR}
+	if [ -n "${DO_KERNEL}" ]; then
+		touch ${VERSIONDIR}/kernel.lock
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		touch ${VERSIONDIR}/base.lock
+	fi
+	exit 0
+elif [ -n "${DO_UNLOCK}" ]; then
+	if [ -n "${DO_KERNEL}" ]; then
+		rm -f ${VERSIONDIR}/kernel.lock
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		rm -f ${VERSIONDIR}/base.lock
+	fi
+	exit 0
 fi
 
 if [ -z "${DO_FORCE}" ]; then
