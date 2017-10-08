@@ -244,6 +244,32 @@ if [ -n "${DO_VERSION}" ]; then
 	exit 0
 fi
 
+if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
+	# default is enable all
+	DO_KERNEL="-k"
+	DO_BASE="-b"
+	DO_PKGS="-p"
+fi
+
+if [ -n "${DO_LOCK}" ]; then
+	mkdir -p ${VERSIONDIR}
+	if [ -n "${DO_KERNEL}" ]; then
+		touch ${VERSIONDIR}/kernel.lock
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		touch ${VERSIONDIR}/base.lock
+	fi
+	exit 0
+elif [ -n "${DO_UNLOCK}" ]; then
+	if [ -n "${DO_KERNEL}" ]; then
+		rm -f ${VERSIONDIR}/kernel.lock
+	fi
+	if [ -n "${DO_BASE}" ]; then
+		rm -f ${VERSIONDIR}/base.lock
+	fi
+	exit 0
+fi
+
 if [ -n "${DO_TYPE}" ]; then
 	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
 	NEW=${DO_TYPE#"-t "}
@@ -273,32 +299,6 @@ if [ -n "${DO_TYPE}" ]; then
 		# set exit code based on transition status
 		[ "${OLD}" != "${NEW}" ]
 	fi
-fi
-
-if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
-	# default is enable all
-	DO_KERNEL="-k"
-	DO_BASE="-b"
-	DO_PKGS="-p"
-fi
-
-if [ -n "${DO_LOCK}" ]; then
-	mkdir -p ${VERSIONDIR}
-	if [ -n "${DO_KERNEL}" ]; then
-		touch ${VERSIONDIR}/kernel.lock
-	fi
-	if [ -n "${DO_BASE}" ]; then
-		touch ${VERSIONDIR}/base.lock
-	fi
-	exit 0
-elif [ -n "${DO_UNLOCK}" ]; then
-	if [ -n "${DO_KERNEL}" ]; then
-		rm -f ${VERSIONDIR}/kernel.lock
-	fi
-	if [ -n "${DO_BASE}" ]; then
-		rm -f ${VERSIONDIR}/base.lock
-	fi
-	exit 0
 fi
 
 if [ -z "${DO_FORCE}" ]; then
@@ -424,14 +424,14 @@ BASESET=base-${RELEASE}-${ARCH}.txz
 MIRROR="$(mirror_abi)/sets"
 
 if [ -n "${DO_SIZE}" ]; then
-	KERNEL_SIZE=$(fetch -s ${MIRROR}/${KERNELSET} 2> /dev/null)
-	PKGS_SIZE=$(fetch -s ${MIRROR}/${PACKAGESSET} 2> /dev/null)
-	BASE_SIZE=$(fetch -s ${MIRROR}/${BASESET} 2> /dev/null)
 	if [ -n "${DO_BASE}" ]; then
+		BASE_SIZE=$(fetch -s ${MIRROR}/${BASESET} 2> /dev/null)
 		echo ${BASE_SIZE}
 	elif [ -n "${DO_KERNEL}" ]; then
+		KERNEL_SIZE=$(fetch -s ${MIRROR}/${KERNELSET} 2> /dev/null)
 		echo ${KERNEL_SIZE}
 	elif [ -n "${DO_PKGS}" ]; then
+		PKGS_SIZE=$(fetch -s ${MIRROR}/${PACKAGESSET} 2> /dev/null)
 		echo ${PKGS_SIZE}
 	fi
 	exit 0
