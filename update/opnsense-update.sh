@@ -567,7 +567,7 @@ if [ "${DO_PKGS}" = "-p" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" ]; then
-	if [ -z "${DO_FORCE}" ]; then
+	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
 		rm -f ${VERSIONDIR}/base.lock
 	fi
 	fetch_set ${OBSOLETESET}
@@ -575,7 +575,7 @@ if [ "${DO_BASE}" = "-b" ]; then
 fi
 
 if [ "${DO_KERNEL}" = "-k" ]; then
-	if [ -z "${DO_FORCE}" ]; then
+	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
 		rm -f ${VERSIONDIR}/kernel.lock
 	fi
 	fetch_set ${KERNELSET}
