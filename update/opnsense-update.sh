@@ -305,14 +305,14 @@ if [ -z "${DO_FORCE}" ]; then
 	# disable kernel if locked
 	if [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		echo "Kernel locked, skipping."
+		echo "Kernel locked at ${INSTALLED_KERNEL}, skipping."
 		DO_KERNEL=
 	fi
 
 	# disable base if locked
 	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		echo "Base locked, skipping."
+		echo "Base locked at ${INSTALLED_BASE}, skipping."
 		DO_BASE=
 	fi
 fi
