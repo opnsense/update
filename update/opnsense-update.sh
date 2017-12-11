@@ -35,6 +35,7 @@ fi
 SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 
+CORENAME="/usr/local/opnsense/version/opnsense.name"
 ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
@@ -130,7 +131,7 @@ DO_SIZE=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:Uuv OPT; do
+while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuv OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -210,6 +211,9 @@ while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:Uuv OPT; do
 	t)
 		DO_TYPE="-t ${OPTARG}"
 		;;
+	T)
+		DO_TYPE="-T"
+		;;
 	U)
 		DO_UNLOCK="-U"
 		;;
@@ -242,6 +246,9 @@ if [ -n "${DO_VERSION}" ]; then
 		echo ${VERSION}-${ARCH}
 	fi
 	exit 0
+elif [ "${DO_TYPE}" = "-T" ]; then
+	echo $(cat ${CORENAME})
+	exit 0
 fi
 
 if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
@@ -271,7 +278,7 @@ elif [ -n "${DO_UNLOCK}" ]; then
 fi
 
 if [ -n "${DO_TYPE}" ]; then
-	OLD=$(cat /usr/local/opnsense/version/opnsense.name)
+	OLD=$(cat ${CORENAME})
 	NEW=${DO_TYPE#"-t "}
 
 	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
