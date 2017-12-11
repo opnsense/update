@@ -246,7 +246,7 @@ if [ -n "${DO_VERSION}" ]; then
 		echo ${VERSION}-${ARCH}
 	fi
 	exit 0
-elif [ "${DO_TYPE}" = "-T" ]; then
+elif [ "${DO_TYPE}" = "-T" ]; then
 	echo $(cat ${CORENAME})
 	exit 0
 fi
