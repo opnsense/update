@@ -282,7 +282,7 @@ if [ -n "${DO_TYPE}" ]; then
 	NEW=${DO_TYPE#"-t "}
 
 	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
-		echo "The package type '${OLD}' is already installed."
+		echo "The package '${OLD}' is already installed."
 	else
 		# cache packages in case something goes wrong
 		${PKG} fetch -y ${OLD} ${NEW}
