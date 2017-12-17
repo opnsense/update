@@ -314,7 +314,7 @@ if [ -n "${DO_TYPE}" ]; then
 	fi
 fi
 
-if [ -z "${DO_FORCE}" ]; then
+if [ -z "${DO_FORCE}${DO_SIZE}${DO_CHECK}" ]; then
 	# disable kernel if locked
 	if [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" -a \
 	    -z "${DO_UPGRADE}" ]; then
