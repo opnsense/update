@@ -254,7 +254,7 @@ elif [ "${DO_TYPE}" = "-T" ]; then
 		exit 1
 	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
 		exit 1
-	elif [ -n "${DO_PACKAGE}" ]; then
+	elif [ -n "${DO_PKGS}" ]; then
 		echo $(cat ${CORENAME})
 	fi
 	exit 0
@@ -446,7 +446,7 @@ if [ -n "${DO_SIZE}" ]; then
 	elif [ -n "${DO_KERNEL}" ]; then
 		KERNEL_SIZE=$(fetch -s ${MIRROR}/${KERNELSET} 2> /dev/null)
 		echo ${KERNEL_SIZE}
-	elif [ -n "${DO_PACKAGE}" ]; then
+	elif [ -n "${DO_PKGS}" ]; then
 		PKGS_SIZE=$(fetch -s ${MIRROR}/${PACKAGESSET} 2> /dev/null)
 		echo ${PKGS_SIZE}
 	fi
