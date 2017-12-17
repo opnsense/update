@@ -32,7 +32,7 @@
 .Nd OPNsense update utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl BbdefgikPpsu
+.Op Fl BbdefgikPpsuV
 .Op Fl a Ar abi
 .Op Fl l Ar directory
 .Op Fl m Ar mirror_url
@@ -171,6 +171,8 @@ and
 .Sq Fl P
 must be invoked in this particular order, accompanied by a reboot
 after each individual step.
+.It Fl V
+Set debug mode for shell script output.
 .It Fl v
 Print the latest base/kernel version.
 .El

@@ -131,7 +131,7 @@ DO_SIZE=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuv OPT; do
+while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -219,6 +219,9 @@ while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuv OPT; do
 		;;
 	u)
 		DO_UPGRADE="-u"
+		;;
+	V)
+		set -x
 		;;
 	v)
 		DO_VERSION="-v"
