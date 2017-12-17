@@ -247,7 +247,13 @@ if [ -n "${DO_VERSION}" ]; then
 	fi
 	exit 0
 elif [ "${DO_TYPE}" = "-T" ]; then
-	echo $(cat ${CORENAME})
+	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" ]; then
+		exit 1
+	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
+		exit 1
+	else
+		echo $(cat ${CORENAME})
+	fi
 	exit 0
 fi
 
@@ -437,7 +443,7 @@ if [ -n "${DO_SIZE}" ]; then
 	elif [ -n "${DO_KERNEL}" ]; then
 		KERNEL_SIZE=$(fetch -s ${MIRROR}/${KERNELSET} 2> /dev/null)
 		echo ${KERNEL_SIZE}
-	elif [ -n "${DO_PKGS}" ]; then
+	else
 		PKGS_SIZE=$(fetch -s ${MIRROR}/${PACKAGESSET} 2> /dev/null)
 		echo ${PKGS_SIZE}
 	fi
