@@ -97,7 +97,7 @@ for ARG in ${@}; do
 		rm /etc/make.conf
 		ABI=$(cat /usr/local/opnsense/version/opnsense.abi 2> /dev/null || true)
 		CONF="${DIRECTORY}/${ARG}/config/${ABI}/make.conf"
-		if [ ! -f "${CONF}" ]; then
+		if [ ! -f "${CONF}" ]; then
 			SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
 			CONF="${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf"
 		fi
