@@ -83,7 +83,7 @@ for ARG in ${@}; do
 		rm -rf "${DIRECTORY}/${ARG}"
 	fi
 
-	if [ -d "${DIRECTORY}/${ARG}" ]; then
+	if [ -d "${DIRECTORY}/${ARG}/.git" ]; then
 		(cd "${DIRECTORY}/${ARG}"; git pull)
 	else
 		git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
