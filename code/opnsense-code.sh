@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2018 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -95,9 +95,13 @@ for ARG in ${@}; do
 			touch /etc/make.conf
 		fi
 		rm /etc/make.conf
-		SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
-		ln -s "${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf" \
-		    /etc/make.conf
+		ABI=$(cat /usr/local/opnsense/version/opnsense.abi 2> /dev/null || true)
+		CONF="${DIRECTORY}/${ARG}/config/${ABI}/make.conf"
+		if [ ! -f "${CONF}" ]; then
+			SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
+			CONF="${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf"
+		fi
+		ln -s "${CONF}" /etc/make.conf
 		;;
 	*)
 		;;
