@@ -97,8 +97,12 @@ for ARG in ${@}; do
 	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"
 	cat "${WORKDIR}/${ARG}.patch" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
-		"diff --git "*" b/src/"*)
-			PATCHFILE="${PREFIX}/$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 7-)"
+		"diff --git a/"*" b/"*)
+			PATCHFILE="$(echo "${PATCHLINE}" | awk '{print $4 }')"
+			for INDEX in $(seq 1 ${PATCHLEVEL}); do
+				PATCHFILE=${PATCHFILE#*/}
+			done
+			PATCHFILE="${PREFIX}/${PATCHFILE}"
 			;;
 		"new file mode "*)
 			PATCHMODE=$(echo "${PATCHLINE}" | awk '{print $4 }' | cut -c 4-6)
