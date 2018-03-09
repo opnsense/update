@@ -46,7 +46,7 @@ DEBUGDIR="/usr/lib/debug"
 KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
-VERSION="18.1"
+VERSION="18.1.5"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing origin.conf"
