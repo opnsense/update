@@ -84,7 +84,7 @@ for ARG in ${@}; do
 	fi
 
 	if [ -d "${DIRECTORY}/${ARG}/.git" ]; then
-		(cd "${DIRECTORY}/${ARG}"; git pull)
+		(cd "${DIRECTORY}/${ARG}"; git fetch --all --prune; git pull)
 	else
 		git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
 	fi
