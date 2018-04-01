@@ -94,7 +94,10 @@ for ARG in ${@}; do
 done
 
 for ARG in ${@}; do
-	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"
+	ABORT=
+	if ! patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"; then
+		ABORT=1
+	fi
 	cat "${WORKDIR}/${ARG}.patch" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
 		"diff --git a/"*" b/"*)
@@ -123,6 +126,9 @@ for ARG in ${@}; do
 			;;
 		esac
 	done
+	if [ -n "${ABORT}" ]; then
+		exit 1
+	fi
 done
 
 rm -rf ${WORKDIR}/*
