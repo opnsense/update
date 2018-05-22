@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2017 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2018 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -28,7 +28,7 @@
 set -e
 
 if [ "$(id -u)" != "0" ]; then
-	echo "Must be root."
+	echo "Must be root." >&2
 	exit 1
 fi
 
@@ -49,7 +49,7 @@ ARCH=$(uname -p)
 VERSION="18.1.8"
 
 if [ ! -f ${ORIGIN} ]; then
-	echo "Missing origin.conf"
+	echo "Missing origin.conf" >&2
 	exit 1
 fi
 
