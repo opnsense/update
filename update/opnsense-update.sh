@@ -533,10 +533,12 @@ install_base()
 	    --exclude="./etc/group" \
 	    --exclude="./etc/master.passwd" \
 	    --exclude="./etc/passwd" \
-	    --exclude="./etc/shells" \
-	    --exclude="./etc/ttys" \
+	    --exclude="./etc/pwd.db" \
 	    --exclude="./etc/rc" \
-	    --exclude="./etc/rc.shutdown" && \
+	    --exclude="./etc/rc.shutdown" \
+	    --exclude="./etc/shells" \
+	    --exclude="./etc/spwd.db" \
+	    --exclude="./etc/ttys" && \
 	    kldxref ${KERNELDIR} && \
 	    echo " done" && return
 
