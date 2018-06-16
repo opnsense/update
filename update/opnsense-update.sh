@@ -36,7 +36,11 @@ SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 
 CORENAME="/usr/local/opnsense/version/opnsense.name"
-ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
+ORIGIN="/usr/local/etc/pkg/repos/OPNsense.conf"
+# XXX pre-18.7 compat
+if [ ! -f "${ORIGIN}" ]; then
+	ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
+fi
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
@@ -49,7 +53,7 @@ ARCH=$(uname -p)
 VERSION="18.1.8"
 
 if [ ! -f ${ORIGIN} ]; then
-	echo "Missing origin.conf" >&2
+	echo "Missing ${ORIGIN}" >&2
 	exit 1
 fi
 
@@ -350,7 +354,7 @@ if [ -n "${DO_CHECK}" ]; then
 fi
 
 if [ -n "${DO_DEFAULTS}" ]; then
-	# restore origin.conf before potential replace
+	# restore default before potential replace
 	cp ${ORIGIN}.sample ${ORIGIN}
 fi
 
