@@ -32,7 +32,6 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
 WORKPREFIX="/tmp/opnsense-revert"
 OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
