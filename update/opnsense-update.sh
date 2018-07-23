@@ -37,10 +37,6 @@ URL_KEY="^[[:space:]]*url:[[:space:]]*"
 
 CORENAME="/usr/local/opnsense/version/opnsense.name"
 ORIGIN="/usr/local/etc/pkg/repos/OPNsense.conf"
-# XXX pre-18.7 compat
-if [ ! -f "${ORIGIN}" ]; then
-	ORIGIN="/usr/local/etc/pkg/repos/origin.conf"
-fi
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
