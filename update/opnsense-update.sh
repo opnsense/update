@@ -37,6 +37,7 @@ URL_KEY="^[[:space:]]*url:[[:space:]]*"
 
 CORENAME="/usr/local/opnsense/version/opnsense.name"
 ORIGIN="/usr/local/etc/pkg/repos/OPNsense.conf"
+VERSIONBIN="/usr/local/sbin/opnsense-version"
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
@@ -94,7 +95,7 @@ mirror_abi()
 	# The first part after ABI is our suffix and
 	# we need all of it to find the correct sets.
 	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
-	ABI=$(opnsense-verify -a 2> /dev/null)
+	ABI=$(opnsense-verify -a)
 	if [ -n "${DO_ABI}" ]; then
 		ABI=${DO_ABI#"-a "}
 	fi
@@ -254,8 +255,13 @@ elif [ "${DO_TYPE}" = "-T" ]; then
 		exit 1
 	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
 		exit 1
+	# XXX remove this feature
 	elif [ -n "${DO_PKGS}" ]; then
-		echo $(cat ${CORENAME})
+		if [ -x "${VERSIONBIN}" ]; then
+			echo $(opnsense-version -n)
+		else
+			echo $(cat ${CORENAME})
+		fi
 	fi
 	exit 0
 fi
@@ -287,7 +293,11 @@ elif [ -n "${DO_UNLOCK}" ]; then
 fi
 
 if [ -n "${DO_TYPE}" ]; then
-	OLD=$(cat ${CORENAME})
+	if [ -x "${VERSIONBIN}" ]; then
+		OLD=$(opnsense-version -n)
+	else
+		OLD=$(cat ${CORENAME})
+	fi
 	NEW=${DO_TYPE#"-t "}
 
 	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
