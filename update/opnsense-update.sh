@@ -548,7 +548,8 @@ install_base()
 	    --exclude="./etc/rc.shutdown" \
 	    --exclude="./etc/shells" \
 	    --exclude="./etc/spwd.db" \
-	    --exclude="./etc/ttys" && \
+	    --exclude="./etc/ttys" \
+	    --exclude="./proc" && \
 	    kldxref ${KERNELDIR} && \
 	    echo " done" && return
 
