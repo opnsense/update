@@ -540,16 +540,16 @@ install_base()
 	mkdir -p ${NOSCHGDIRS} && \
 	    chflags -R noschg ${NOSCHGDIRS} && \
 	    tar -C/ -xpf ${WORKDIR}/${BASESET} \
-	    --exclude="./etc/group" \
-	    --exclude="./etc/master.passwd" \
-	    --exclude="./etc/passwd" \
-	    --exclude="./etc/pwd.db" \
-	    --exclude="./etc/rc" \
-	    --exclude="./etc/rc.shutdown" \
-	    --exclude="./etc/shells" \
-	    --exclude="./etc/spwd.db" \
-	    --exclude="./etc/ttys" \
-	    --exclude="./proc" && \
+	    --exclude="^etc/group" \
+	    --exclude="^etc/master.passwd" \
+	    --exclude="^etc/passwd" \
+	    --exclude="^etc/pwd.db" \
+	    --exclude="^etc/rc" \
+	    --exclude="^etc/rc.shutdown" \
+	    --exclude="^etc/shells" \
+	    --exclude="^etc/spwd.db" \
+	    --exclude="^etc/ttys" \
+	    --exclude="^proc" && \
 	    kldxref ${KERNELDIR} && \
 	    echo " done" && return
 
