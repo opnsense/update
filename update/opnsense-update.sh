@@ -35,7 +35,6 @@ fi
 SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 
-CORENAME="/usr/local/opnsense/version/opnsense.name"
 ORIGIN="/usr/local/etc/pkg/repos/OPNsense.conf"
 VERSIONBIN="/usr/local/sbin/opnsense-version"
 VERSIONDIR="/usr/local/opnsense/version"
@@ -255,13 +254,6 @@ elif [ "${DO_TYPE}" = "-T" ]; then
 		exit 1
 	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
 		exit 1
-	# XXX remove this feature
-	elif [ -n "${DO_PKGS}" ]; then
-		if [ -x "${VERSIONBIN}" ]; then
-			echo $(opnsense-version -n)
-		else
-			echo $(cat ${CORENAME})
-		fi
 	fi
 	exit 0
 fi
@@ -293,11 +285,7 @@ elif [ -n "${DO_UNLOCK}" ]; then
 fi
 
 if [ -n "${DO_TYPE}" ]; then
-	if [ -x "${VERSIONBIN}" ]; then
-		OLD=$(opnsense-version -n)
-	else
-		OLD=$(cat ${CORENAME})
-	fi
+	OLD=$(opnsense-version -n)
 	NEW=${DO_TYPE#"-t "}
 
 	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
