@@ -560,7 +560,7 @@ install_base()
 
 remove_obsolete()
 {
-	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
+	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
 		return 0
 	fi
 
@@ -573,7 +573,7 @@ remove_obsolete()
 
 install_obsolete()
 {
-	if [ -f ${VERSIONDIR}/base.obsolete ]; then
+	if [ -f ${VERSIONDIR}/base.obsolete ]; then
 		return
 	fi
 
