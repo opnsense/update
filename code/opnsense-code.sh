@@ -95,12 +95,7 @@ for ARG in ${@}; do
 			touch /etc/make.conf
 		fi
 		rm /etc/make.conf
-		if [ -x "/usr/local/sbin/opnsense-version" ]; then
-			ABI=$(opnsense-version -a)
-		else
-			ABI=$(cat /usr/local/opnsense/version/opnsense.abi 2> /dev/null || true)
-		fi
-		CONF="${DIRECTORY}/${ARG}/config/${ABI}/make.conf"
+		CONF="${DIRECTORY}/${ARG}/config/$(opnsense-version -a)/make.conf"
 		if [ ! -f "${CONF}" ]; then
 			SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
 			CONF="${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf"
