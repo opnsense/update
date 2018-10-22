@@ -551,14 +551,32 @@ install_base()
 	    --exclude="^etc/ttys" \
 	    --exclude="^proc" && \
 	    kldxref ${KERNELDIR} && \
+	    remove_obsolete && \
 	    echo " done" && return
 
 	echo " failed"
 	exit 1
 }
 
+remove_obsolete()
+{
+	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
+		return 0
+	fi
+
+	while read FILE; do
+		rm -f ${FILE}
+	done < ${VERSIONDIR}/base.obsolete
+
+	return 0
+}
+
 install_obsolete()
 {
+	if [ -f ${VERSIONDIR}/base.obsolete ]; then
+		return
+	fi
+
 	echo -n "Installing ${OBSOLETESET}..."
 
 	while read FILE; do

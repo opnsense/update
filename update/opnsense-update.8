@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd September 22, 2018
+.Dd October 22, 2018
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -192,22 +192,32 @@ or
 .Sq Fl n .
 .It Pa /usr/local/opnsense/version/base
 The file is used to check if a base system upgrade is necessary.
-It is typically shipped with the base set.
+It is embedded into the base set.
 .It Pa /usr/local/opnsense/version/base.lock
 The lock for preventing an update to the base system,
 operated by
 .Sq Fl \&Lb
 and
 .Sq Fl \&Ub .
+.It Pa /usr/local/opnsense/version/base.mtree
+Integrity information of the provided base files.
+It is embedded into the base set.
+.It Pa /usr/local/opnsense/version/base.obsolete
+The file is used to list files to be removed after installation
+which are no longer required.
+It is embedded into the base set.
 .It Pa /usr/local/opnsense/version/kernel
 The file is used to check if a kernel upgrade is necessary.
-It is typically shipped with the kernel set.
+It is embedded into the kernel set.
 .It Pa /usr/local/opnsense/version/kernel.lock
 The lock for preventing updates to the kernel,
 operated by
 .Sq Fl \&Lk
 and
 .Sq Fl \&Uk .
+.It Pa /usr/local/opnsense/version/kernel.mtree
+Integrity information of the provided kernel files.
+It is embedded into the base set.
 .It Pa /var/cache/opnsense-update
 The local cache storage directory.
 .El
