@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+ *
  * Copyright (c) 2013 Baptiste Daroussin <bapt@FreeBSD.org>
  * All rights reserved.
  *
@@ -60,6 +62,6 @@ void config_finish(void);
 int config_string(pkg_config_key, const char **);
 int config_bool(pkg_config_key, bool *);
 
-int pkg_get_myabi(char *dest, size_t sz);
+int pkg_get_myabi(char *, size_t);
 
 #endif
