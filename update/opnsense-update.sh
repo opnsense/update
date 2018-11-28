@@ -241,10 +241,13 @@ if [ -n "${*}" ]; then
 fi
 
 if [ -n "${DO_VERSION}" ]; then
+	# XXX remove:
 	if [ -n "${DO_BASE}" ]; then
 		echo ${INSTALLED_BASE}
+	# XXX remove:
 	elif [ -n "${DO_KERNEL}" ]; then
 		echo ${INSTALLED_KERNEL}
+	# XXX only mode left:
 	else
 		echo ${VERSION}-${ARCH}
 	fi
