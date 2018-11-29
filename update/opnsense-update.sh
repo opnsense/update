@@ -56,6 +56,7 @@ fi
 INSTALLED_BASE=
 if [ -f ${VERSIONDIR}/base ]; then
 	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
+	INSTALLED_BASE=${INSTALLED_BASE%-*}
 fi
 
 LOCKED_BASE=
@@ -66,6 +67,7 @@ fi
 INSTALLED_KERNEL=
 if [ -f ${VERSIONDIR}/kernel ]; then
 	INSTALLED_KERNEL=$(cat ${VERSIONDIR}/kernel)
+	INSTALLED_KERNEL=${INSTALLED_KERNEL%-*}
 fi
 
 LOCKED_KERNEL=
@@ -243,10 +245,10 @@ fi
 if [ -n "${DO_VERSION}" ]; then
 	# XXX remove:
 	if [ -n "${DO_BASE}" ]; then
-		echo ${INSTALLED_BASE}
+		echo ${INSTALLED_BASE}-${ARCH}
 	# XXX remove:
 	elif [ -n "${DO_KERNEL}" ]; then
-		echo ${INSTALLED_KERNEL}
+		echo ${INSTALLED_KERNEL}-${ARCH}
 	# XXX only mode left:
 	else
 		echo ${VERSION}-${ARCH}
@@ -337,12 +339,12 @@ fi
 
 if [ -n "${DO_CHECK}" ]; then
 	if [ -n "${DO_KERNEL}" ]; then
-		if [ "${VERSION}-${ARCH}" != "${INSTALLED_KERNEL}" ]; then
+		if [ "${VERSION}" != "${INSTALLED_KERNEL}" ]; then
 			exit 0
 		fi
 	fi
 	if [ -n "${DO_BASE}" ]; then
-		if [ "${VERSION}-${ARCH}" != "${INSTALLED_BASE}" ]; then
+		if [ "${VERSION}" != "${INSTALLED_BASE}" ]; then
 			exit 0
 		fi
 	fi
@@ -457,14 +459,12 @@ fi
 
 if [ -z "${DO_FORCE}" ]; then
 	# disable kernel update if up-to-date
-	if [ "${RELEASE}-${ARCH}" = "${INSTALLED_KERNEL}" -a \
-	    -n "${DO_KERNEL}" ]; then
+	if [ "${RELEASE}" = "${INSTALLED_KERNEL}" -a -n "${DO_KERNEL}" ]; then
 		DO_KERNEL=
 	fi
 
 	# disable base update if up-to-date
-	if [ "${RELEASE}-${ARCH}" = "${INSTALLED_BASE}" -a \
-	    -n "${DO_BASE}" ]; then
+	if [ "${RELEASE}" = "${INSTALLED_BASE}" -a -n "${DO_BASE}" ]; then
 		DO_BASE=
 	fi
 
