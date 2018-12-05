@@ -609,7 +609,9 @@ if [ "${DO_BASE}" = "-b" ]; then
 	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
 		rm -f ${VERSIONDIR}/base.lock
 	fi
-	fetch_set ${OBSOLETESET}
+	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
+		fetch_set ${OBSOLETESET}
+	fi
 	fetch_set ${BASESET}
 fi
 
