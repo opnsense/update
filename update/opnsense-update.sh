@@ -508,11 +508,11 @@ fetch_set()
 	fi
 
 	if ! ${STAGE1}; then
-		exit_msg " failed, no signature file"
+		exit_msg " failed, no signature found"
 	fi
 
 	if ! ${STAGE2}; then
-		exit_msg " failed, no update set file"
+		exit_msg " failed, no update found"
 	fi
 
 	if ! ${STAGE3}; then
