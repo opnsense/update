@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd November 28, 2018
+.Dd December 12, 2018
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -95,6 +95,9 @@ Force an update even when the latest release is already installed.
 Use a debug kernel instead of the release kernel.
 .It Fl i
 Ignore the signature verification result.
+Otherwise, the
+.Xr opnsense-verify 8
+utility is used to verify a set signature.
 .It Fl k
 Select the kernel.
 .It Fl L
@@ -160,6 +163,9 @@ properly handling the
 .Xr pkg 8
 .Sq vital
 flag transition.
+The
+.Xr opnsense-version 8
+utility is used to test which version is currently installed.
 .It Fl U
 Unlock a set to allow updates.
 Sets are generally unlocked unless
@@ -199,9 +205,6 @@ operated by
 .Sq Fl \&Lb
 and
 .Sq Fl \&Ub .
-.It Pa /usr/local/opnsense/version/base.mtree
-Integrity information of the provided base files.
-It is embedded into the base set.
 .It Pa /usr/local/opnsense/version/base.obsolete
 The file is used to list files to be removed after installation
 which are no longer required.
@@ -215,9 +218,6 @@ operated by
 .Sq Fl \&Lk
 and
 .Sq Fl \&Uk .
-.It Pa /usr/local/opnsense/version/kernel.mtree
-Integrity information of the provided kernel files.
-It is embedded into the base set.
 .It Pa /var/cache/opnsense-update
 The local cache storage directory.
 .El
@@ -226,6 +226,7 @@ The local cache storage directory.
 .Sh SEE ALSO
 .Xr pkg.conf 5 ,
 .Xr opnsense-verify 8 ,
+.Xr opnsense-version 8 ,
 .Xr pkg 8
 .Sh AUTHORS
 .An Franco Fichtner Aq Mt franco@opnsense.org
