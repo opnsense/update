@@ -36,7 +36,6 @@ SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 
 ORIGIN="/usr/local/etc/pkg/repos/OPNsense.conf"
-VERSIONBIN="/usr/local/sbin/opnsense-version"
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
@@ -475,6 +474,15 @@ if [ -z "${DO_FORCE}" ]; then
 	fi
 fi
 
+exit_msg()
+{
+	if [ -n "${1}" ]; then
+		echo "${1}"
+	fi
+
+	exit 1
+}
+
 fetch_set()
 {
 	STAGE1="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1}.sig ${MIRROR}/${1}.sig"
@@ -495,11 +503,23 @@ fetch_set()
 
 	echo -n "Fetching ${1}: ."
 
-	mkdir -p ${WORKDIR} && ${STAGE1} && ${STAGE2} && \
-	    ${STAGE3} && echo " done" && return
+	if ! mkdir -p ${WORKDIR}; then
+		exit_msg " failed, mkdir error ${?}"
+	fi
 
-	echo " failed"
-	exit 1
+	if ! ${STAGE1}; then
+		exit_msg " failed, no signature file"
+	fi
+
+	if ! ${STAGE2}; then
+		exit_msg " failed, no update set file"
+	fi
+
+	if ! ${STAGE3}; then
+		exit_msg " failed, signature invalid"
+	fi
+
+	echo " done"
 }
 
 install_kernel()
@@ -512,14 +532,27 @@ install_kernel()
 
 	echo -n "Installing ${KERNELSET}..."
 
-	mkdir -p ${KERNELDIR} ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR} && \
-	    rm -r ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR} && \
-	    mv ${KERNELDIR} ${KERNELDIR}.old && \
-	    tar -C/ -xpf ${WORKDIR}/${KERNELSET} && \
-	    ${KLDXREF} && echo " done" && return
+	if ! mkdir -p ${KERNELDIR} ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR}; then
+		exit_msg " failed, mkdir error ${?}"
+	fi
 
-	echo " failed"
-	exit 1
+	if ! rm -r ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR}; then
+		exit_msg " failed, rm error ${?}"
+	fi
+
+	if ! mv ${KERNELDIR} ${KERNELDIR}.old; then
+		exit_msg " failed, mv error ${?}"
+	fi
+
+	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET}; then
+		exit_msg " failed, tar error ${?}"
+	fi
+
+	if ! ${KLDXREF}; then
+		exit_msg " failed, kldxref error ${?}"
+	fi
+
+	echo " done"
 }
 
 install_base()
@@ -528,9 +561,15 @@ install_base()
 
 	echo -n "Installing ${BASESET}..."
 
-	mkdir -p ${NOSCHGDIRS} && \
-	    chflags -R noschg ${NOSCHGDIRS} && \
-	    tar -C/ -xpf ${WORKDIR}/${BASESET} \
+	if ! mkdir -p ${NOSCHGDIRS}; then
+		exit_msg " failed, mkdir error ${?}"
+	fi
+
+	if ! chflags -R noschg ${NOSCHGDIRS}; then
+		exit_msg " failed, chflags error ${?}"
+	fi
+
+	if ! tar -C / -xpf ${WORKDIR}/${BASESET} \
 	    --exclude="^etc/group" \
 	    --exclude="^etc/master.passwd" \
 	    --exclude="^etc/passwd" \
@@ -540,39 +579,21 @@ install_base()
 	    --exclude="^etc/shells" \
 	    --exclude="^etc/spwd.db" \
 	    --exclude="^etc/ttys" \
-	    --exclude="^proc" && \
-	    kldxref ${KERNELDIR} && \
-	    remove_obsolete && \
-	    echo " done" && return
+	    --exclude="^proc"; then
+		exit_msg " failed, tar error ${?}"
+	fi
 
-	echo " failed"
-	exit 1
-}
+	if ! kldxref ${KERNELDIR}; then
+		exit_msg " failed, kldxref error ${?}"
+	fi
 
-remove_obsolete()
-{
 	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
-		return 0
+		exit_msg " failed, no base.obsolete found"
 	fi
 
 	while read FILE; do
 		rm -f ${FILE}
 	done < ${VERSIONDIR}/base.obsolete
-
-	return 0
-}
-
-install_obsolete()
-{
-	if [ -f ${VERSIONDIR}/base.obsolete ]; then
-		return
-	fi
-
-	echo -n "Installing ${OBSOLETESET}..."
-
-	while read FILE; do
-		rm -f ${FILE}
-	done < ${WORKDIR}/${OBSOLETESET}
 
 	echo " done"
 }
@@ -702,7 +723,6 @@ if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
 	fi
 
 	install_base
-	install_obsolete
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/base-*
