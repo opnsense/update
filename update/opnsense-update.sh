@@ -118,6 +118,7 @@ DO_RELEASE=
 DO_FLAVOUR=
 DO_UPGRADE=
 DO_VERSION=
+DO_VERBOSE=
 DO_KERNEL=
 DO_UNLOCK=
 DO_DEBUG=
@@ -222,7 +223,7 @@ while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 		DO_UPGRADE="-u"
 		;;
 	V)
-		set -x
+		DO_VERBOSE="-V"
 		;;
 	v)
 		DO_VERSION="-v"
@@ -239,6 +240,10 @@ shift $((${OPTIND} - 1))
 if [ -n "${*}" ]; then
 	echo "Arguments are not supported" >&2
 	exit 1
+fi
+
+if [ -n "${DO_VERBOSE}" ]; then
+	set -x
 fi
 
 if [ -n "${DO_VERSION}" ]; then
@@ -515,8 +520,15 @@ fetch_set()
 		exit_msg " failed, no update found"
 	fi
 
-	if ! ${STAGE3}; then
-		exit_msg " failed, signature invalid"
+	if [ -n "${DO_VERBOSE}" ]; then
+		if ! ${STAGE3}; then
+			# message did print already
+			exit_msg
+		fi
+	else
+		if ! ${STAGE3} 2> /dev/null; then
+			exit_msg " failed, signature invalid"
+		fi
 	fi
 
 	echo " done"
