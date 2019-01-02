@@ -442,7 +442,6 @@ fi
 
 PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
 KERNELSET=kernel${DO_DEBUG}-${RELEASE}-${ARCH}.txz
-OBSOLETESET=base-${RELEASE}-${ARCH}.obsolete
 BASESET=base-${RELEASE}-${ARCH}.txz
 
 MIRROR="$(mirror_abi)/sets"
@@ -642,9 +641,6 @@ if [ "${DO_BASE}" = "-b" ]; then
 	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
 		rm -f ${VERSIONDIR}/base.lock
 	fi
-	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
-		fetch_set ${OBSOLETESET}
-	fi
 	fetch_set ${BASESET}
 fi
 
@@ -695,11 +691,6 @@ if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
 
 	# push pending base update to deferred
 	mv ${WORKDIR}/${BASESET} ${PENDINGDIR}
-
-	echo " done"
-	echo -n "Extracting ${OBSOLETESET}..."
-
-        mv ${WORKDIR}/${OBSOLETESET} ${PENDINGDIR}
 
 	# add action marker for next run
 	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
