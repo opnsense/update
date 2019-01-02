@@ -325,7 +325,7 @@ if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
 	# disable packages if locked
 	if [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		echo "Package update locked, skipping."
+		echo "Packages locked, skipping."
 		DO_PKGS=
 		DO_TYPE=
 	fi
