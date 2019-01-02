@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2018 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2019 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -61,6 +61,11 @@ fi
 LOCKED_BASE=
 if [ -f ${VERSIONDIR}/base.lock ]; then
 	LOCKED_BASE=1
+fi
+
+LOCKED_PKGS=
+if [ -f ${VERSIONDIR}/core.lock ]; then
+	LOCKED_PKGS=1
 fi
 
 INSTALLED_KERNEL=
@@ -263,6 +268,8 @@ elif [ "${DO_TYPE}" = "-T" ]; then
 		exit 1
 	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
 		exit 1
+	elif [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" ]; then
+		exit 1
 	fi
 	exit 0
 fi
@@ -282,6 +289,9 @@ if [ -n "${DO_LOCK}" ]; then
 	if [ -n "${DO_BASE}" ]; then
 		touch ${VERSIONDIR}/base.lock
 	fi
+	if [ -n "${DO_PKGS}" ]; then
+		touch ${VERSIONDIR}/core.lock
+	fi
 	exit 0
 elif [ -n "${DO_UNLOCK}" ]; then
 	if [ -n "${DO_KERNEL}" ]; then
@@ -290,7 +300,35 @@ elif [ -n "${DO_UNLOCK}" ]; then
 	if [ -n "${DO_BASE}" ]; then
 		rm -f ${VERSIONDIR}/base.lock
 	fi
+	if [ -n "${DO_PKGS}" ]; then
+		rm -f ${VERSIONDIR}/core.lock
+	fi
 	exit 0
+fi
+
+# DO_CHECK is not included, must be forced because we need both modes
+if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
+	# disable kernel if locked
+	if [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" -a \
+	    -z "${DO_UPGRADE}" ]; then
+		echo "Kernel locked at ${INSTALLED_KERNEL}, skipping."
+		DO_KERNEL=
+	fi
+
+	# disable base if locked
+	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" -a \
+	    -z "${DO_UPGRADE}" ]; then
+		echo "Base locked at ${INSTALLED_BASE}, skipping."
+		DO_BASE=
+	fi
+
+	# disable packages if locked
+	if [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" -a \
+	    -z "${DO_UPGRADE}" ]; then
+		echo "Package update locked, skipping."
+		DO_PKGS=
+		DO_TYPE=
+	fi
 fi
 
 if [ -n "${DO_TYPE}" ]; then
@@ -321,23 +359,6 @@ if [ -n "${DO_TYPE}" ]; then
 
 		# set exit code based on transition status
 		[ "${OLD}" != "${NEW}" ]
-	fi
-fi
-
-# DO_CHECK is not included, must be forced because we need both modes
-if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
-	# disable kernel if locked
-	if [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" -a \
-	    -z "${DO_UPGRADE}" ]; then
-		echo "Kernel locked at ${INSTALLED_KERNEL}, skipping."
-		DO_KERNEL=
-	fi
-
-	# disable base if locked
-	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" -a \
-	    -z "${DO_UPGRADE}" ]; then
-		echo "Base locked at ${INSTALLED_BASE}, skipping."
-		DO_BASE=
 	fi
 fi
 
@@ -634,6 +655,9 @@ install_pkgs()
 }
 
 if [ "${DO_PKGS}" = "-p" ]; then
+	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
+		rm -f ${VERSIONDIR}/core.lock
+	fi
 	fetch_set ${PACKAGESSET}
 fi
 
