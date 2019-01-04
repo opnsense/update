@@ -611,7 +611,10 @@ install_base()
 	    --exclude="^etc/shells" \
 	    --exclude="^etc/spwd.db" \
 	    --exclude="^etc/ttys" \
-	    --exclude="^proc"; then
+	    --exclude="^proc" \
+	    --exclude="^var/cache/pkg" \
+	    --exclude="^var/crash" \
+	    --exclude="^var/db/pkg"; then
 		exit_msg " failed, tar error ${?}"
 	fi
 
