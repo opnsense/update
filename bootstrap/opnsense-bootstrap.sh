@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2017 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2019 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -152,8 +152,12 @@ if [ -z "${DO_BARE}" ]; then
 		rm -rf /conf/*
 	fi
 
-	pkg bootstrap
-	pkg install ${TYPE}
+	# Disable SSL verification, we work with fingerprint
+	# and cannot pkg bootstrap otherwise as we cannot
+	# install CA bundle as we do not have "pkg" yet.
+	SSL_NO_VERIFY_PEER=pretty pkg bootstrap
+	SSL_NO_VERIFY_PEER=please pkg install ${TYPE}
+
 	opnsense-update -bkf
 	reboot
 fi
