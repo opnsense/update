@@ -100,6 +100,10 @@ mirror_abi()
 	# The first part after ABI is our suffix and
 	# we need all of it to find the correct sets.
 	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
+	if [ -z "${MIRROR}" ]; then
+		echo "Mirror read failed." >&2
+		exit 1
+	fi
 	ABI=$(opnsense-verify -a)
 	if [ -n "${DO_ABI}" ]; then
 		ABI=${DO_ABI#"-a "}
