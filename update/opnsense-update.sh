@@ -55,7 +55,6 @@ fi
 INSTALLED_BASE=
 if [ -f ${VERSIONDIR}/base ]; then
 	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
-	INSTALLED_BASE=${INSTALLED_BASE%-*}
 fi
 
 LOCKED_BASE=
@@ -71,7 +70,6 @@ fi
 INSTALLED_KERNEL=
 if [ -f ${VERSIONDIR}/kernel ]; then
 	INSTALLED_KERNEL=$(cat ${VERSIONDIR}/kernel)
-	INSTALLED_KERNEL=${INSTALLED_KERNEL%-*}
 fi
 
 LOCKED_KERNEL=
@@ -126,7 +124,6 @@ DO_INSECURE=
 DO_RELEASE=
 DO_FLAVOUR=
 DO_UPGRADE=
-DO_VERSION=
 DO_VERBOSE=
 DO_KERNEL=
 DO_UNLOCK=
@@ -235,7 +232,8 @@ while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 		DO_VERBOSE="-V"
 		;;
 	v)
-		DO_VERSION="-v"
+		echo ${VERSION}
+		exit 0
 		;;
 	*)
 		echo "Usage: man opnsense-update" >&2
@@ -255,19 +253,7 @@ if [ -n "${DO_VERBOSE}" ]; then
 	set -x
 fi
 
-if [ -n "${DO_VERSION}" ]; then
-	# XXX remove:
-	if [ -n "${DO_BASE}" ]; then
-		echo ${INSTALLED_BASE}-${ARCH}
-	# XXX remove:
-	elif [ -n "${DO_KERNEL}" ]; then
-		echo ${INSTALLED_KERNEL}-${ARCH}
-	# XXX only mode left:
-	else
-		echo ${VERSION}-${ARCH}
-	fi
-	exit 0
-elif [ "${DO_TYPE}" = "-T" ]; then
+if [ "${DO_TYPE}" = "-T" ]; then
 	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" ]; then
 		exit 1
 	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
