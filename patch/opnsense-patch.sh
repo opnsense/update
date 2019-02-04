@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2018 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2019 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -28,9 +28,11 @@
 set -e
 
 # internal vars
-WORKDIR="/tmp/opnsense-patch"
-PREFIX="/usr/local"
+CACHEDIR="/var/cache/opnsense-patch"
 INSECURE=
+PREFIX="/usr/local"
+REFRESH="/usr/local/opnsense/www/index.php"
+WORKDIR="/tmp/opnsense-patch"
 
 # fetch defaults
 SITE="https://github.com"
@@ -39,7 +41,7 @@ REPOSITORY="core"
 PATCHLEVEL="2"
 
 if [ "$(id -u)" != "0" ]; then
-	echo "Must be root."
+	echo "Must be root." >&2
 	exit 1
 fi
 
@@ -132,5 +134,10 @@ for ARG in ${@}; do
 done
 
 rm -rf ${WORKDIR}/*
+
+if [ -f ${REFRESH} ]; then
+	# force browser to reload JS/CSS
+	touch ${REFRESH}
+fi
 
 echo "All patches have been applied successfully.  Have a nice day."
