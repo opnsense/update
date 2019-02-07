@@ -142,6 +142,9 @@ patch_found()
 patch_print()
 {
 	echo "${PATCHES}" | while read FILE HASH SUBJECT; do
+		if [ -z "${FILE}" ]; then
+			continue
+		fi
 		LINE="$(echo ${HASH} | cut -c -11)"
 		LINE="${LINE} $(echo ${SUBJECT} | cut -c -50)"
 		echo ${LINE}
