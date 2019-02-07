@@ -77,7 +77,8 @@ have been given.  This helps to deploy fixes faster without the need
 to run manual edits or file downloads since patch(1) tries to keep the
 file integrity intact.
 
-The utility was first introduced in May 2016.
+The utility was first introduced in May 2016.  In February 2019, a local
+caching mechanism was added to provide offline patching capability.
 
 opnsense-code
 =============
