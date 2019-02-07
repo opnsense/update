@@ -33,7 +33,6 @@ CACHEDIR="/var/cache/opnsense-patch"
 PATCHES=
 PREFIX="/usr/local"
 REFRESH="/usr/local/opnsense/www/index.php"
-SUFFIX=".patch"
 
 # fetch defaults
 SITE="https://github.com"
@@ -106,7 +105,7 @@ mkdir -p ${CACHEDIR}
 
 patch_load()
 {
-	for PATCH in $(find ${CACHEDIR}/ -name "*${SUFFIX}"); do
+	for PATCH in $(find ${CACHEDIR}/ -name "${REPOSITORY}-*"); do
 		if [ ! -s "${PATCH}" ]; then
 			rm -f "${PATCH}"
 			continue
@@ -155,7 +154,8 @@ if [ -n "${DO_LIST}" ]; then
 fi
 
 for ARG in ${@}; do
-	FOUND=$(patch_found ${ARG})
+	FOUND="$(patch_found ${ARG})"
+
 	if [ -n "${FOUND}" ]; then
 		if [ -n "${DO_FORCE}" ]; then
 			rm ${CACHEDIR}/${FOUND}
@@ -166,16 +166,18 @@ for ARG in ${@}; do
 		fi
 	fi
 
-	fetch ${DO_INSECURE} -q -o "${CACHEDIR}/${ARG}${SUFFIX}" \
-	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}${SUFFIX}"
+	WANT="${REPOSITORY}-${ARG}"
 
-	if [ ! -s "${CACHEDIR}/${ARG}${SUFFIX}" ]; then
-		rm -f "${CACHEDIR}/${ARG}${SUFFIX}"
+	fetch ${DO_INSECURE} -q -o "${CACHEDIR}/${WANT}" \
+	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch"
+
+	if [ ! -s "${CACHEDIR}/${WANT}" ]; then
+		rm -f "${CACHEDIR}/${WANT}"
 		echo "Failed to fetch: ${ARG}" >&2
 		exit 1
 	fi
 
-	ARGS="${ARGS} ${ARG}${SUFFIX}"
+	ARGS="${ARGS} ${WANT}"
 done
 
 for ARG in ${ARGS}; do
