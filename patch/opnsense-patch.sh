@@ -28,11 +28,12 @@
 set -e
 
 # internal vars
+ARGS=
 CACHEDIR="/var/cache/opnsense-patch"
-INSECURE=
+PATCHES=
 PREFIX="/usr/local"
 REFRESH="/usr/local/opnsense/www/index.php"
-WORKDIR="/tmp/opnsense-patch"
+SUFFIX=".patch"
 
 # fetch defaults
 SITE="https://github.com"
@@ -40,12 +41,17 @@ ACCOUNT="opnsense"
 REPOSITORY="core"
 PATCHLEVEL="2"
 
+# user options
+DO_FORCE=
+DO_INSECURE=
+DO_LIST=
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
 	exit 1
 fi
 
-while getopts a:c:ip:r:s: OPT; do
+while getopts a:c:efilp:r:s: OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -66,8 +72,17 @@ while getopts a:c:ip:r:s: OPT; do
 			;;
 		esac
 		;;
+	e)
+		rm -rf ${CACHEDIR}/*
+		;;
+	f)
+		DO_FORCE="-f"
+		;;
 	i)
-		INSECURE="--no-verify-peer"
+		DO_INSECURE="--no-verify-peer"
+		;;
+	l)
+		DO_LIST="-l"
 		;;
 	p)
 		PATCHLEVEL=${OPTARG}
@@ -79,7 +94,7 @@ while getopts a:c:ip:r:s: OPT; do
 		SITE=${OPTARG}
 		;;
 	*)
-		echo "Usage: opnsense-patch [-c repo_default] commit_hash ..." >&2
+		echo "Usage: man opnsense-patch" >&2
 		exit 1
 		;;
 	esac
@@ -87,20 +102,88 @@ done
 
 shift $((${OPTIND} - 1))
 
-mkdir -p ${WORKDIR}
+mkdir -p ${CACHEDIR}
+
+patch_load()
+{
+	for PATCH in $(find ${CACHEDIR}/ -name "*${SUFFIX}"); do
+		if [ ! -s "${PATCH}" ]; then
+			rm -f "${PATCH}"
+			continue
+		fi
+
+		HASH=$(grep '^From [0-9a-f]' ${PATCH} | cut -d ' ' -f 2)
+		SUBJECT=$(grep '^Subject: \[PATCH\]' ${PATCH} | cut -d ' ' -f 3-)
+		FILE=$(basename ${PATCH})
+
+		if [ -z "${HASH}" -o -z "${SUBJECT}" ]; then
+			rm -f "${PATCH}"
+			continue
+		fi
+
+		echo ${FILE} ${HASH} ${SUBJECT}
+	done
+}
+
+PATCHES=$(patch_load)
+
+patch_found()
+{
+	ARG=${1}
+	ARGLEN=$(echo -n ${ARG} | wc -c | awk '{ print $1 }')
+
+	echo "${PATCHES}" | while read FILE HASH SUBJECT; do
+		if [ "$(echo ${HASH} | cut -c -${ARGLEN})" = ${ARG} ]; then
+			echo ${FILE}
+			return
+		fi
+	done
+}
+
+patch_print()
+{
+	echo "${PATCHES}" | while read FILE HASH SUBJECT; do
+		LINE="$(echo ${HASH} | cut -c -11)"
+		LINE="${LINE} $(echo ${SUBJECT} | cut -c -50)"
+		echo ${LINE}
+	done
+}
+
+if [ -n "${DO_LIST}" ]; then
+	patch_print
+	exit 0
+fi
 
 for ARG in ${@}; do
-	fetch ${INSECURE} -q \
-	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch" \
-	    -o "${WORKDIR}/${ARG}.patch"
+	FOUND=$(patch_found ${ARG})
+	if [ -n "${FOUND}" ]; then
+		if [ -n "${DO_FORCE}" ]; then
+			rm ${CACHEDIR}/${FOUND}
+		else
+			echo "Found local copy of ${ARG}, skipping fetch."
+			ARGS="${ARGS} ${FOUND}"
+			continue;
+		fi
+	fi
+
+	fetch ${DO_INSECURE} -q -o "${CACHEDIR}/${ARG}${SUFFIX}" \
+	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}${SUFFIX}"
+
+	if [ ! -s "${CACHEDIR}/${ARG}${SUFFIX}" ]; then
+		rm -f "${CACHEDIR}/${ARG}${SUFFIX}"
+		echo "Failed to fetch: ${ARG}" >&2
+		exit 1
+	fi
+
+	ARGS="${ARGS} ${ARG}${SUFFIX}"
 done
 
-for ARG in ${@}; do
+for ARG in ${ARGS}; do
 	ABORT=
-	if ! patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${WORKDIR}/${ARG}.patch"; then
+	if ! patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		ABORT=1
 	fi
-	cat "${WORKDIR}/${ARG}.patch" | while read PATCHLINE; do
+	cat "${CACHEDIR}/${ARG}" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
 		"diff --git a/"*" b/"*)
 			PATCHFILE="$(echo "${PATCHLINE}" | awk '{print $4 }')"
@@ -133,11 +216,11 @@ for ARG in ${@}; do
 	fi
 done
 
-rm -rf ${WORKDIR}/*
+if [ -n "${ARGS}" ]; then
+	echo "All patches have been applied successfully.  Have a nice day."
+fi
 
 if [ -f ${REFRESH} ]; then
 	# force browser to reload JS/CSS
 	touch ${REFRESH}
 fi
-
-echo "All patches have been applied successfully.  Have a nice day."
