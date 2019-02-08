@@ -159,9 +159,7 @@ mkdir -p ${WORKDIR}
 export ASSUME_ALWAYS_YES=yes
 
 if [ -n "${DO_INSECURE}" ]; then
-	# disable SSL verification, we work with fingerprint
-	# and may not pkg bootstrap otherwise as we cannot
-	# install CA file as we do not have "pkg" yet
+	# no CA file around to verify against, user choice
 	export SSL_NO_VERIFY_PEER=yes
 else
 	pkg bootstrap -f
