@@ -189,10 +189,9 @@ for ARG in ${ARGS}; do
 	if ! patch -sCEt -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
 	fi
-	ABORT=
-	if ! patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
-		ABORT=1
-	fi
+
+	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
+
 	cat "${CACHEDIR}/${ARG}" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
 		"diff --git a/"*" b/"*)
@@ -221,9 +220,6 @@ for ARG in ${ARGS}; do
 			;;
 		esac
 	done
-	if [ -n "${ABORT}" ]; then
-		exit 1
-	fi
 done
 
 if [ -n "${ARGS}" ]; then
