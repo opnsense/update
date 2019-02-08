@@ -117,6 +117,38 @@ if [ -z "${DO_YES}" ]; then
 	esac
 fi
 
+if [ -n "${DO_FACTORY}" ]; then
+	if [ -z "${DO_YES}" ]; then
+		echo
+		echo -n "Factory reset mode selected, are you sure? [y/N]: "
+
+		read YN
+		case ${YN} in
+		[yY])
+			;;
+		*)
+			exit 0
+			;;
+		esac
+	fi
+fi
+
+if [ -n "${DO_INSECURE}" ]; then
+	if [ -z "${DO_YES}" ]; then
+		echo
+		echo -n "Insecure bootstrap mode selected, are you sure? [y/N]: "
+
+		read YN
+		case ${YN} in
+		[yY])
+			;;
+		*)
+			exit 0
+			;;
+		esac
+	fi
+fi
+
 echo
 
 rm -rf /usr/local/etc/pkg
