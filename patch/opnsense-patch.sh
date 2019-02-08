@@ -165,7 +165,7 @@ for ARG in ${@}; do
 		else
 			echo "Found local copy of ${ARG}, skipping fetch."
 			ARGS="${ARGS} ${FOUND}"
-			continue;
+			continue
 		fi
 	fi
 
@@ -180,10 +180,16 @@ for ARG in ${@}; do
 		exit 1
 	fi
 
+	echo "Fetched ${ARG} via ${SITE}/${ACCOUNT}/${REPOSITORY}"
+
 	ARGS="${ARGS} ${WANT}"
 done
 
 for ARG in ${ARGS}; do
+	if ! patch -sCEt -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
+		echo "Aborting due to bad patch." >&2
+		exit 1
+	fi
 	ABORT=
 	if ! patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		ABORT=1
