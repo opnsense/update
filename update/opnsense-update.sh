@@ -45,7 +45,7 @@ DEBUGDIR="/usr/lib/debug"
 KERNELDIR="/boot/kernel"
 PKG="pkg-static"
 ARCH=$(uname -p)
-VERSION="19.1"
+VERSION="19.1.2"
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing ${ORIGIN}" >&2
