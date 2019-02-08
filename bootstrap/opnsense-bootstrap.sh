@@ -28,7 +28,7 @@
 set -e
 
 URL="https://github.com/opnsense/core/archive/stable"
-WORKPREFIX="/tmp/opnsense-bootstrap"
+WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
 RELEASE="19.1"
@@ -47,7 +47,7 @@ while getopts bfin:r:t:vy OPT; do
 		DO_FACTORY="-f"
 		;;
 	i)
-		DO_INSECURE="--no-verify-peer"
+		DO_INSECURE="-i"
 		;;
 	n)
 		FLAVOUR=${OPTARG}
@@ -121,17 +121,26 @@ echo
 
 rm -rf /usr/local/etc/pkg
 
+rm -rf ${WORKDIR}/*
+mkdir -p ${WORKDIR}
+
 export ASSUME_ALWAYS_YES=yes
 
-if [ -z "${DO_INSECURE}" ]; then
+if [ -n "${DO_INSECURE}" ]; then
+	# disable SSL verification, we work with fingerprint
+	# and may not pkg bootstrap otherwise as we cannot
+	# install CA file as we do not have "pkg" yet
+	export SSL_NO_VERIFY_PEER=yes
+else
 	pkg bootstrap -f
 	pkg install ca_root_nss
+
+	# save a copy of the CA file to use for the bootstrap
+	cp /etc/ssl/cert.pem ${WORKDIR}/cert.pem
+	export SSL_CA_CERT_FILE=${WORKDIR}/cert.pem
 fi
 
-WORKDIR=${WORKPREFIX}/${$}
-
-mkdir -p ${WORKDIR}
-fetch ${DO_INSECURE} -o ${WORKDIR}/core.tar.gz "${URL}/${RELEASE}.tar.gz"
+fetch -o ${WORKDIR}/core.tar.gz "${URL}/${RELEASE}.tar.gz"
 tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
 if [ -z "${DO_BARE}" ]; then
@@ -145,18 +154,17 @@ fi
 make -C ${WORKDIR}/core-stable-${RELEASE} \
     bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 
-rm -rf ${WORKPREFIX}/*
-
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
 		rm -rf /conf/*
 	fi
 
-	# Disable SSL verification, we work with fingerprint
-	# and cannot pkg bootstrap otherwise as we cannot
-	# install CA bundle as we do not have "pkg" yet.
-	SSL_NO_VERIFY_PEER=pretty pkg bootstrap
-	SSL_NO_VERIFY_PEER=please pkg install ${TYPE}
+	pkg bootstrap
+	pkg install ${TYPE}
+
+	# beyond this point verify everything
+	unset SSL_NO_VERIFY_PEER
+	unset SSL_CA_CERT_FILE
 
 	opnsense-update -bkf
 	reboot
