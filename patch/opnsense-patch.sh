@@ -187,7 +187,6 @@ done
 
 for ARG in ${ARGS}; do
 	if ! patch -sCEt -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
-		echo "Aborting due to bad patch." >&2
 		exit 1
 	fi
 	ABORT=
