@@ -43,6 +43,7 @@ PATCHLEVEL="2"
 # user options
 DO_FORCE=
 DO_FORWARD="-t"
+DO_DOWNLOAD=
 DO_INSECURE=
 DO_LIST=
 
@@ -51,7 +52,7 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-while getopts a:c:efilNp:r:s: OPT; do
+while getopts a:c:defilNp:r:s: OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -71,6 +72,9 @@ while getopts a:c:efilNp:r:s: OPT; do
 			exit 1
 			;;
 		esac
+		;;
+	d)
+		DO_DOWNLOAD="-d"
 		;;
 	e)
 		rm -rf ${CACHEDIR}/*
@@ -189,6 +193,10 @@ for ARG in ${@}; do
 	ARGS="${ARGS} ${WANT}"
 done
 
+if [ -n "${DO_DOWNLOAD}" ]; then
+	ARGS=
+fi
+
 for ARG in ${ARGS}; do
 	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
@@ -231,6 +239,6 @@ if [ -n "${ARGS}" ]; then
 fi
 
 if [ -f ${REFRESH} ]; then
-	# force browser to reload JS/CSS
+	# always force browser to reload JS/CSS
 	touch ${REFRESH}
 fi

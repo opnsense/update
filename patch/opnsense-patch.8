@@ -32,11 +32,11 @@
 .Nd OPNsense patch utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl efiN
+.Op Fl defiN
 .Op Fl c Ar repo_default
 .Ar commit_hash ...
 .Nm
-.Op Fl efiN
+.Op Fl defiN
 .Op Fl a Ar account
 .Op Fl p Ar patch_level
 .Op Fl r Ar repository
@@ -74,6 +74,8 @@ The known options are
 and
 .Sq core
 .Pq default .
+.It Fl d
+Download the requested patch, but do not apply it.
 .It Fl e
 Remove all patches stored in the cache directory.
 .It Fl f
