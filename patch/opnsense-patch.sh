@@ -42,6 +42,7 @@ PATCHLEVEL="2"
 
 # user options
 DO_FORCE=
+DO_FORWARD="-t"
 DO_INSECURE=
 DO_LIST=
 
@@ -50,7 +51,7 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-while getopts a:c:efilp:r:s: OPT; do
+while getopts a:c:efilNp:r:s: OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -82,6 +83,9 @@ while getopts a:c:efilp:r:s: OPT; do
 		;;
 	l)
 		DO_LIST="-l"
+		;;
+	N)
+		DO_FORWARD="-f"
 		;;
 	p)
 		PATCHLEVEL=${OPTARG}
@@ -186,11 +190,11 @@ for ARG in ${@}; do
 done
 
 for ARG in ${ARGS}; do
-	if ! patch -sCEt -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
+	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
 	fi
 
-	patch -Et -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
+	patch ${DO_FORWARD} -E -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
 
 	cat "${CACHEDIR}/${ARG}" | while read PATCHLINE; do
 		case "${PATCHLINE}" in
