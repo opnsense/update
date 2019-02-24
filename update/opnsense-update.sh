@@ -127,7 +127,6 @@ DO_UPGRADE=
 DO_VERBOSE=
 DO_KERNEL=
 DO_UNLOCK=
-DO_DEBUG=
 DO_LOCAL=
 DO_LOCK=
 DO_FORCE=
@@ -139,7 +138,7 @@ DO_SIZE=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
+while getopts a:BbcdefikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -158,9 +157,6 @@ while getopts a:BbcdefgikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 		;;
 	d)
 		DO_DEFAULTS="-d"
-		;;
-	g)
-		DO_DEBUG="-dbg"
 		;;
 	e)
 		empty_cache
@@ -452,7 +448,7 @@ elif [ -f ${OPENSSL} ]; then
 fi
 
 PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
-KERNELSET=kernel${DO_DEBUG}-${RELEASE}-${ARCH}.txz
+KERNELSET=kernel-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 
 MIRROR="$(mirror_abi)/sets"
