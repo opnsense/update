@@ -109,6 +109,11 @@ done
 
 shift $((${OPTIND} - 1))
 
+if [ ${PATCHLEVEL} -lt 2 ]; then
+	echo "Patch level must be >= 2." >&2
+	exit 1
+fi
+
 mkdir -p ${CACHEDIR}
 
 patch_load()
@@ -179,32 +184,59 @@ for ARG in ${@}; do
 
 	WANT="${REPOSITORY}-${ARG}"
 
-	fetch ${DO_INSECURE} -q -o "${CACHEDIR}/${WANT}" \
+	fetch ${DO_INSECURE} -q -o "${CACHEDIR}/~${WANT}" \
 	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch"
 
-	if [ ! -s "${CACHEDIR}/${WANT}" ]; then
-		rm -f "${CACHEDIR}/${WANT}"
+	if [ ! -s "${CACHEDIR}/~${WANT}" ]; then
+		rm -f "${CACHEDIR}/~${WANT}"
 		echo "Failed to fetch: ${ARG}" >&2
 		exit 1
 	fi
+
+	DISCARD=
+
+	while IFS= read -r PATCHLINE; do
+		case "${PATCHLINE}" in
+		"diff --git a/"*" b/"*)
+			PATCHFILE="$(echo "${PATCHLINE}" | awk '{print $4 }')"
+			for INDEX in $(seq 2 ${PATCHLEVEL}); do
+				PATCHFILE=${PATCHFILE#*/}
+			done
+			if [ -n "${PATCHFILE##src/*}" ]; then
+				DISCARD=1
+			else
+				DISCARD=
+			fi
+			;;
+		esac
+
+		if [ -n "${DISCARD}" ]; then
+			continue
+		fi
+
+		echo "${PATCHLINE}" >> "${CACHEDIR}/${WANT}"
+	done < "${CACHEDIR}/~${WANT}"
 
 	echo "Fetched ${ARG} via ${SITE}/${ACCOUNT}/${REPOSITORY}"
 
 	ARGS="${ARGS} ${WANT}"
 done
 
+rm -f ${CACHEDIR}/~*
+
 if [ -n "${DO_DOWNLOAD}" ]; then
 	ARGS=
 fi
 
 for ARG in ${ARGS}; do
+	# XXX from here we could figure out if we will run in reverse...
 	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
 	fi
 
 	patch ${DO_FORWARD} -E -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
 
-	cat "${CACHEDIR}/${ARG}" | while read PATCHLINE; do
+	while IFS= read -r PATCHLINE; do
 		case "${PATCHLINE}" in
 		"diff --git a/"*" b/"*)
 			PATCHFILE="$(echo "${PATCHLINE}" | awk '{print $4 }')"
@@ -231,7 +263,7 @@ for ARG in ${ARGS}; do
 			fi
 			;;
 		esac
-	done
+	done < "${CACHEDIR}/${ARG}"
 done
 
 if [ -n "${ARGS}" ]; then
