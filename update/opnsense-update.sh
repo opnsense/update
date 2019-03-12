@@ -34,18 +34,22 @@ fi
 
 SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
-
-ORIGIN="/usr/local/etc/pkg/repos/OPNsense.conf"
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
-PENDINGDIR="${WORKPREFIX}/.sets.pending"
 OPENSSL="/usr/local/bin/openssl"
-WORKDIR=${WORKPREFIX}/${$}
 DEBUGDIR="/usr/lib/debug"
 KERNELDIR="/boot/kernel"
+TEE="/usr/bin/tee -a"
+PRODUCT="OPNsense"
 PKG="pkg-static"
-ARCH=$(uname -p)
 VERSION="19.1.4"
+
+ORIGIN="/usr/local/etc/pkg/repos/${PRODUCT}.conf"
+PENDINGDIR="${WORKPREFIX}/.sets.pending"
+PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
+LOGFILE="${WORKPREFIX}/.upgrade.log"
+WORKDIR="${WORKPREFIX}/${$}"
+ARCH=$(uname -p)
 
 if [ ! -f ${ORIGIN} ]; then
 	echo "Missing ${ORIGIN}" >&2
@@ -590,6 +594,7 @@ install_base()
 	if ! tar -C / -xpf ${WORKDIR}/${BASESET} \
 	    --exclude="^etc/group" \
 	    --exclude="^etc/master.passwd" \
+	    --exclude="^etc/motd" \
 	    --exclude="^etc/passwd" \
 	    --exclude="^etc/pwd.db" \
 	    --exclude="^etc/rc" \
@@ -635,11 +640,23 @@ install_pkgs()
 		sed -i '' '/'"${SIG_KEY}"'/s/\"fingerprints\"/\"none\"/' ${ORIGIN}
 	fi
 
+	# prepare log file and pipe
+	mkdir -p ${WORKPREFIX}
+	: > ${LOGFILE}
+	rm -f ${PIPEFILE}
+	mkfifo ${PIPEFILE}
+
+	# unlock all to avoid dependency stalls
+	${TEE} ${LOGFILE} < ${PIPEFILE} &
+	${PKG} unlock -ay 2>&1 > ${PIPEFILE}
+
 	# run full upgrade from the local repository
-	${PKG} unlock -ay
-	if ${PKG} upgrade -fy; then
-		${PKG} autoremove -y
-		${PKG} clean -ya
+	${TEE} ${LOGFILE} < ${PIPEFILE} &
+	if ${PKG} upgrade -fy -r ${PRODUCT} 2>&1 > ${PIPEFILE}; then
+		${TEE} ${LOGFILE} < ${PIPEFILE} &
+		${PKG} autoremove -y 2>&1 > ${PIPEFILE}
+		${TEE} ${LOGFILE} < ${PIPEFILE} &
+		${PKG} clean -ya 2>&1 > ${PIPEFILE}
 	fi
 }
 
