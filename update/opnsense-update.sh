@@ -49,6 +49,8 @@ PENDINGDIR="${WORKPREFIX}/.sets.pending"
 PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
 LOGFILE="${WORKPREFIX}/.upgrade.log"
 WORKDIR="${WORKPREFIX}/${$}"
+
+IDENT=$(sysctl -n kern.ident | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -p)
 
 if [ ! -f ${ORIGIN} ]; then
@@ -129,6 +131,7 @@ DO_RELEASE=
 DO_FLAVOUR=
 DO_UPGRADE=
 DO_VERBOSE=
+DO_DEVICE=
 DO_KERNEL=
 DO_UNLOCK=
 DO_LOCAL=
@@ -142,7 +145,11 @@ DO_SIZE=
 DO_TYPE=
 DO_ABI=
 
-while getopts a:BbcdefikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
+if [ "${IDENT}" != "${IDENT#*-}" ]; then
+	DO_DEVICE="-D ${IDENT#*-}"
+fi
+
+while getopts a:BbcdD:efikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -158,6 +165,9 @@ while getopts a:BbcdefikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 		;;
 	c)
 		DO_CHECK="-c"
+		;;
+	D)
+		DO_DEVICE="-D ${OPTARG}"
 		;;
 	d)
 		DO_DEFAULTS="-d"
@@ -451,8 +461,16 @@ elif [ -f ${OPENSSL} ]; then
 	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
 fi
 
+DEVICE=
+if [ -n "${DO_DEVICE}" ]; then
+	DEVICE="${DO_DEVICE#-D }"
+	if [ -n "${DEVICE}" ]; then
+	    DEVICE="-${DEVICE}"
+	fi
+fi
+
 PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
-KERNELSET=kernel-${RELEASE}-${ARCH}.txz
+KERNELSET=kernel-${RELEASE}-${ARCH}${DEVICE}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 
 MIRROR="$(mirror_abi)/sets"
