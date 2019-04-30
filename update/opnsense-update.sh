@@ -301,21 +301,21 @@ if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
 	# disable kernel if locked
 	if [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		echo "Kernel locked at ${INSTALLED_KERNEL}, skipping."
+		[ -z "${DO_CHECK}" ] && echo "Kernel locked at ${INSTALLED_KERNEL}, skipping."
 		DO_KERNEL=
 	fi
 
 	# disable base if locked
 	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		echo "Base locked at ${INSTALLED_BASE}, skipping."
+		[ -z "${DO_CHECK}" ] && echo "Base locked at ${INSTALLED_BASE}, skipping."
 		DO_BASE=
 	fi
 
 	# disable packages if locked
 	if [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		echo "Packages locked, skipping."
+		[ -z "${DO_CHECK}" ] && echo "Packages locked, skipping."
 		DO_PKGS=
 		DO_TYPE=
 	fi
