@@ -153,7 +153,7 @@ if ! grep -qc "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
 	# enable insecure mode if repo is unsigned
 	DO_INSECURE="-i"
 
-	[ -z "${DO_CHECK}" ] && echo "Warning: ${ORIGIN} does not use fingerprints, disabling signature checks."
+	[ -z "${DO_CHECK}" ] && echo "WARNING: ${ORIGIN} does not use fingerprints, disabling signature checks."
 fi
 
 while getopts a:BbcdD:efikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
