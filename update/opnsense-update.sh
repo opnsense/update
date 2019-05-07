@@ -50,7 +50,7 @@ PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
 LOGFILE="${WORKPREFIX}/.upgrade.log"
 WORKDIR="${WORKPREFIX}/${$}"
 
-IDENT=$(sysctl -n kern.ident | tr '[:upper:]' '[:lower:]')
+IDENT=$(sysctl -n kern.ident)
 ARCH=$(uname -p)
 
 if [ ! -f ${ORIGIN} ]; then
