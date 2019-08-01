@@ -173,19 +173,21 @@ load_fingerprint(const char *dir, const char *filename)
 }
 
 static struct fingerprint_list *
-load_fingerprints(const char *path, int *count)
+load_fingerprints(const char *path, int *count, struct fingerprint_list *prev)
 {
 	DIR *d;
 	struct dirent *ent;
 	struct fingerprint *finger;
 	struct fingerprint_list *fingerprints;
 
-	*count = 0;
-
-	fingerprints = calloc(1, sizeof(struct fingerprint_list));
-	if (fingerprints == NULL)
-		return (NULL);
-	STAILQ_INIT(fingerprints);
+	if (prev != NULL) {
+		fingerprints = prev;
+	} else {
+		fingerprints = calloc(1, sizeof(struct fingerprint_list));
+		if (fingerprints == NULL)
+			return (NULL);
+		STAILQ_INIT(fingerprints);
+	}
 
 	if ((d = opendir(path)) == NULL) {
 		free(fingerprints);
@@ -560,27 +562,25 @@ verify_signature(int fd_pkg, int fd_sig)
 	sc = NULL;
 	trusted = revoked = NULL;
 	ret = false;
+	trusted_count = revoked_count = 0;
 
 	/* Read and parse fingerprints. */
-	if (config_string(FINGERPRINTS, &fingerprints) != 0) {
-		warnx("No CONFIG_FINGERPRINTS defined");
-		goto cleanup;
-	}
+	while (config_string(FINGERPRINTS, &fingerprints) == 0) {
+		snprintf(path, MAXPATHLEN, "%s/trusted", fingerprints);
+		if ((trusted = load_fingerprints(path, &trusted_count, trusted)) == NULL) {
+			warnx("Error loading trusted certificates");
+			goto cleanup;
+		}
 
-	snprintf(path, MAXPATHLEN, "%s/trusted", fingerprints);
-	if ((trusted = load_fingerprints(path, &trusted_count)) == NULL) {
-		warnx("Error loading trusted certificates");
-		goto cleanup;
+		snprintf(path, MAXPATHLEN, "%s/revoked", fingerprints);
+		if ((revoked = load_fingerprints(path, &revoked_count, revoked)) == NULL) {
+			warnx("Error loading revoked certificates");
+			goto cleanup;
+		}
 	}
 
 	if (trusted_count == 0 || trusted == NULL) {
 		fprintf(stderr, "No trusted certificates found.\n");
-		goto cleanup;
-	}
-
-	snprintf(path, MAXPATHLEN, "%s/revoked", fingerprints);
-	if ((revoked = load_fingerprints(path, &revoked_count)) == NULL) {
-		warnx("Error loading revoked certificates");
 		goto cleanup;
 	}
 
