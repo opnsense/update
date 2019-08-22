@@ -47,6 +47,9 @@ __FBSDID("$FreeBSD$");
 
 #define roundup2(x, y)	(((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
 
+extern char *use_repo;
+extern int has_repo;
+
 struct config_value {
        char *value;
        STAILQ_ENTRY(config_value) next;
@@ -382,7 +385,7 @@ load_repositories(const char *repodir)
 	struct dirent *ent;
 	DIR *d;
 	char *p;
-	size_t n;
+	size_t n, m;
 	char path[MAXPATHLEN];
 	int ret;
 
@@ -397,6 +400,10 @@ load_repositories(const char *repodir)
 			continue;
 		p = &ent->d_name[n - 5];
 		if (strcmp(p, ".conf") == 0) {
+			m = strlen(use_repo);
+			if (n != m + 5 || strncmp(ent->d_name, use_repo, m)) {
+				continue;
+			}
 			snprintf(path, sizeof(path), "%s%s%s",
 			    repodir,
 			    repodir[strlen(repodir) - 1] == '/' ? "" : "/",
@@ -406,6 +413,7 @@ load_repositories(const char *repodir)
 				ret = 1;
 				goto cleanup;
 			}
+			has_repo = 1;
 		}
 	}
 

@@ -82,6 +82,9 @@ struct fingerprint {
 
 static int use_quiet = 0;
 
+char *use_repo = NULL;
+int has_repo = 0;
+
 STAILQ_HEAD(fingerprint_list, fingerprint);
 
 static struct fingerprint *
@@ -727,7 +730,7 @@ main(int argc, char *argv[])
 	char *filepath;
 	int c;
 
-	while ((c = getopt(argc, argv, "aq")) != -1) {
+	while ((c = getopt(argc, argv, "aqr:")) != -1) {
 		switch (c) {
 		case 'a': {
 			char abi[BUFSIZ];
@@ -743,6 +746,9 @@ main(int argc, char *argv[])
 		case 'q':
 			use_quiet = 1;
 			break;
+		case 'r':
+			use_repo = strdup(optarg);
+			break;
 		default:
 			usage();
 			/* NOTREACHED */
@@ -757,13 +763,24 @@ main(int argc, char *argv[])
 		/* NOTREACHED */
 	}
 
+	if (!use_repo) {
+		use_repo = strdup("OPNsense");
+	}
+
 	config_init();
+
+	if (has_repo == 0) {
+		fprintf(stderr, "Repository not found: %s\n", use_repo);
+		exit(EXIT_FAILURE);
+	}
 
 	if (verify_local(filepath) != 0) {
 		exit(EXIT_FAILURE);
 	}
 
 	config_finish();
+
+	free(use_repo);
 
 	return (EXIT_SUCCESS);
 }
