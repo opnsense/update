@@ -109,7 +109,7 @@ static struct config_entry c[] = {
 		false,
 	},
 	[FINGERPRINTS] = {
-		PKG_CONFIG_STRING_MULTI,
+		PKG_CONFIG_STRING,
 		"FINGERPRINTS",
 		NULL,
 		NULL,
@@ -303,20 +303,6 @@ config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 		case PKG_CONFIG_LIST:
 			c[i].list = temp_config[i].list;
 			break;
-		case PKG_CONFIG_STRING_MULTI:
-			if (conftype == CONFFILE_PKG)  {
-				break;
-			}
-
-			if (c[i].list == NULL) {
-				c[i].list = malloc(sizeof(*c[i].list));
-				STAILQ_INIT(c[i].list);
-			}
-
-			cv = malloc(sizeof(struct config_value));
-			cv->value = temp_config[i].value;
-			STAILQ_INSERT_TAIL(c[i].list, cv, next);
-			break;
 		default:
 			c[i].value = temp_config[i].value;
 			break;
@@ -509,25 +495,13 @@ finalize:
 int
 config_string(pkg_config_key k, const char **val)
 {
-	if (c[k].type != PKG_CONFIG_STRING && c[k].type != PKG_CONFIG_STRING_MULTI)
+	if (c[k].type != PKG_CONFIG_STRING)
 		return (-1);
 
-	if (c[k].type == PKG_CONFIG_STRING) {
-		if (c[k].value != NULL)
-			*val = c[k].value;
-		else
-			*val = c[k].val;
-	} else if (c[k].type == PKG_CONFIG_STRING_MULTI) {
-		struct config_value *item = STAILQ_FIRST(c[k].list);
-		if (item) {
-			STAILQ_REMOVE_HEAD(c[k].list, next);
-			if (item->value != NULL) {
-				*val = item->value;
-				return (0);
-			}
-		}
-		return (-1);
-	}
+	if (c[k].value != NULL)
+		*val = c[k].value;
+	else
+		*val = c[k].val;
 
 	return (0);
 }

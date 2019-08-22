@@ -50,7 +50,6 @@ typedef enum {
 	PKG_CONFIG_STRING=0,
 	PKG_CONFIG_BOOL,
 	PKG_CONFIG_LIST,
-	PKG_CONFIG_STRING_MULTI,
 } pkg_config_t;
 
 typedef enum {
