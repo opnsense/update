@@ -408,8 +408,10 @@ load_repositories(const char *repodir)
 			    repodir,
 			    repodir[strlen(repodir) - 1] == '/' ? "" : "/",
 			    ent->d_name);
-			if (access(path, F_OK) == 0 &&
-			    read_conf_file(path, CONFFILE_REPO)) {
+			if (access(path, F_OK)) {
+				continue;
+			}
+			if (read_conf_file(path, CONFFILE_REPO)) {
 				ret = 1;
 				goto cleanup;
 			}
