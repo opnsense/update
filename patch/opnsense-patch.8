@@ -49,8 +49,10 @@ The
 .Nm
 utility treats all arguments as upstream
 .Xr git 1
-repository commit hashes, downloads them and finally applies
-them in order.
+repository commit hashes, downloads them with
+.Xr fetch 1
+and finally applies them in order using
+.Xr patch 1 .
 .Pp
 After successful apply the browser cache will be invalidated,
 but the system may still need manual interaction to make the
