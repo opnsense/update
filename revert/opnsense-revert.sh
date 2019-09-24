@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2017 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2019 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -72,6 +72,7 @@ if [ -f ${OPENSSL} ]; then
 fi
 
 MIRROR="$(opnsense-update -M)/MINT/${RELEASE}/${FLAVOUR}/Latest"
+COREPKG=$(opnsense-version -n 2> /dev/null || true)
 
 fetch()
 {
@@ -103,9 +104,15 @@ for PACKAGE in ${@}; do
 done
 
 for PACKAGE in ${@}; do
-	AUTOMATIC=
-	if [ "$(${PKG} query %a ${PACKAGE})" = "1" ]; then
-		AUTOMATIC="-A"
+	# reset automatic, vital as per package metadata
+	AUTOMATIC="-A"
+
+	if [ -n "${COREPKG}" ]; then
+		if [ "${COREPKG}" = ${PACKAGE} ]; then
+			AUTOMATIC=
+		fi
+	elif [ "$(${PKG} query %a ${PACKAGE})" = "0" ]; then
+		AUTOMATIC=
 	fi
 
 	${PKG} unlock ${PACKAGE}
