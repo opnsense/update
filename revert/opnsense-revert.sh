@@ -58,7 +58,7 @@ done
 shift $((${OPTIND} - 1))
 
 for PACKAGE in ${@}; do
-	if ! pkg query %n ${PACKAGE} > /dev/null; then
+	if ! ${PKG} query %n ${PACKAGE} > /dev/null; then
 		echo "Package '${PACKAGE}' is not installed" >&2
 		exit 1
 	fi
@@ -73,6 +73,11 @@ fi
 
 MIRROR="$(opnsense-update -M)/MINT/${RELEASE}/${FLAVOUR}/Latest"
 COREPKG=$(opnsense-version -n 2> /dev/null || true)
+COREDEP=
+
+if [ -n "${COREPKG}" ]; then
+	COREDEP=$(echo ${COREPKG}; ${PKG} query %dn ${COREPKG})
+fi
 
 fetch()
 {
@@ -107,7 +112,7 @@ for PACKAGE in ${@}; do
 	# reset automatic, vital as per package metadata
 	AUTOMATIC="-A"
 
-	if [ -n "${COREPKG}" ]; then
+	if [ -n "${COREPKG}" -a "$(echo "${COREDEP}" | grep -c ${PACKAGE})" != "0" ]; then
 		if [ "${COREPKG}" = ${PACKAGE} ]; then
 			AUTOMATIC=
 		fi
