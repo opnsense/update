@@ -40,7 +40,7 @@ root file system.
 The usage is simple, starting with a FreeBSD 11.2-RELEASE image:
 
     # pkg install ca_root_nss
-    # fetch https://raw.githubusercontent.com/opnsense/update/master/bootstrap/opnsense-bootstrap.sh
+    # fetch https://github.com/wjwidener/update/blob/master/bootstrap/opnsense-bootstrap.sh
     # sh ./opnsense-bootstrap.sh
 
 After successful reboot, OPNsense should be up and running.  :)
