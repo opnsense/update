@@ -41,7 +41,11 @@ The usage is simple, starting with a FreeBSD 11.2-RELEASE image:
 
     # pkg install ca_root_nss
     # fetch https://raw.githubusercontent.com/wjwidener/update/master/bootstrap/opnsense-bootstrap.sh
+    # fetch https://raw.githubusercontent.com/wjwidener/update/master/bootstrap/config.xml
+    # fetch https://raw.githubusercontent.com/wjwidener/update/master/bootstrap/updateips.sh
     # sh ./opnsense-bootstrap.sh
+    # sh ./updateips.sh <wanip> <wansubnet-cidr> <lanip> <lansubnet-cidr> <langw-ip> <wangw-ip>
+    # reboot
 
 After successful reboot, OPNsense should be up and running.  :)
 
