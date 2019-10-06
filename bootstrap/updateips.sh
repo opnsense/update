@@ -28,23 +28,11 @@ if [ "$#" -ne 6 ]; then
     exit 1 
 else
 
-echo " sed -i'.backup.1' -e 's/1.1.1.1/$1/g' config.xml "
-sed -i'.backup.1' -e 's/1.1.1.1/$1/g' config.xml
-
-echo " sed -i'.backup.2' -e 's/2.2.2.2/$2/g' config.xml "
-sed -i'.backup.2' -e 's/2.2.2.2/$2/g' config.xml
-
-echo " sed -i'.backup.3' -e 's/3.3.3.3/$3/g' config.xml "
-sed -i'.backup.3' -e 's/3.3.3.3/$3/g' config.xml
-
-echo " sed -i'.backup.4' -e 's/4.4.4.4/$4/g' config.xml "
-sed -i'.backup.4' -e 's/4.4.4.4/$4/g' config.xml
-
-echo " sed -i'.backup.5' -e 's/5.5.5.5/$5/g' config.xml "
-sed -i'.backup.5' -e 's/5.5.5.5/$5/g' config.xml
-
-echo " sed -i'.backup.6' -e 's/6.6.6.6/$6/g' config.xml "
-sed -i'.backup.6' -e 's/6.6.6.6/$6/g' config.xml
-
+sed -i '' -E -e 's/1.1.1.1/'$1'/g' config.xml
+sed -i '' -E -e 's/2.2.2.2/'$2'/g' config.xml
+sed -i '' -E -e 's/3.3.3.3/'$3'/g' config.xml
+sed -i '' -E -e 's/4.4.4.4/'$4'/g' config.xml
+sed -i '' -E -e 's/5.5.5.5/'$5'/g' config.xml
+sed -i '' -E -e 's/6.6.6.6/'$6'/g' config.xml
 
 fi
