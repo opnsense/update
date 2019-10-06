@@ -45,6 +45,7 @@ The usage is simple, starting with a FreeBSD 11.2-RELEASE image:
     # fetch https://raw.githubusercontent.com/wjwidener/update/master/bootstrap/updateips.sh
     # sh ./opnsense-bootstrap.sh
     # sh ./updateips.sh <wanip> <wansubnet-cidr> <lanip> <lansubnet-cidr> <langw-ip> <wangw-ip>
+    # cp config.xml /usr/local/etc/config.xml
     # reboot
 
 After successful reboot, OPNsense should be up and running.  :)
