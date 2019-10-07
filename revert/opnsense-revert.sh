@@ -62,6 +62,15 @@ done
 shift $((${OPTIND} - 1))
 
 for PACKAGE in ${@}; do
+	case ${PACKAGE} in
+	base|kernel)
+		# always installed
+		continue
+		;;
+	*)
+		;;
+	esac
+
 	if ! ${PKG} query %n ${PACKAGE} > /dev/null; then
 		echo "Package '${PACKAGE}' is not installed" >&2
 		exit 1
@@ -105,6 +114,15 @@ fetch()
 }
 
 for PACKAGE in ${@}; do
+	case ${PACKAGE} in
+	base|kernel)
+		# fetch done by opnsense-update later
+		continue
+		;;
+	*)
+		;;
+	esac
+
 	if [ -z "${RELEASE}" ]; then
 		${PKG} fetch ${PACKAGE}
 	else
@@ -113,6 +131,25 @@ for PACKAGE in ${@}; do
 done
 
 for PACKAGE in ${@}; do
+	case ${PACKAGE} in
+	base)
+		if [ -n "${LOCKSTRIP}" ]; then
+			opnsense-update -bU
+		fi
+		opnsense-update -bf
+		continue
+		;;
+	kernel)
+		if [ -n "${LOCKSTRIP}" ]; then
+			opnsense-update -kU
+		fi
+		opnsense-update -kf
+		continue
+		;;
+	*)
+		;;
+	esac
+
 	# reset automatic, vital as per package metadata
 	AUTOMATIC="-A"
 
