@@ -253,7 +253,7 @@ while getopts a:BbcdD:efikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 		exit 0
 		;;
 	*)
-		echo "Usage: man opnsense-update" >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac

@@ -49,7 +49,7 @@ while getopts ir: OPT; do
 		RELEASE="${OPTARG}"
 		;;
 	*)
-		echo "Usage: man opnsense-revert" >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac

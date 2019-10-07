@@ -56,7 +56,7 @@ while getopts a:d:fns: OPT; do
 		SITE=${OPTARG}
 		;;
 	*)
-		echo "Usage: opnsense-code repo ..." >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac

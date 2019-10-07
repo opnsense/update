@@ -101,7 +101,7 @@ while getopts a:c:defilNp:r:s: OPT; do
 		SITE=${OPTARG}
 		;;
 	*)
-		echo "Usage: man opnsense-patch" >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac

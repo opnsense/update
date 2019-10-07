@@ -66,7 +66,7 @@ while getopts bfin:r:t:vy OPT; do
 		DO_YES="-y"
 		;;
 	*)
-		echo "Usage: man opnsense-bootstrap" >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac

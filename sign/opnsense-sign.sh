@@ -43,7 +43,7 @@ while getopts c:k:p: OPT; do
 		PREFIX=${OPTARG}
 		;;
 	*)
-		echo "Usage: opnsense-sign -p prefix file" >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac

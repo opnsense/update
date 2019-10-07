@@ -32,11 +32,14 @@
 .Nd OPNsense fetch progress watcher
 .Sh SYNOPSIS
 .Nm
-.Ar
+.Op Fl aq
+.Op Fl o Ar file
+.Op Fl T Ar timeout
+.Ar url
 .Sh DESCRIPTION
 The
 .Nm
-utility passes all arguments to
+utility passes all known arguments to
 .Xr fetch 1
 and produces progress output as long as the download runs in the
 background.

@@ -37,7 +37,7 @@ while getopts ao:qT: OPT; do
 	a|q|T)
 		;;
 	*)
-		echo "Usage: opnsense-fetch [-aq] [-o file] [-T timeout] url" >&2
+		echo "Usage: man ${0##*/}" >&2
 		exit 1
 		;;
 	esac
