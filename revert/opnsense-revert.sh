@@ -38,12 +38,16 @@ WORKDIR=${WORKPREFIX}/${$}
 PKG="pkg-static"
 
 INSECURE=
+LOCKSTRIP=1
 RELEASE=
 
 while getopts ir: OPT; do
 	case ${OPT} in
 	i)
 		INSECURE="insecure"
+		;;
+	l)
+		LOCKSTRIP=
 		;;
 	r)
 		RELEASE="${OPTARG}"
@@ -120,7 +124,10 @@ for PACKAGE in ${@}; do
 		AUTOMATIC=
 	fi
 
-	${PKG} unlock ${PACKAGE}
+	if [ -n "${LOCKSTRIP}" ]; then
+		# ignore active locks and do not let them persist
+		${PKG} unlock ${PACKAGE}
+	fi
 
 	if [ -z "${RELEASE}" ]; then
 		${PKG} install -f ${AUTOMATIC} ${PACKAGE}
