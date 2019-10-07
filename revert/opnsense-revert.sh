@@ -41,7 +41,7 @@ INSECURE=
 LOCKSTRIP=1
 RELEASE=
 
-while getopts ir: OPT; do
+while getopts ilr: OPT; do
 	case ${OPT} in
 	i)
 		INSECURE="insecure"
