@@ -16,5 +16,5 @@ SSH is enabled on port 22
 
 The default boot up creds are:
 
-U: root 
-PW: opnsense
+    # U: root
+    # PW: opnsense
