@@ -65,7 +65,7 @@ done
 shift $((${OPTIND} - 1))
 
 if [ -z "${NONROOT}" -a "$(id -u)" != "0" ]; then
-	echo "Must be root."
+	echo "Must be root." >&2
 	exit 1
 fi
 
