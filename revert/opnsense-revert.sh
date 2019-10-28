@@ -28,7 +28,7 @@
 set -e
 
 if [ "$(id -u)" != "0" ]; then
-	echo "Must be root."
+	echo "Must be root." >&2
 	exit 1
 fi
 
@@ -37,20 +37,20 @@ OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
 PKG="pkg-static"
 
-INSECURE=
-LOCKSTRIP=1
-RELEASE=
+DO_INSECURE=
+DO_LOCKKEEP=
+DO_RELEASE=
 
 while getopts ilr: OPT; do
 	case ${OPT} in
 	i)
-		INSECURE="insecure"
+		DO_INSECURE="-i"
 		;;
 	l)
-		LOCKSTRIP=
+		LOCKKEEP="-l"
 		;;
 	r)
-		RELEASE="${OPTARG}"
+		DO_RELEASE="-r ${OPTARG}"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -84,7 +84,7 @@ if [ -f ${OPENSSL} ]; then
 	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
 fi
 
-MIRROR="$(opnsense-update -M)/MINT/${RELEASE}/${FLAVOUR}/Latest"
+MIRROR="$(opnsense-update -M)/MINT/${DO_RELEASE#-r }/${FLAVOUR}/Latest"
 COREPKG=$(opnsense-version -n 2> /dev/null || true)
 COREDEP=
 
@@ -98,7 +98,7 @@ fetch()
 	STAGE2="opnsense-fetch -a -T 30 -q -o ${WORKDIR}/${1} ${MIRROR}/${1}"
 	STAGE3="opnsense-verify ${WORKDIR}/${1}"
 
-	if [ -n "${INSECURE}" ]; then
+	if [ -n "${DO_INSECURE}" ]; then
 		# no signature, no cry
 		STAGE1=":"
 		STAGE3=":"
@@ -123,7 +123,7 @@ for PACKAGE in ${@}; do
 		;;
 	esac
 
-	if [ -z "${RELEASE}" ]; then
+	if [ -z "${DO_RELEASE}" ]; then
 		${PKG} fetch ${PACKAGE}
 	else
 		fetch ${PACKAGE}.txz
@@ -133,17 +133,25 @@ done
 for PACKAGE in ${@}; do
 	case ${PACKAGE} in
 	base)
-		if [ -n "${LOCKSTRIP}" ]; then
+		if [ -z "${DO_LOCKKEEP}" ]; then
 			opnsense-update -bU
 		fi
-		opnsense-update -bf
+		if opnsense-update -bT; then
+			opnsense-update -bf ${DO_RELEASE}
+		else
+			echo "Skipping locked ${PACKAGE} set." >&2
+		fi
 		continue
 		;;
 	kernel)
-		if [ -n "${LOCKSTRIP}" ]; then
+		if [ -z "${DO_LOCKKEEP}" ]; then
 			opnsense-update -kU
 		fi
-		opnsense-update -kf
+		if opnsense-update -bT; then
+			opnsense-update -kf ${DO_RELEASE}
+		else
+			echo "Skipping locked ${PACKAGE} set." >&2
+		fi
 		continue
 		;;
 	*)
@@ -166,7 +174,7 @@ for PACKAGE in ${@}; do
 		${PKG} unlock ${PACKAGE}
 	fi
 
-	if [ -z "${RELEASE}" ]; then
+	if [ -z "${DO_RELEASE}" ]; then
 		${PKG} install -f ${AUTOMATIC} ${PACKAGE}
 	else
 		${PKG} install -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
