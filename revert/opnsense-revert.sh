@@ -154,7 +154,7 @@ for PACKAGE in ${@}; do
 	AUTOMATIC="-A"
 
 	if [ -n "${COREPKG}" -a "$(echo "${COREDEP}" | grep -c ${PACKAGE})" != "0" ]; then
-		if [ "${COREPKG}" = ${PACKAGE} ]; then
+		if [ "${COREPKG}" = ${PACKAGE} -o "pkg" = ${PACKAGE}  ]; then
 			AUTOMATIC=
 		fi
 	elif [ "$(${PKG} query %a ${PACKAGE})" = "0" ]; then
