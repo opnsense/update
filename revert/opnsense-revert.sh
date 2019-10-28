@@ -169,7 +169,7 @@ for PACKAGE in ${@}; do
 		AUTOMATIC=
 	fi
 
-	if [ -n "${LOCKSTRIP}" ]; then
+	if [ -z "${DO_LOCKKEEP}" ]; then
 		# ignore active locks and do not let them persist
 		${PKG} unlock ${PACKAGE}
 	fi
