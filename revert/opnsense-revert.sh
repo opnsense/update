@@ -159,14 +159,14 @@ for PACKAGE in ${@}; do
 	esac
 
 	# reset automatic, vital as per package metadata
-	AUTOMATIC="-A"
+	AUTOMATIC="1"
 
 	if [ -n "${COREPKG}" -a "$(echo "${COREDEP}" | grep -c ${PACKAGE})" != "0" ]; then
 		if [ "${COREPKG}" = ${PACKAGE} -o "pkg" = ${PACKAGE}  ]; then
-			AUTOMATIC=
+			AUTOMATIC="0"
 		fi
 	elif [ "$(${PKG} query %a ${PACKAGE})" = "0" ]; then
-		AUTOMATIC=
+		AUTOMATIC="0"
 	fi
 
 	if [ -z "${DO_LOCKKEEP}" ]; then
@@ -175,10 +175,12 @@ for PACKAGE in ${@}; do
 	fi
 
 	if [ -z "${DO_RELEASE}" ]; then
-		${PKG} install -f ${AUTOMATIC} ${PACKAGE}
+		${PKG} install -f ${PACKAGE}
 	else
-		${PKG} install -f ${AUTOMATIC} ${WORKDIR}/${PACKAGE}.txz
+		${PKG} install -f ${WORKDIR}/${PACKAGE}.txz
 	fi
+
+	${PKG} set -A ${AUTOMATIC} ${PACKAGE}
 done
 
 rm -rf ${WORKPREFIX}/*
