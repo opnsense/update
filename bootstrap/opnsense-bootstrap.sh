@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2019 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2020 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -31,7 +31,7 @@ URL="https://github.com/opnsense/core/archive/stable"
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
-RELEASE="19.7"
+RELEASE="20.1"
 
 DO_BARE=
 DO_INSECURE=
