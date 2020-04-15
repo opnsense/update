@@ -80,20 +80,20 @@ fi
 
 git_update()
 {
+	local REPO=${1}
+
 	if [ -n "${FORCE}" ]; then
-		rm -rf "${DIRECTORY}/${ARG}"
+		rm -rf "${DIRECTORY}/${REPO}"
 	fi
 
-	if [ -d "${DIRECTORY}/${ARG}/.git" ]; then
-		(cd "${DIRECTORY}/${ARG}"; git fetch --all --prune; git pull)
+	if [ -d "${DIRECTORY}/${REPO}/.git" ]; then
+		(cd "${DIRECTORY}/${REPO}"; git fetch --all --prune; git pull)
 	else
-		git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
+		git clone ${SITE}/${ACCOUNT}/${REPO} "${DIRECTORY}/${REPO}"
 	fi
 }
 
-ARG=tools
-
-git_update
+git_update tools
 
 ABI=$(opnsense-version -a)
 CONF="/usr/tools/config/${ABI}/make.conf"
@@ -105,5 +105,5 @@ else
 fi
 
 for ARG in ${@}; do
-	git_update
+	git_update ${ARG}
 done
