@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2018 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2020 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -78,7 +78,8 @@ if [ ! -f ${GIT} ]; then
 	${PKG} install -y git
 fi
 
-for ARG in ${@}; do
+git_update()
+{
 	if [ -n "${FORCE}" ]; then
 		rm -rf "${DIRECTORY}/${ARG}"
 	fi
@@ -88,21 +89,21 @@ for ARG in ${@}; do
 	else
 		git clone ${SITE}/${ACCOUNT}/${ARG} "${DIRECTORY}/${ARG}"
 	fi
+}
 
-	case ${ARG} in
-	tools)
-		if [ ! -L /etc/make.conf ]; then
-			touch /etc/make.conf
-		fi
-		rm /etc/make.conf
-		CONF="${DIRECTORY}/${ARG}/config/$(opnsense-version -a)/make.conf"
-		if [ ! -f "${CONF}" ]; then
-			SETTINGS=$(make -C "${DIRECTORY}/${ARG}" -VSETTINGS)
-			CONF="${DIRECTORY}/${ARG}/config/${SETTINGS}/make.conf"
-		fi
-		ln -s "${CONF}" /etc/make.conf
-		;;
-	*)
-		;;
-	esac
+ARG=tools
+
+git_update
+
+ABI=$(opnsense-version -a)
+CONF="/usr/tools/config/${ABI}/make.conf"
+if [ -f "${CONF}" ]; then
+	rm -f /etc/make.conf
+	cp "${CONF}" /etc/make.conf
+else
+	echo "ABI ${ABI} is no longer supported" >&2
+fi
+
+for ARG in ${@}; do
+	git_update
 done
