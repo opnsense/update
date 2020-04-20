@@ -31,7 +31,7 @@ URL="https://github.com/opnsense/core/archive"
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
-RELEASE="20.1"
+RELEASE="20.7"
 
 DO_ABI="-a ${RELEASE}"
 DO_BARE=
@@ -90,15 +90,14 @@ if [ "${FBSDNAME}" != "FreeBSD" ]; then
 fi
 
 FBSDARCH=$(uname -p)
-if [ "${FBSDARCH}" != "i386" -a \
-    "${FBSDARCH}" != "amd64" ]; then
-	echo "Must be i386 or amd64" >&2
+if [ "${FBSDARCH}" != "amd64" ]; then
+	echo "Must be amd64 architecture." >&2
 	exit 1
 fi
 
 FBSDVER=$(uname -r | colrm 4)
-if [ "${FBSDVER}" != "11." ]; then
-	echo "Must be a FreeBSD 11 release." >&2
+if [ "${FBSDVER}" != "12." ]; then
+	echo "Must be a FreeBSD 12 release." >&2
 	exit 1
 fi
 
