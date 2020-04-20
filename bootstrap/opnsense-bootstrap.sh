@@ -170,14 +170,14 @@ else
 	export SSL_CA_CERT_FILE=${WORKDIR}/cert.pem
 fi
 
-SUBDIR="stable/${RELEASE}"
-SUBFILE="stable-${RELEASE}"
+SUBFILE="stable/${RELEASE}"
+SUBDIR="stable-${RELEASE}"
 if [ "${RELEASE}" = "snapshot" ]; then
-	SUBDIR="master"
 	SUBFILE="master"
+	SUBDIR="master"
 fi
 
-fetch -o ${WORKDIR}/core.tar.gz "${URL}/${SUBDIR}.tar.gz"
+fetch -o ${WORKDIR}/core.tar.gz "${URL}/${SUBFILE}.tar.gz"
 tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
 if [ -z "${DO_BARE}" ]; then
@@ -188,7 +188,7 @@ if [ -z "${DO_BARE}" ]; then
 	rm -f /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-${SUBFILE} bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
+make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
