@@ -188,7 +188,7 @@ if [ -z "${DO_BARE}" ]; then
 	rm -f /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
+make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= CORE_FLAVOUR=${FLAVOUR}
 
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
