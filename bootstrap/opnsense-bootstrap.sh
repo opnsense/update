@@ -27,7 +27,7 @@
 
 set -e
 
-URL="https://github.com/opnsense/core/archive/stable"
+URL="https://github.com/opnsense/core/archive"
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
 TYPE="opnsense"
@@ -170,7 +170,14 @@ else
 	export SSL_CA_CERT_FILE=${WORKDIR}/cert.pem
 fi
 
-fetch -o ${WORKDIR}/core.tar.gz "${URL}/${RELEASE}.tar.gz"
+SUBDIR="stable/${RELEASE}"
+SUBFILE="stable-${RELEASE}"
+if [ "${RELEASE}" = "snapshot" ]; then
+	SUBDIR="master"
+	SUBFILE="master"
+fi
+
+fetch -o ${WORKDIR}/core.tar.gz "${URL}/${SUBDIR}.tar.gz"
 tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
 if [ -z "${DO_BARE}" ]; then
@@ -181,8 +188,7 @@ if [ -z "${DO_BARE}" ]; then
 	rm -f /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-stable-${RELEASE} \
-    bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
+make -C ${WORKDIR}/core-${SUBFILE} bootstrap DESTDIR= FLAVOUR=${FLAVOUR}
 
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
