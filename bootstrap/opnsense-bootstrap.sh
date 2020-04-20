@@ -33,13 +33,17 @@ FLAVOUR="OpenSSL"
 TYPE="opnsense"
 RELEASE="20.1"
 
+DO_ABI="-a ${RELEASE}"
 DO_BARE=
-DO_INSECURE=
 DO_FACTORY=
+DO_INSECURE=
 DO_YES=
 
-while getopts bfin:r:t:vy OPT; do
+while getopts a:bfin:r:t:vy OPT; do
 	case ${OPT} in
+	a)
+		DO_ABI="-a ${OPTARG}"
+		;;
 	b)
 		DO_BARE="-b"
 		;;
@@ -188,7 +192,8 @@ if [ -z "${DO_BARE}" ]; then
 	rm -f /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= CORE_FLAVOUR=${FLAVOUR}
+make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= \
+    CORE_ABI=${DO_ABI#"-a "} CORE_FLAVOUR=${FLAVOUR}
 
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then

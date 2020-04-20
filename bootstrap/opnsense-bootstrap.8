@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015-2017 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2020 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd December 17, 2017
+.Dd April 20, 2020
 .Dt OPNSENSE-BOOTSTRAP 8
 .Os
 .Sh NAME
@@ -33,6 +33,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl bfiy
+.Op Fl a Ar abi
 .Op Fl n Ar flavour
 .Op Fl r Ar release
 .Op Fl t Ar type
@@ -49,6 +50,9 @@ installation.
 .Pp
 The options are as follows:
 .Bl -tag -width ".Fl n Ar flavour" -offset indent
+.It Fl a Ar abi
+Select the package ABI.
+If not specified it is derived from the default release version.
 .It Fl b
 Do a bare-mode bootstrap, installing the package repository files only.
 .It Fl f
