@@ -571,12 +571,6 @@ fetch_set()
 
 install_kernel()
 {
-	KLDXREF="kldxref ${KERNELDIR}"
-
-	if [ -n "${DO_UPGRADE}" ]; then
-		KLDXREF=":"
-	fi
-
 	echo -n "Installing ${KERNELSET}..."
 
 	if ! mkdir -p ${KERNELDIR} ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR}; then
@@ -595,8 +589,10 @@ install_kernel()
 		exit_msg " failed, tar error ${?}"
 	fi
 
-	if ! ${KLDXREF}; then
-		exit_msg " failed, kldxref error ${?}"
+	if [ -z "${DO_UPGRADE}" ]; then
+		if ! kldxref ${KERNELDIR}; then
+			exit_msg " failed, kldxref error ${?}"
+		fi
 	fi
 
 	echo " done"
