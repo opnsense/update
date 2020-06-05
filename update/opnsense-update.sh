@@ -585,7 +585,7 @@ install_kernel()
 		exit_msg " failed, mv error ${?}"
 	fi
 
-	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET}; then
+	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET} --exclude="^.*"; then
 		exit_msg " failed, tar error ${?}"
 	fi
 
@@ -613,6 +613,7 @@ install_base()
 	fi
 
 	if ! tar -C / -xpf ${WORKDIR}/${BASESET} \
+	    --exclude="^.*" \
 	    --exclude="^etc/group" \
 	    --exclude="^etc/master.passwd" \
 	    --exclude="^etc/motd" \
