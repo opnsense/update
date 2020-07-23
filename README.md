@@ -34,8 +34,7 @@ build a chain of trust by using current package fingerprints -> CA
 root certificates -> HTTPS -> OPNsense package fingerprints.
 
 What it will also do is turn a supported stock FreeBSD release into
-an OPNsense installation, given that UFS was used to install the
-root file system.
+an OPNsense installation.  Both UFS and ZFS installations are supported.
 
 The usage is simple, starting with a FreeBSD 11.2-RELEASE image:
 
