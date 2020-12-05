@@ -42,7 +42,7 @@ KERNELDIR="/boot/kernel"
 TEE="/usr/bin/tee -a"
 PRODUCT="OPNsense"
 PKG="pkg-static"
-VERSION="20.7.4"
+VERSION="20.7.6"
 
 ORIGIN="/usr/local/etc/pkg/repos/${PRODUCT}.conf"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
