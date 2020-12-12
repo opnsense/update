@@ -69,13 +69,13 @@ if [ -z "${NONROOT}" -a "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-if [ -z "${*}" ]; then
-	echo "Nothing to do."
-	exit 0
-fi
-
 if [ ! -f ${GIT} ]; then
 	${PKG} install -y git
+fi
+
+if [ -z "${*}" -a -z "$(git rev-parse --git-dir 2> /dev/null)" ]; then
+	echo "Nothing to do."
+	exit 0
 fi
 
 git_update()
@@ -107,3 +107,8 @@ fi
 for ARG in ${@}; do
 	git_update ${ARG}
 done
+
+if [ -z "${@}" ]; then
+	# current directory is probably something we need to update
+	git fetch --all --prune; git pull
+fi
