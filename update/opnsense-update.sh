@@ -138,21 +138,22 @@ DO_MIRRORURL=
 DO_DEFAULTS=
 DO_INSECURE=
 DO_SNAPSHOT=
-DO_RELEASE=
 DO_FLAVOUR=
+DO_RELEASE=
 DO_UPGRADE=
 DO_VERBOSE=
 DO_DEVICE=
 DO_KERNEL=
+DO_MIRROR=
 DO_UNLOCK=
-DO_LOCAL=
-DO_LOCK=
-DO_FORCE=
 DO_CHECK=
+DO_FORCE=
+DO_LOCAL=
 DO_BASE=
+DO_LOCK=
 DO_PKGS=
-DO_SKIP=
 DO_SIZE=
+DO_SKIP=
 DO_TYPE=
 DO_ABI=
 
@@ -209,8 +210,7 @@ while getopts a:BbcD:defikLl:Mm:N:n:Ppr:SsTt:UuVvz OPT; do
 		DO_LOCAL="-l ${OPTARG}"
 		;;
 	M)
-		mirror_abi
-		exit 0
+		DO_MIRROR="-M"
 		;;
 	m)
 		if [ -n "${OPTARG}" ]; then
@@ -282,6 +282,12 @@ fi
 
 if [ -n "${DO_VERBOSE}" ]; then
 	set -x
+fi
+
+
+if [ -n "${DO_MIRROR}" ]; then
+	mirror_abi
+	exit 0
 fi
 
 if [ "${DO_TYPE}" = "-T" ]; then
