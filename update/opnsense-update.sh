@@ -101,18 +101,28 @@ base_version() {
 
 mirror_abi()
 {
+	local DIR="\2"
+
+	if [ -n "${DO_SNAPSHOT}" ]; then
+		DIR="snapshots"
+	fi
+
 	# The first part after ABI is our suffix and
 	# we need all of it to find the correct sets.
-	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/[^\/]*\)\/.*/\1/p' ${ORIGIN})
+
+	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/\)\([^\/]*\)\/.*/\1'"${DIR}"'/p' ${ORIGIN})
 	if [ -z "${MIRROR}" ]; then
 		echo "Mirror read failed." >&2
 		exit 1
 	fi
+
 	ABI=$(opnsense-verify -a)
 	if [ -n "${DO_ABI}" ]; then
 		ABI=${DO_ABI#"-a "}
 	fi
+
 	eval MIRROR="${MIRROR}"
+
 	echo "${MIRROR}"
 }
 
@@ -127,6 +137,7 @@ DO_MIRRORDIR=
 DO_MIRRORURL=
 DO_DEFAULTS=
 DO_INSECURE=
+DO_SNAPSHOT=
 DO_RELEASE=
 DO_FLAVOUR=
 DO_UPGRADE=
@@ -156,7 +167,7 @@ if ! grep -qc "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
 	[ -z "${DO_CHECK}" ] && echo "WARNING: ${ORIGIN} does not use fingerprints, disabling signature checks."
 fi
 
-while getopts a:BbcdD:efikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
+while getopts a:BbcD:defikLl:Mm:N:n:Ppr:SsTt:UuVvz OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -233,11 +244,11 @@ while getopts a:BbcdD:efikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 	S)
 		DO_SIZE="-S"
 		;;
-	t)
-		DO_TYPE="-t ${OPTARG}"
-		;;
 	T)
 		DO_TYPE="-T"
+		;;
+	t)
+		DO_TYPE="-t ${OPTARG}"
 		;;
 	U)
 		DO_UNLOCK="-U"
@@ -251,6 +262,9 @@ while getopts a:BbcdD:efikLl:Mm:N:n:Ppr:Sst:TUuvV OPT; do
 	v)
 		echo ${VERSION}
 		exit 0
+		;;
+	z)
+		DO_SNAPSHOT="-z"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2

@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd January 18, 2020
+.Dd December 14, 2020
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -32,7 +32,7 @@
 .Nd OPNsense update utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl BbdefikPpsuVv
+.Op Fl BbdefikPpsuVvz
 .Op Fl a Ar abi
 .Op Fl D Ar device
 .Op Fl l Ar directory
@@ -184,6 +184,11 @@ after each individual step.
 Set debug mode for shell script output.
 .It Fl v
 Print the latest set version.
+.It Fl z
+Use the snapshot directory to fetch sets regardless of what is
+currently configured in the repository file.
+This does not affect
+.Sq Fl p .
 .El
 .Sh FILES
 .Bl -tag -width Ds
