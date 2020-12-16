@@ -464,6 +464,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
 		${PKG} autoremove -y
+		${PKG} check -yda
 		${PKG} clean -ya
 	else
 		# cannot continue after failed upgrade
@@ -697,6 +698,8 @@ install_pkgs()
 	if ${PKG} upgrade -fy -r ${PRODUCT} 2>&1 > ${PIPEFILE}; then
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
 		${PKG} autoremove -y 2>&1 > ${PIPEFILE}
+		${TEE} ${LOGFILE} < ${PIPEFILE} &
+		${PKG} check -yda 2>&1 > ${PIPEFILE}
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
 		${PKG} clean -ya 2>&1 > ${PIPEFILE}
 	fi
