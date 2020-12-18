@@ -108,7 +108,7 @@ for ARG in ${@}; do
 	git_update ${ARG}
 done
 
-if [ -z "${@}" ]; then
+if [ -z "${*}" ]; then
 	# current directory is probably something we need to update
 	git fetch --all --prune; git pull
 fi
