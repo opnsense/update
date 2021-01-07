@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2020 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2021 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -99,7 +99,7 @@ ABI=$(opnsense-version -a)
 CONF="/usr/tools/config/${ABI}/make.conf"
 if [ -f "${CONF}" ]; then
 	rm -f /etc/make.conf
-	cp "${CONF}" /etc/make.conf
+	make -C /usr/tools make.conf SETTINGS=${ABI} > /etc/make.conf
 else
 	echo "ABI ${ABI} is no longer supported" >&2
 fi
