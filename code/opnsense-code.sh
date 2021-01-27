@@ -78,6 +78,9 @@ if [ -z "${*}" -a -z "$(git rev-parse --git-dir 2> /dev/null)" ]; then
 	exit 0
 fi
 
+ABI=$(opnsense-version -a)
+CONF="/usr/tools/config/${ABI}/make.conf"
+
 git_update()
 {
 	local REPO=${1}
@@ -90,13 +93,15 @@ git_update()
 		(cd "${DIRECTORY}/${REPO}"; git fetch --all --prune; git pull)
 	else
 		git clone ${SITE}/${ACCOUNT}/${REPO} "${DIRECTORY}/${REPO}"
+		BRANCH=$(make -C /usr/tools -V "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
+		if [ -n "${BRANCH}" ]; then
+			(cd "${DIRECTORY}/${REPO}"; git checkout ${BRANCH})
+		fi
 	fi
 }
 
 git_update tools
 
-ABI=$(opnsense-version -a)
-CONF="/usr/tools/config/${ABI}/make.conf"
 if [ -f "${CONF}" ]; then
 	rm -f /etc/make.conf
 	make -C /usr/tools make.conf SETTINGS=${ABI} > /etc/make.conf
