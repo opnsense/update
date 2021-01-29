@@ -84,6 +84,11 @@ if [ -f ${VERSIONDIR}/kernel.lock ]; then
 	LOCKED_KERNEL=1
 fi
 
+RELEASE_HINT=unknown
+if [ -f ${UPGRADEHINT} ]; then
+	RELEASE_HINT=$(cat ${UPGRADEHINT})
+fi
+
 kernel_version() {
 	# It's faster to ask uname as long as the base
 	# system is consistent that should work instead
@@ -143,6 +148,7 @@ DO_FLAVOUR=
 DO_RELEASE=
 DO_UPGRADE=
 DO_VERBOSE=
+DO_VERSION=
 DO_DEVICE=
 DO_KERNEL=
 DO_MIRROR=
@@ -236,11 +242,8 @@ while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
 		DO_PKGS="-p"
 		;;
 	R)
-		RELEASE=unknown
-		if [ -f ${UPGRADEHINT} ]; then
-			RELEASE=$(cat ${UPGRADEHINT})
-		fi
-		DO_RELEASE="-r ${RELEASE}"
+		DO_RELEASE="-r ${RELEASE_HINT}"
+		RELEASE=${RELEASE_HINT}
 		;;
 	r)
 		DO_RELEASE="-r ${OPTARG}"
@@ -263,13 +266,17 @@ while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
 		;;
 	u)
 		DO_UPGRADE="-u"
+		# assume -R but yield to explicit -R/-r
+		if [ -z "${DO_RELEASE}" ]; then
+			DO_RELEASE="-r ${RELEASE_HINT}"
+			RELEASE=${RELEASE_HINT}
+		fi
 		;;
 	V)
 		DO_VERBOSE="-V"
 		;;
 	v)
-		echo ${VERSION}
-		exit 0
+		DO_VERSION="-v"
 		;;
 	z)
 		DO_SNAPSHOT="-z"
@@ -292,6 +299,15 @@ if [ -n "${DO_VERBOSE}" ]; then
 	set -x
 fi
 
+# if no release was selected we use the embedded defaults
+if [ -z "${RELEASE}" ]; then
+	RELEASE=${VERSION}
+fi
+
+if [ -n "${DO_VERSION}" ]; then
+	echo ${RELEASE}
+	exit 0
+fi
 
 if [ -n "${DO_MIRROR}" ]; then
 	mirror_abi
@@ -430,11 +446,6 @@ fi
 if [ -n "${DO_SKIP}" ]; then
 	# only invoke flavour and mirror replacement
 	exit 0
-fi
-
-# if no release was selected we use the embedded defaults
-if [ -z "${RELEASE}" ]; then
-	RELEASE=${VERSION}
 fi
 
 if [ "${DO_BASE}" = "-B" ]; then

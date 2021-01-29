@@ -65,8 +65,9 @@ The default is
 .Sq Fl bkp ,
 attempting to update all installed components at once using
 a minor upgrade sequence.
-Major upgrades are invoked using e.g.\&
-.Sq Fl ur Ar 17.1 ,
+.Pp
+Major upgrades are invoked using
+.Sq Fl u
 instead.
 .Pp
 The options are as follows:
@@ -141,10 +142,10 @@ Implies
 .It Fl p
 Select the packages.
 .It Fl R
-Select the next major release from the upgrade hint file if found.
+Select the major release from the upgrade hint file if found.
 Otherwise,
 .Sq unknown
-is used to signify the hint is missing and the next major update
+is used to signify the hint is missing and the major update
 cannot be reached.
 .It Fl r Ar release
 Select the
@@ -178,8 +179,8 @@ Sets are generally unlocked unless
 .Sq Fl L
 was used.
 .It Fl u
-Invoke a major upgrade, which requires explicit use of
-.Sq Fl r .
+Invoke the major upgrade if known or set manually using
+.Sq Fl r Ar release .
 In order to finish the upgrade,
 .Sq Fl B
 and
@@ -208,10 +209,14 @@ The file is rewritten in case of
 or
 .Sq Fl n .
 .It Pa /usr/local/opnsense/firmware-upgrade
-This file, if found, contains a hint at the next major release
-possibly available and will be automatically read using
-.Fl Fl R
-.
+This file contains a hint at the major release and will be
+automatically read using
+.Sq Fl R
+and
+.Sq Fl u
+unless
+.Sq Fl r Ar release
+was given.
 .It Pa /usr/local/opnsense/version/base
 The file is used to check if a base system upgrade is necessary.
 It is embedded into the base set.
