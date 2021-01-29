@@ -424,7 +424,12 @@ if [ -n "${DO_CHECK}" ]; then
 			exit 0
 		fi
 	fi
-	# will not check DO_PKGS, different approach
+	if [ -n "${DO_PKGS}" ]; then
+		# emulating -R we see if there is a hint file only
+		if [ "${RELEASE_HINT}" != "unknown" ]; then
+			exit 0
+		fi
+	fi
 	exit 1
 fi
 

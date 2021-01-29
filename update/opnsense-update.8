@@ -42,7 +42,7 @@
 .Op Fl r Ar release
 .Op Fl t Ar type
 .Nm
-.Op Fl cf Op Fl bk
+.Op Fl cf Op Fl bkp
 .Nm
 .Op Fl LSTU Op Fl bkp
 .Nm
@@ -86,7 +86,10 @@ Implies
 .It Fl b
 Select the base system.
 .It Fl c
-Check wether a set update can be performed, but do not install it.
+Check whether a set update can be performed, but do not install it.
+When using
+.Sq Fl p ,
+the major upgrade hint file is checked for existence only.
 .It Fl D Ar device
 Device type for the kernel to be loaded.
 If unset it is automatically detected.
