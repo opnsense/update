@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2020 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2021 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,6 +32,7 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
+UPGRADEHINT="/usr/local/opnsense/firmware-upgrade"
 SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 VERSIONDIR="/usr/local/opnsense/version"
@@ -168,7 +169,7 @@ if ! grep -qc "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
 	[ -z "${DO_CHECK}" ] && echo "WARNING: ${ORIGIN} does not use fingerprints, disabling signature checks." >&2
 fi
 
-while getopts a:BbcD:defikLl:Mm:N:n:Ppr:SsTt:UuVvz OPT; do
+while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -233,6 +234,13 @@ while getopts a:BbcD:defikLl:Mm:N:n:Ppr:SsTt:UuVvz OPT; do
 		;;
 	p)
 		DO_PKGS="-p"
+		;;
+	R)
+		RELEASE=unknown
+		if [ -f ${UPGRADEHINT} ]; then
+			RELEASE=$(cat ${UPGRADEHINT})
+		fi
+		DO_RELEASE="-r ${RELEASE}"
 		;;
 	r)
 		DO_RELEASE="-r ${OPTARG}"
