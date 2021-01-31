@@ -37,6 +37,7 @@ SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 VERSIONDIR="/usr/local/opnsense/version"
 WORKPREFIX="/var/cache/opnsense-update"
+REPOSDIR="/usr/local/etc/pkg/repos"
 OPENSSL="/usr/local/bin/openssl"
 DEBUGDIR="/usr/lib/debug"
 KERNELDIR="/boot/kernel"
@@ -45,10 +46,10 @@ PRODUCT="OPNsense"
 PKG="pkg-static"
 VERSION="21.1"
 
-ORIGIN="/usr/local/etc/pkg/repos/${PRODUCT}.conf"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
 LOGFILE="${WORKPREFIX}/.upgrade.log"
+ORIGIN="${REPOSDIR}/${PRODUCT}.conf"
 WORKDIR="${WORKPREFIX}/${$}"
 
 IDENT=$(sysctl -n kern.ident)
@@ -486,7 +487,26 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
 
+	# keep a backup of the currently used repos and core package name
+	mkdir -p ${WORKDIR}
+	cp ${REPOSDIR}/*.conf ${WORKDIR}
+	CORE=$(opnsense-version -n)
+
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
+		if [ ! -f ${ORIGIN} ]; then
+			echo "!!!!!!!!! ATTENTION !!!!!!!!!"
+			echo "! Lost upstream repository. !"
+			echo "! Attempting to recover it. !"
+			echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+			sleep 3 # for dramatic effect
+			mkdir -p ${REPOSDIR}
+			rm -f ${REPOSDIR}/*
+			cp ${WORKDIR}/*.conf ${REPOSDIR}
+			${PKG} install -yr ${PRODUCT} ${CORE}
+		elif ! diff -uq ${WORKDIR}/${PRODUCT}.conf ${ORIGIN}; then
+			# rerun sync before there are any complaints
+			${PKG} update ${DO_FORCE}
+		fi
 		${PKG} autoremove -y
 		${PKG} check -yda
 		${PKG} clean -ya
