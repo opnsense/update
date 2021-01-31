@@ -691,10 +691,8 @@ install_base()
 	echo " done"
 }
 
-install_pkgs()
+register_pkgs()
 {
-	echo "Installing ${PACKAGESSET}..."
-
 	# We can't recover from this replacement, but
 	# since the manual says we require a reboot
 	# after `-P', it is to be considered a feature.
@@ -706,6 +704,14 @@ install_pkgs()
 		# so we need to disable its native verification, too.
 		sed -i '' '/'"${SIG_KEY}"'/s/\"fingerprints\"/\"none\"/' ${ORIGIN}
 	fi
+}
+
+install_pkgs()
+{
+	echo "Installing ${PACKAGESSET}..."
+
+	# register local packages repository
+	register_pkgs
 
 	# prepare log file and pipe
 	mkdir -p ${WORKPREFIX}
@@ -719,7 +725,11 @@ install_pkgs()
 
 	# run full upgrade from the local repository
 	${TEE} ${LOGFILE} < ${PIPEFILE} &
-	if ${PKG} upgrade -fy -r ${PRODUCT} 2>&1 > ${PIPEFILE}; then
+	if (${PKG} update -f && ${PKG} upgrade -fy -r ${PRODUCT}) 2>&1 > ${PIPEFILE}; then
+		# re-register local packages repository
+		# since the successful upgrade reset it
+		register_pkgs
+
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
 		${PKG} autoremove -y 2>&1 > ${PIPEFILE}
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
