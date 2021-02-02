@@ -741,21 +741,21 @@ install_pkgs()
 
 	# unlock all to avoid dependency stalls
 	${TEE} ${LOGFILE} < ${PIPEFILE} &
-	${PKG} unlock -ay 2>&1 > ${PIPEFILE}
+	${PKG} unlock -ay > ${PIPEFILE} 2>&1
 
 	# run full upgrade from the local repository
 	${TEE} ${LOGFILE} < ${PIPEFILE} &
-	if (${PKG} update -f && ${PKG} upgrade -fy -r ${PRODUCT}) 2>&1 > ${PIPEFILE}; then
+	if (${PKG} update -f && ${PKG} upgrade -fy -r ${PRODUCT}) > ${PIPEFILE} 2>&1; then
 		# re-register local packages repository
 		# since the successful upgrade reset it
 		register_pkgs
 
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
-		${PKG} autoremove -y 2>&1 > ${PIPEFILE}
+		${PKG} autoremove -y > ${PIPEFILE} 2>&1
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
-		${PKG} check -yda 2>&1 > ${PIPEFILE}
+		${PKG} check -yda > ${PIPEFILE} 2>&1
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
-		${PKG} clean -ya 2>&1 > ${PIPEFILE}
+		${PKG} clean -ya > ${PIPEFILE} 2>&1
 	fi
 }
 
