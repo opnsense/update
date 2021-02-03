@@ -427,7 +427,9 @@ if [ -n "${DO_CHECK}" ]; then
 		fi
 	fi
 	if [ -n "${DO_PKGS}" ]; then
-		exit 0
+		if [ -n "${DO_RELEASE}" ]; then
+			exit 0
+		fi
 	fi
 	exit 1
 fi
