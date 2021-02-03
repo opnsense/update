@@ -412,6 +412,10 @@ if [ -n "${DO_TYPE}" ]; then
 fi
 
 if [ -n "${DO_CHECK}" ]; then
+	if [ "${DO_RELEASE}" = "-R" -a "${RELEASE}" = "unknown" ]; then
+		# always error if we selected unknown release
+		exit 1
+	fi
 	if [ -n "${DO_KERNEL}" ]; then
 		if [ "${RELEASE}" != "${INSTALLED_KERNEL}" ]; then
 			exit 0
@@ -423,9 +427,7 @@ if [ -n "${DO_CHECK}" ]; then
 		fi
 	fi
 	if [ -n "${DO_PKGS}" ]; then
-		if [ "${DO_RELEASE}" = "-R" -a "${RELEASE}" != "unknown" ]; then
-			exit 0
-		fi
+		exit 0
 	fi
 	exit 1
 fi
