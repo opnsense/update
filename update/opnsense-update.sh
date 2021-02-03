@@ -44,7 +44,7 @@ KERNELDIR="/boot/kernel"
 TEE="/usr/bin/tee -a"
 PRODUCT="OPNsense"
 PKG="pkg-static"
-VERSION="21.1"
+RELEASE="21.1"
 
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
@@ -83,11 +83,6 @@ fi
 LOCKED_KERNEL=
 if [ -f ${VERSIONDIR}/kernel.lock ]; then
 	LOCKED_KERNEL=1
-fi
-
-RELEASE_HINT=unknown
-if [ -f ${UPGRADEHINT} ]; then
-	RELEASE_HINT=$(cat ${UPGRADEHINT})
 fi
 
 kernel_version() {
@@ -243,12 +238,10 @@ while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
 		DO_PKGS="-p"
 		;;
 	R)
-		DO_RELEASE="-r ${RELEASE_HINT}"
-		RELEASE=${RELEASE_HINT}
+		DO_RELEASE="-R"
 		;;
 	r)
 		DO_RELEASE="-r ${OPTARG}"
-		RELEASE=${OPTARG}
 		;;
 	s)
 		DO_SKIP="-s"
@@ -269,8 +262,7 @@ while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
 		DO_UPGRADE="-u"
 		# assume -R but yield to explicit -R/-r
 		if [ -z "${DO_RELEASE}" ]; then
-			DO_RELEASE="-r ${RELEASE_HINT}"
-			RELEASE=${RELEASE_HINT}
+			DO_RELEASE="-R"
 		fi
 		;;
 	V)
@@ -300,9 +292,14 @@ if [ -n "${DO_VERBOSE}" ]; then
 	set -x
 fi
 
-# if no release was selected we use the embedded defaults
-if [ -z "${RELEASE}" ]; then
-	RELEASE=${VERSION}
+if [ "${DO_RELEASE}" = "-R" ]; then
+	if [ -f ${UPGRADEHINT} ]; then
+		RELEASE=$(cat ${UPGRADEHINT})
+	else
+		RELEASE=unknown
+	fi
+elif [ -n "${DO_RELEASE}" ]; then
+	RELEASE=${DO_RELEASE#"-r "}
 fi
 
 if [ -n "${DO_VERSION}" ]; then
@@ -416,18 +413,17 @@ fi
 
 if [ -n "${DO_CHECK}" ]; then
 	if [ -n "${DO_KERNEL}" ]; then
-		if [ "${VERSION}" != "${INSTALLED_KERNEL}" ]; then
+		if [ "${RELEASE}" != "${INSTALLED_KERNEL}" ]; then
 			exit 0
 		fi
 	fi
 	if [ -n "${DO_BASE}" ]; then
-		if [ "${VERSION}" != "${INSTALLED_BASE}" ]; then
+		if [ "${RELEASE}" != "${INSTALLED_BASE}" ]; then
 			exit 0
 		fi
 	fi
 	if [ -n "${DO_PKGS}" ]; then
-		# emulating -R we see if there is a hint file only
-		if [ "${RELEASE_HINT}" != "unknown" ]; then
+		if [ "${DO_RELEASE}" = "-R" -a "${RELEASE}" != "unknown" ]; then
 			exit 0
 		fi
 	fi
@@ -760,6 +756,10 @@ install_pkgs()
 }
 
 if [ "${DO_PKGS}" = "-p" ]; then
+	if [ "${DO_RELEASE}" = "-R" -a "${RELEASE}" = "unknown" ]; then
+		echo "No known packages set to fetch was specified."
+		exit 1
+	fi
 	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
 		rm -f ${VERSIONDIR}/core.lock
 	fi
