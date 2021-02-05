@@ -403,8 +403,11 @@ if [ -n "${DO_TYPE}" ]; then
 		# different package dependencies between types
 		if ! ${PKG} query %n ${NEW} > /dev/null; then
 			# always force the second install
-			${PKG} install -fy ${NEW}
+			${PKG} install -fy ${NEW} || true
 		fi
+
+		# unconditionally set vital flag for safety
+		${PKG} set -yv 1 ${NEW}
 
 		# set exit code based on transition status
 		[ "${OLD}" != "${NEW}" ]
