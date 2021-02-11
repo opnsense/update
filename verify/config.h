@@ -63,5 +63,6 @@ int config_string(pkg_config_key, const char **);
 int config_bool(pkg_config_key, bool *);
 
 int pkg_get_myabi(char *, size_t);
+void config_repos(void);
 
 #endif

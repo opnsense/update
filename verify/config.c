@@ -55,6 +55,9 @@ struct config_value {
        STAILQ_ENTRY(config_value) next;
 };
 
+#define REPOS_MAX 	16
+static char *reponames[REPOS_MAX];
+
 struct config_entry {
 	uint8_t type;
 	const char *key;
@@ -204,7 +207,7 @@ boolstr_to_bool(const char *str)
 	return (false);
 }
 
-static void
+static int
 config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 {
 	struct sbuf *buf = sbuf_new_auto();
@@ -312,9 +315,13 @@ config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 		}
 	}
 
+	return (0);
+
 cleanup:
 	free(temp_config);
 	sbuf_delete(buf);
+
+	return (1);
 }
 
 /*-
@@ -330,6 +337,7 @@ parse_repo_file(ucl_object_t *obj)
 	ucl_object_iter_t it = NULL;
 	const ucl_object_t *cur;
 	const char *key;
+	int i, ret;
 
 	while ((cur = ucl_iterate_object(obj, &it, true))) {
 		key = ucl_object_key(cur);
@@ -340,7 +348,22 @@ parse_repo_file(ucl_object_t *obj)
 		if (cur->type != UCL_OBJECT)
 			continue;
 
-		config_parse(cur, CONFFILE_REPO);
+		ret = config_parse(cur, CONFFILE_REPO);
+
+		for (i = 0; i < REPOS_MAX; ++i) {
+			if (reponames[i]) {
+				if (!strcmp(reponames[i], key)) {
+					if (ret) {
+						free(reponames[i]);
+						reponames[i] = NULL;
+					}
+					break;
+				}
+			} else if (!ret) {
+				reponames[i] = strdup(key);
+				break;
+			}
+		}
 	}
 }
 
@@ -400,9 +423,11 @@ load_repositories(const char *repodir)
 			continue;
 		p = &ent->d_name[n - 5];
 		if (strcmp(p, ".conf") == 0) {
-			m = strlen(use_repo);
-			if (n != m + 5 || strncmp(ent->d_name, use_repo, m)) {
-				continue;
+			if (use_repo) {
+				m = strlen(use_repo);
+				if (n != m + 5 || strncmp(ent->d_name, use_repo, m)) {
+					continue;
+				}
 			}
 			snprintf(path, sizeof(path), "%s%s%s",
 			    repodir,
@@ -543,4 +568,16 @@ config_finish(void) {
 
 	for (i = 0; i < CONFIG_SIZE; i++)
 		free(c[i].value);
+}
+
+void
+config_repos(void)
+{
+	int i;
+
+	for (i = 0; i < REPOS_MAX; i++) {
+		if (reponames[i]) {
+			printf("%s\n", reponames[i]);
+		}
+	}
 }
