@@ -80,7 +80,6 @@ struct fingerprint {
 	STAILQ_ENTRY(fingerprint) next;
 };
 
-static int use_list = 0;
 static int use_quiet = 0;
 
 char *use_repo = NULL;
@@ -745,8 +744,10 @@ main(int argc, char *argv[])
 			return (EXIT_SUCCESS);
 		}
 		case 'l':
-			use_list = 1;
-			break;
+			config_init();
+			config_repos();
+
+			return (EXIT_SUCCESS);
 		case 'q':
 			use_quiet = 1;
 			break;
@@ -762,23 +763,16 @@ main(int argc, char *argv[])
 	argc -= optind;
 	argv += optind;
 
-	if (!use_list) {
-		if (argc < 1 || (filepath = argv[0]) == NULL) {
-			usage();
-			/* NOTREACHED */
-		}
+	if (argc < 1 || (filepath = argv[0]) == NULL) {
+		usage();
+		/* NOTREACHED */
+	}
 
-		if (!use_repo) {
-			use_repo = strdup("OPNsense");
-		}
+	if (!use_repo) {
+		use_repo = strdup("OPNsense");
 	}
 
 	config_init();
-
-	if (use_list) {
-		config_repos();
-		exit(EXIT_SUCCESS);
-	}
 
 	if (has_repo == 0) {
 		fprintf(stderr, "Repository not found: %s\n", use_repo);
