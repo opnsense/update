@@ -135,6 +135,39 @@ empty_cache() {
 	fi
 }
 
+backup_origin()
+{
+	# keep a backup of the currently used repos and core package name
+	mkdir -p ${WORKDIR}
+	for CONF in $(find ${WORKDIR} -name '*.conf'); do
+		rm -rf ${CONF}
+	done
+	for CONF in $(find ${REPOSDIR} -name '*.conf'); do
+		cp ${CONF} ${WORKDIR}
+	done
+}
+
+recover_origin()
+{
+	echo "!!!!!!!!! ATTENTION !!!!!!!!!"
+	echo "! Lost upstream repository. !"
+	echo "! Attempting to recover it. !"
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+	sleep 3 # for dramatic effect
+
+	mkdir -p ${REPOSDIR}
+	for CONF in $(find ${REPOSDIR} -name '*.conf'); do
+		rm -rf ${CONF}
+	done
+	for CONF in $(find ${WORKDIR} -name '*.conf'); do
+		cp ${CONF} ${REPOSDIR}
+	done
+
+	# recover lost package(s)
+	${PKG} install -yr ${PRODUCT} ${1}
+}
+
 DO_MIRRORDIR=
 DO_MIRRORURL=
 DO_DEFAULTS=
@@ -384,28 +417,23 @@ if [ -n "${DO_TYPE}" ]; then
 	OLD=$(opnsense-version -n)
 	NEW=${DO_TYPE#"-t "}
 
-	if [ "${OLD}" = "${NEW}" -a -z "${DO_FORCE}" ]; then
-		echo "The package '${OLD}' is already installed."
-	else
+	if [ "${OLD}" != "${NEW}" -o -n "${DO_FORCE}" ]; then
 		# cache packages in case something goes wrong
 		${PKG} fetch -yr ${PRODUCT} ${OLD} ${NEW}
 
 		# strip vital flag from installed package type
 		${PKG} set -yv 0 ${OLD}
 
+		backup_origin
+
 		# attempt to install the new package type and...
 		if ! ${PKG} install -yr ${PRODUCT} ${DO_FORCE} ${NEW}; then
 			NEW=${OLD}
 		fi
 
-		# XXX in this case we may have to deal with recovery
-
-		# ...recover in both cases as pkg(8) seems to
-		# have problems in a few edge cases that involve
-		# different package dependencies between types
-		if ! ${PKG} query %n ${NEW} > /dev/null; then
-			# always force the second install
-			${PKG} install -fyr ${PRODUCT} ${NEW} || true
+		# recover from fatal attempt
+		if [ ! -f ${ORIGIN} ]; then
+			recover_origin ${NEW}
 		fi
 
 		# unconditionally set vital flag for safety
@@ -489,25 +517,16 @@ elif [ -n "${DO_LOCAL}" ]; then
 fi
 
 if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
+	CORE=$(opnsense-version -n)
+
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
 
-	# keep a backup of the currently used repos and core package name
-	mkdir -p ${WORKDIR}
-	cp ${REPOSDIR}/*.conf ${WORKDIR}
-	CORE=$(opnsense-version -n)
+	backup_origin
 
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
 		if [ ! -f ${ORIGIN} ]; then
-			echo "!!!!!!!!! ATTENTION !!!!!!!!!"
-			echo "! Lost upstream repository. !"
-			echo "! Attempting to recover it. !"
-			echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-			sleep 3 # for dramatic effect
-			mkdir -p ${REPOSDIR}
-			rm -f ${REPOSDIR}/*
-			cp ${WORKDIR}/*.conf ${REPOSDIR}
-			${PKG} install -yr ${PRODUCT} ${CORE}
+			recover_origin ${CORE}
 		elif ! diff -uq ${WORKDIR}/${PRODUCT}.conf ${ORIGIN}; then
 			# rerun sync before there are any complaints
 			${PKG} update ${DO_FORCE}
