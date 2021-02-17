@@ -413,37 +413,6 @@ if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
 	fi
 fi
 
-if [ -n "${DO_TYPE}" ]; then
-	OLD=$(opnsense-version -n)
-	NEW=${DO_TYPE#"-t "}
-
-	if [ "${OLD}" != "${NEW}" -o -n "${DO_FORCE}" ]; then
-		# cache packages in case something goes wrong
-		${PKG} fetch -yr ${PRODUCT} ${OLD} ${NEW}
-
-		# strip vital flag from installed package type
-		${PKG} set -yv 0 ${OLD}
-
-		backup_origin
-
-		# attempt to install the new package type and...
-		if ! ${PKG} install -yr ${PRODUCT} ${DO_FORCE} ${NEW}; then
-			NEW=${OLD}
-		fi
-
-		# recover from fatal attempt
-		if [ ! -f ${ORIGIN} ]; then
-			recover_origin ${NEW}
-		fi
-
-		# unconditionally set vital flag for safety
-		${PKG} set -yv 1 ${NEW}
-
-		# set exit code based on transition status
-		[ "${OLD}" != "${NEW}" ]
-	fi
-fi
-
 if [ -n "${DO_CHECK}" ]; then
 	if [ "${DO_RELEASE}" = "-R" -a "${RELEASE}" = "unknown" ]; then
 		# always error if we selected unknown release
@@ -539,15 +508,46 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		exit 1
 	fi
 
-	if [ -n "${DO_BASE}${DO_KERNEL}" ]; then
+	if [ -n "${DO_BASE}${DO_KERNEL}${DO_TYPE}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
-		    ${DO_FORCE} ${DO_RELEASE} ${DO_DEFAULTS} \
+		    ${DO_FORCE} ${DO_RELEASE} ${DO_TYPE} ${DO_DEFAULTS} \
 		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_ABI}
 	fi
 
 	# stop here to prevent the second pass
 	exit 0
+fi
+
+if [ -n "${DO_TYPE}" ]; then
+	OLD=$(opnsense-version -n)
+	NEW=${DO_TYPE#"-t "}
+
+	if [ "${OLD}" != "${NEW}" -o -n "${DO_FORCE}" ]; then
+		# cache packages in case something goes wrong
+		${PKG} fetch -yr ${PRODUCT} ${OLD} ${NEW}
+
+		# strip vital flag from installed package type
+		${PKG} set -yv 0 ${OLD}
+
+		backup_origin
+
+		# attempt to install the new package type and...
+		if ! ${PKG} install -yr ${PRODUCT} ${DO_FORCE} ${NEW}; then
+			NEW=${OLD}
+		fi
+
+		# recover from fatal attempt
+		if [ ! -f ${ORIGIN} ]; then
+			recover_origin ${NEW}
+		fi
+
+		# unconditionally set vital flag for safety
+		${PKG} set -yv 1 ${NEW}
+
+		# set exit code based on transition status
+		[ "${OLD}" != "${NEW}" ]
+	fi
 fi
 
 FLAVOUR="Base"
