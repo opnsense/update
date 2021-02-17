@@ -388,22 +388,24 @@ if [ -n "${DO_TYPE}" ]; then
 		echo "The package '${OLD}' is already installed."
 	else
 		# cache packages in case something goes wrong
-		${PKG} fetch -y ${OLD} ${NEW}
+		${PKG} fetch -yr ${PRODUCT} ${OLD} ${NEW}
 
 		# strip vital flag from installed package type
 		${PKG} set -yv 0 ${OLD}
 
 		# attempt to install the new package type and...
-		if ! ${PKG} install -y ${DO_FORCE} ${NEW}; then
+		if ! ${PKG} install -yr ${PRODUCT} ${DO_FORCE} ${NEW}; then
 			NEW=${OLD}
 		fi
+
+		# XXX in this case we may have to deal with recovery
 
 		# ...recover in both cases as pkg(8) seems to
 		# have problems in a few edge cases that involve
 		# different package dependencies between types
 		if ! ${PKG} query %n ${NEW} > /dev/null; then
 			# always force the second install
-			${PKG} install -fy ${NEW} || true
+			${PKG} install -fyr ${PRODUCT} ${NEW} || true
 		fi
 
 		# unconditionally set vital flag for safety
