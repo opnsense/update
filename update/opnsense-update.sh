@@ -336,7 +336,9 @@ elif [ -n "${DO_RELEASE}" ]; then
 fi
 
 if [ -n "${DO_VERSION}" ]; then
-	echo ${RELEASE}
+	if [ "${DO_RELEASE}" != "-R" -o -f ${UPGRADEHINT} ]; then
+		echo ${RELEASE}
+	fi
 	exit 0
 fi
 
