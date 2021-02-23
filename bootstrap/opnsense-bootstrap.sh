@@ -63,7 +63,7 @@ while getopts a:bfin:r:t:vy OPT; do
 		TYPE=${OPTARG}
 		;;
 	v)
-		echo ${RELEASE}
+		echo "${RELEASE}"
 		exit 0
 		;;
 	y)
@@ -76,7 +76,7 @@ while getopts a:bfin:r:t:vy OPT; do
 	esac
 done
 
-shift $((${OPTIND} - 1))
+shift $((OPTIND - 1))
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
@@ -156,7 +156,7 @@ echo
 
 rm -rf /usr/local/etc/pkg
 
-rm -rf ${WORKDIR}/*
+rm -rf "${WORKDIR:?}"/*
 mkdir -p ${WORKDIR}
 
 export ASSUME_ALWAYS_YES=yes
@@ -192,7 +192,7 @@ if [ -z "${DO_BARE}" ]; then
 fi
 
 make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= \
-    CORE_ABI=${DO_ABI#"-a "} CORE_FLAVOUR=${FLAVOUR}
+    CORE_ABI="${DO_ABI#"-a "}" CORE_FLAVOUR="${FLAVOUR}"
 
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
@@ -200,7 +200,7 @@ if [ -z "${DO_BARE}" ]; then
 	fi
 
 	pkg bootstrap
-	pkg install ${TYPE}
+	pkg install "${TYPE}"
 
 	# beyond this point verify everything
 	unset SSL_NO_VERIFY_PEER
