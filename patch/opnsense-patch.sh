@@ -274,3 +274,5 @@ if [ -f ${REFRESH} ]; then
 	# always force browser to reload JS/CSS
 	touch ${REFRESH}
 fi
+
+rm -f /tmp/opnsense_menu_cache.xml
