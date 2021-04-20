@@ -44,7 +44,7 @@ KERNELDIR="/boot/kernel"
 TEE="/usr/bin/tee -a"
 PRODUCT="OPNsense"
 PKG="pkg-static"
-RELEASE="21.1.4"
+RELEASE="21.1.5"
 
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
