@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2020 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2021 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@ FLAVOUR="OpenSSL"
 TYPE="opnsense"
 RELEASE="%%RELEASE%%"
 
-DO_ABI="-a ${RELEASE}"
+DO_ABI=
 DO_BARE=
 DO_FACTORY=
 DO_INSECURE=
@@ -81,6 +81,10 @@ shift $((OPTIND - 1))
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
 	exit 1
+fi
+
+if [ -z "${DO_ABI}" ]; then
+	DO_ABI="-a ${RELEASE}"
 fi
 
 FBSDNAME=$(uname -s)
