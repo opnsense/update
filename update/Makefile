@@ -7,9 +7,9 @@ PREFIX?=${LOCALBASE}
 BINDIR=	${PREFIX}/sbin
 MANDIR=	${PREFIX}/man/man
 
-CLEANFILES=	opnsense-update.sh
+CLEANFILES=	${SCRIPTS}
 
-opnsense-update.sh: opnsense-update.sh.in
+${SCRIPTS}: ${SCRIPTS}.in
 	sed -e 's|%%RELEASE%%|${UPDATE_RELEASE}|g' ${.ALLSRC} > ${.TARGET}
 
 .include <bsd.prog.mk>
