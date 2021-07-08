@@ -197,7 +197,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-if ! grep -qc "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
+if ! grep -q "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
 	# enable insecure mode if repo is unsigned
 	DO_INSECURE="-i"
 
