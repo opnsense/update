@@ -171,7 +171,7 @@ if [ -n "${DO_QUICK}" ]; then
 		rm -rf /conf/*
 	fi
 
-	opnsense-update ${DO_INSECURE} -bkft "${TYPE}"
+	opnsense-update ${DO_INSECURE} -bkpft "${TYPE}"
 	reboot
 fi
 
