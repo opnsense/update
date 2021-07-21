@@ -32,7 +32,7 @@
 .Nd OPNsense bootstrap utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl bfiVy
+.Op Fl bfiqVy
 .Op Fl a Ar abi
 .Op Fl n Ar flavour
 .Op Fl r Ar release
@@ -72,6 +72,8 @@ and
 .Sq OpenSSL .
 The default is
 .Sq OpenSSL .
+.It Fl q
+Quick mode does an inplace installation without a bootstrap.
 .It Fl r Ar release
 Select a different major version target.
 The master branch can be selected by specifying

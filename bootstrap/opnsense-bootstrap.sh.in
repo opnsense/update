@@ -37,10 +37,11 @@ DO_ABI=
 DO_BARE=
 DO_FACTORY=
 DO_INSECURE=
+DO_QUICK=
 DO_VERBOSE=
 DO_YES=
 
-while getopts a:bfin:r:t:vVy OPT; do
+while getopts a:bfin:qr:t:vVy OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -56,6 +57,9 @@ while getopts a:bfin:r:t:vVy OPT; do
 		;;
 	n)
 		FLAVOUR=${OPTARG}
+		;;
+	q)
+		DO_QUICK="-q"
 		;;
 	r)
 		RELEASE=${OPTARG}
@@ -161,6 +165,15 @@ if [ -n "${DO_INSECURE}" ]; then
 fi
 
 echo
+
+if [ -n "${DO_QUICK}" ]; then
+	if [ -n "${DO_FACTORY}" ]; then
+		rm -rf /conf/*
+	fi
+
+	opnsense-update ${DO_INSECURE} -bkft "${TYPE}"
+	reboot
+fi
 
 rm -rf /usr/local/etc/pkg
 
