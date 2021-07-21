@@ -548,7 +548,7 @@ if [ -n "${DO_TYPE}" ]; then
 		${PKG} set -yv 1 ${NEW}
 
 		# set exit code based on transition status
-		[ "${OLD}" != "${NEW}" ]
+		[ "${OLD}" != "${NEW}" -o -n "${DO_FORCE}" ]
 	fi
 fi
 
