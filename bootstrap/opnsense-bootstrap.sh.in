@@ -171,7 +171,7 @@ if [ -n "${DO_QUICK}" ]; then
 		rm -rf /conf/*
 	fi
 
-	opnsense-update ${DO_INSECURE} -bkpft "${TYPE}"
+	opnsense-update ${DO_INSECURE} ${DO_VERBOSE} -bkpft "${TYPE}"
 	reboot
 fi
 
@@ -232,6 +232,6 @@ if [ -z "${DO_BARE}" ]; then
 	unset SSL_NO_VERIFY_PEER
 	unset SSL_CA_CERT_FILE
 
-	opnsense-update -bkf
+	opnsense-update ${DO_VERBOSE} -bkf
 	reboot
 fi

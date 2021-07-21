@@ -514,7 +514,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
 		    ${DO_FORCE} ${DO_RELEASE} ${DO_TYPE} ${DO_DEFAULTS} \
-		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_ABI}
+		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_ABI} ${DO_VERBOSE}
 	fi
 
 	# stop here to prevent the second pass
