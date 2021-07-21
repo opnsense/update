@@ -91,10 +91,6 @@ if [ -n "${DO_VERBOSE}" ]; then
 	set -x
 fi
 
-if [ -z "${DO_ABI}" ]; then
-	DO_ABI="-a ${RELEASE}"
-fi
-
 FBSDNAME=$(uname -s)
 if [ "${FBSDNAME}" != "FreeBSD" ]; then
 	echo "Must be FreeBSD." >&2
@@ -188,8 +184,13 @@ fi
 SUBFILE="stable/${RELEASE}"
 SUBDIR="stable-${RELEASE}"
 if [ "${RELEASE}" = "snapshot" ]; then
-	SUBFILE="master"
+	RELEASE="snapshots"
 	SUBDIR="master"
+	SUBFILE="master"
+fi
+
+if [ -z "${DO_ABI}" ]; then
+	DO_ABI="-a ${RELEASE}"
 fi
 
 fetch -o ${WORKDIR}/core.tar.gz "${URL}/${SUBFILE}.tar.gz"
