@@ -40,7 +40,7 @@ The usage is simple, starting with a FreeBSD 12.1-RELEASE image:
 
     # pkg install ca_root_nss
     # fetch https://raw.githubusercontent.com/opnsense/update/master/bootstrap/opnsense-bootstrap.sh.in
-    # sh ./opnsense-bootstrap.sh.in -r "major.version"
+    # sh ./opnsense-bootstrap.sh.in -r 21.7
 
 After successful reboot, OPNsense should be up and running.  :)
 
