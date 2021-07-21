@@ -37,9 +37,10 @@ DO_ABI=
 DO_BARE=
 DO_FACTORY=
 DO_INSECURE=
+DO_VERBOSE=
 DO_YES=
 
-while getopts a:bfin:r:t:vy OPT; do
+while getopts a:bfin:r:t:vVy OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -62,6 +63,9 @@ while getopts a:bfin:r:t:vy OPT; do
 	t)
 		TYPE=${OPTARG}
 		;;
+	V)
+		DO_VERBOSE="-V"
+		;;
 	v)
 		echo "${RELEASE}"
 		exit 0
@@ -81,6 +85,10 @@ shift $((OPTIND - 1))
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
 	exit 1
+fi
+
+if [ -n "${DO_VERBOSE}" ]; then
+	set -x
 fi
 
 if [ -z "${DO_ABI}" ]; then
