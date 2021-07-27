@@ -93,7 +93,10 @@ git_update()
 		(cd "${DIRECTORY}/${REPO}"; git fetch --all --prune; git pull)
 	else
 		git clone ${SITE}/${ACCOUNT}/${REPO} "${DIRECTORY}/${REPO}"
-		BRANCH=$(make -C /usr/tools -V "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
+		BRANCH=
+		if [ -f ${CONF} ]; then
+			BRANCH=$(make -C /usr/tools -v "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
+		fi
 		if [ -n "${BRANCH}" ]; then
 			(cd "${DIRECTORY}/${REPO}"; git checkout ${BRANCH})
 		fi
