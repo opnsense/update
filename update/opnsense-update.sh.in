@@ -500,7 +500,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 			recover_origin ${CORE}
 		elif ! diff -uq ${WORKDIR}/${PRODUCT}.conf ${ORIGIN}; then
 			# rerun sync before there are any complaints
-			${PKG} update ${DO_FORCE} || true
+			${PKG} update ${DO_FORCE}
 		fi
 		${PKG} autoremove -y
 		${PKG} check -yda
@@ -771,7 +771,8 @@ install_pkgs()
 
 	# run full upgrade from the local repository
 	${TEE} ${LOGFILE} < ${PIPEFILE} &
-	if (${PKG} update -f && ${PKG} upgrade -fy -r ${PRODUCT}) > ${PIPEFILE} 2>&1; then
+	if (${PKG} update -f -r ${PRODUCT} && \
+	    ${PKG} upgrade -fy -r ${PRODUCT}) > ${PIPEFILE} 2>&1; then
 		# re-register local packages repository
 		# since the successful upgrade reset it
 		register_pkgs
