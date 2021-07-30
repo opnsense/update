@@ -62,24 +62,27 @@ while getopts a:c:defilNP:p:r:s:V OPT; do
 		case ${OPTARG} in
 		core)
 			PREFIX="/usr/local"
-			REPOSITORY="core"
+			PATCHLEVEL="2"
+			;;
+		installer)
+			PREFIX="/usr/libexec/bsdinstall"
 			PATCHLEVEL="2"
 			;;
 		plugins)
 			PREFIX="/usr/local"
-			REPOSITORY="plugins"
 			PATCHLEVEL="4"
 			;;
-		installer)
-			PREFIX="/usr/libexec/bsdinstall"
-			REPOSITORY="installer"
-			PATCHLEVEL="2"
+		update)
+			PREFIX="/usr/local/sbin"
+			PATCHLEVEL="3"
 			;;
 		*)
 			echo "Unknown repository default: ${OPTARG}" >&2
 			exit 1
 			;;
 		esac
+
+		REPOSITORY=${OPTARG}
 		;;
 	d)
 		DO_DOWNLOAD="-d"
@@ -212,15 +215,21 @@ for ARG in ${@}; do
 	fi
 
 	DISCARD=
+	PATCHDIFF=
 
 	while IFS= read -r PATCHLINE; do
 		case "${PATCHLINE}" in
 		"diff --git a/"*" b/"*)
 			PATCHFILE="$(echo "${PATCHLINE}" | awk '{print $4 }')"
+			PATCHDIFF=2
 			for INDEX in $(seq 2 ${PATCHLEVEL}); do
+				if [ -z "${PATCHFILE##src/*}" ]; then
+					break
+				fi
 				PATCHFILE=${PATCHFILE#*/}
+				PATCHDIFF=${INDEX}
 			done
-			if [ -n "${PATCHFILE##src/*}" ]; then
+			if [ -n "${PATCHFILE##src/*}" -o -z "${PATCHFILE##*.8}" ]; then
 				# discard whole chunk until we get a valid file
 				DISCARD=1
 			else
@@ -229,6 +238,13 @@ for ARG in ${@}; do
 			;;
 		"--- a/src/"*|"+++ b/src/"*)
 			PATCHFILE="$(echo "${PATCHLINE}" | cut -c 11-)"
+			FAKELEVEL=
+			for INDEX in $(seq 2 ${PATCHLEVEL}); do
+				if [ ${INDEX} -gt ${PATCHDIFF} ]; then
+					PATCHFILE=${PATCHFILE#*/}
+					FAKELEVEL="fake/${FAKELEVEL}"
+				fi
+			done
 			FILEIN="${PATCHFILE%%.in}"
 			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
 				PATCHFILE=${FILEIN}
@@ -238,7 +254,7 @@ for ARG in ${@}; do
 				PATCHFILE=${FILESH}
 			fi
 			PATCHPREFIX="$(echo "${PATCHLINE}" | cut -c -10)"
-			PATCHLINE="${PATCHPREFIX}${PATCHFILE}"
+			PATCHLINE="${PATCHPREFIX}${FAKELEVEL}${PATCHFILE}"
 			;;
 		esac
 
@@ -275,6 +291,14 @@ for ARG in ${ARGS}; do
 			for INDEX in $(seq 1 ${PATCHLEVEL}); do
 				PATCHFILE=${PATCHFILE#*/}
 			done
+			FILEIN="${PATCHFILE%%.in}"
+			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
+				PATCHFILE=${FILEIN}
+			fi
+			FILESH="${PATCHFILE%%.sh}"
+			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
+				PATCHFILE=${FILESH}
+			fi
 			PATCHFILE="${PREFIX}/${PATCHFILE}"
 			;;
 		"new file mode "*)
