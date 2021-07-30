@@ -1,4 +1,4 @@
-SUBDIR=		bootstrap code fetch patch revert sign verify update
+SUBDIR=		src
 SUBDIR_TARGETS=	upgrade
 
 .include <bsd.subdir.mk>
