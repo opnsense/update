@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2019 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2021 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -31,28 +31,29 @@ set -e
 ARGS=
 CACHEDIR="/var/cache/opnsense-patch"
 PATCHES=
-PREFIX="/usr/local"
 REFRESH="/usr/local/opnsense/www/index.php"
 
 # fetch defaults
-SITE="https://github.com"
 ACCOUNT="opnsense"
-REPOSITORY="core"
 PATCHLEVEL="2"
+PREFIX="/usr/local"
+REPOSITORY="core"
+SITE="https://github.com"
 
 # user options
+DO_DOWNLOAD=
 DO_FORCE=
 DO_FORWARD="-t"
-DO_DOWNLOAD=
 DO_INSECURE=
 DO_LIST=
+DO_VERBOSE=
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
 	exit 1
 fi
 
-while getopts a:c:defilNp:r:s: OPT; do
+while getopts a:c:defilNP:p:r:s:V OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -60,12 +61,19 @@ while getopts a:c:defilNp:r:s: OPT; do
 	c)
 		case ${OPTARG} in
 		core)
+			PREFIX="/usr/local"
 			REPOSITORY="core"
 			PATCHLEVEL="2"
 			;;
 		plugins)
+			PREFIX="/usr/local"
 			REPOSITORY="plugins"
 			PATCHLEVEL="4"
+			;;
+		installer)
+			PREFIX="/usr/libexec/bsdinstall"
+			REPOSITORY="installer"
+			PATCHLEVEL="2"
 			;;
 		*)
 			echo "Unknown repository default: ${OPTARG}" >&2
@@ -91,6 +99,9 @@ while getopts a:c:defilNp:r:s: OPT; do
 	N)
 		DO_FORWARD="-f"
 		;;
+	P)
+		PREFIX=${OPTARG}
+		;;
 	p)
 		PATCHLEVEL=${OPTARG}
 		;;
@@ -100,6 +111,9 @@ while getopts a:c:defilNp:r:s: OPT; do
 	s)
 		SITE=${OPTARG}
 		;;
+	V)
+		DO_VERBOSE="-V"
+		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
 		exit 1
@@ -108,6 +122,10 @@ while getopts a:c:defilNp:r:s: OPT; do
 done
 
 shift $((${OPTIND} - 1))
+
+if [ -n "${DO_VERBOSE}" ]; then
+	set -x
+fi
 
 if [ ${PATCHLEVEL} -lt 2 ]; then
 	echo "Patch level must be >= 2." >&2
@@ -203,10 +221,24 @@ for ARG in ${@}; do
 				PATCHFILE=${PATCHFILE#*/}
 			done
 			if [ -n "${PATCHFILE##src/*}" ]; then
+				# discard whole chunk until we get a valid file
 				DISCARD=1
 			else
 				DISCARD=
 			fi
+			;;
+		"--- a/src/"*|"+++ b/src/"*)
+			PATCHFILE="$(echo "${PATCHLINE}" | cut -c 11-)"
+			FILEIN="${PATCHFILE%%.in}"
+			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
+				PATCHFILE=${FILEIN}
+			fi
+			FILESH="${PATCHFILE%%.sh}"
+			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
+				PATCHFILE=${FILESH}
+			fi
+			PATCHPREFIX="$(echo "${PATCHLINE}" | cut -c -10)"
+			PATCHLINE="${PATCHPREFIX}${PATCHFILE}"
 			;;
 		esac
 
