@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd January 29, 2021
+.Dd August 6, 2021
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -33,7 +33,8 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl BbdefikPpRsuVvz
-.Op Fl a Ar abi
+.Op Fl A Ar mirror_abi
+.Op Fl a Ar os_abi
 .Op Fl D Ar device
 .Op Fl l Ar directory
 .Op Fl m Ar mirror_url
@@ -46,7 +47,7 @@
 .Nm
 .Op Fl LSTU Op Fl bkp
 .Nm
-.Fl M
+.Op Fl MO
 .Sh DESCRIPTION
 The
 .Nm
@@ -72,10 +73,15 @@ instead.
 .Pp
 The options are as follows:
 .Bl -tag -width ".Fl m Ar mirror_url" -offset indent
-.It Fl a Ar abi
+.It Fl A Ar mirror_abi
+Change the set fetch and package release ABI to
+.Ar mirror_abi .
+.It Fl a Ar os_abi
 Change the
-.Ar abi
-from the detected default to a specific value.
+.Ar os_abi
+from the detected default
+.Pq output of Sq opnsense-verify Fl a
+to a specific value.
 This does not affect
 .Sq Fl p .
 .It Fl B
@@ -122,7 +128,7 @@ Instead of downloading, point to a local directory where sets are located.
 Return the full release URL of the selected mirror.
 .It Fl m Ar mirror_url
 Change the set fetch and package location to
-.Ar mirror .
+.Ar mirror_url .
 .It Fl N Ar crypto_lib
 When using
 .Sq Fl up ,
@@ -137,6 +143,8 @@ is reserved for future use.
 .It Fl n Ar mirror_dir
 Change the mirror directory to
 .Ar mirror_dir .
+.It Fl O
+Return the packages mirror configuration.
 .It Fl P
 Execute single-step packages upgrade after use of
 .Sq Fl u .

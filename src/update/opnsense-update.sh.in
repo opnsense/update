@@ -168,44 +168,42 @@ recover_origin()
 	${PKG} install -yr ${PRODUCT} ${1}
 }
 
+DO_ABI=
+DO_BASE=
+DO_CHECK=
+DO_DEFAULTS=
+DO_DEVICE=
+DO_FLAVOUR=
+DO_FORCE=
+DO_INSECURE=
+DO_KERNEL=
+DO_LOCAL=
+DO_LOCK=
+DO_MIRROR=
+DO_MIRRORABI=
 DO_MIRRORDIR=
 DO_MIRRORURL=
-DO_DEFAULTS=
-DO_INSECURE=
-DO_SNAPSHOT=
-DO_FLAVOUR=
+DO_ORIGIN=
+DO_PKGS=
 DO_RELEASE=
+DO_SIZE=
+DO_SKIP=
+DO_SNAPSHOT=
+DO_TYPE=
+DO_UNLOCK=
 DO_UPGRADE=
 DO_VERBOSE=
 DO_VERSION=
-DO_DEVICE=
-DO_KERNEL=
-DO_MIRROR=
-DO_UNLOCK=
-DO_CHECK=
-DO_FORCE=
-DO_LOCAL=
-DO_BASE=
-DO_LOCK=
-DO_PKGS=
-DO_SIZE=
-DO_SKIP=
-DO_TYPE=
-DO_ABI=
 
 if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-if ! grep -q "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
-	# enable insecure mode if repo is unsigned
-	DO_INSECURE="-i"
-
-	[ -z "${DO_CHECK}" ] && echo "WARNING: ${ORIGIN} does not use fingerprints, disabling signature checks." >&2
-fi
-
-while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
+while getopts A:a:BbcD:defikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 	case ${OPT} in
+	A)
+		DO_MIRRORABI="-A ${OPTARG}"
+		;;
 	a)
 		DO_ABI="-a ${OPTARG}"
 		;;
@@ -260,6 +258,9 @@ while getopts a:BbcD:defikLl:Mm:N:n:PpRr:SsTt:UuVvz OPT; do
 		if [ -n "${OPTARG}" ]; then
 			DO_MIRRORDIR="-n ${OPTARG}"
 		fi
+		;;
+	O)
+		DO_ORIGIN="-O"
 		;;
 	P)
 		DO_FORCE="-f"
@@ -342,9 +343,43 @@ if [ -n "${DO_VERSION}" ]; then
 	exit 0
 fi
 
+if [ -n "${DO_DEFAULTS}" ]; then
+	# restore default before potential replace
+	cp ${ORIGIN}.sample ${ORIGIN}
+fi
+
+if [ -n "${DO_MIRRORABI}" ]; then
+	sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/\)\([^\/]*\)\(\/.*\)/\1'"${DO_MIRRORABI#"-A "}"'\3/' ${ORIGIN}
+fi
+
+if [ -n "${DO_MIRRORDIR}" ]; then
+	# replace the package repo name
+	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_MIRRORDIR#"-n "}"'\",/' ${ORIGIN}
+fi
+
+if [ -n "${DO_MIRRORURL}" ]; then
+	# replace the package repo location
+	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
+fi
+
 if [ -n "${DO_MIRROR}" ]; then
+	# only print mirror URL
 	mirror_abi
 	exit 0
+elif  [ -n "${DO_ORIGIN}" ]; then
+	# only print repository configuration
+	cat ${ORIGIN}
+	exit 0
+elif [ -n "${DO_SKIP}" ]; then
+	# only invoke flavour and mirror replacement
+	exit 0
+fi
+
+if ! grep -q "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
+	# enable insecure mode if repo is unsigned
+	DO_INSECURE="-i"
+
+	[ -z "${DO_CHECK}" ] && echo "WARNING: ${ORIGIN} does not use fingerprints, disabling signature checks." >&2
 fi
 
 if [ "${DO_TYPE}" = "-T" ]; then
@@ -441,26 +476,6 @@ if [ -n "${DO_CHECK}" ]; then
 	exit 1
 fi
 
-if [ -n "${DO_DEFAULTS}" ]; then
-	# restore default before potential replace
-	cp ${ORIGIN}.sample ${ORIGIN}
-fi
-
-if [ -n "${DO_MIRRORDIR}" ]; then
-	# replace the package repo name
-	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_MIRRORDIR#"-n "}"'\",/' ${ORIGIN}
-fi
-
-if [ -n "${DO_MIRRORURL}" ]; then
-	# replace the package repo location
-	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
-fi
-
-if [ -n "${DO_SKIP}" ]; then
-	# only invoke flavour and mirror replacement
-	exit 0
-fi
-
 if [ "${DO_BASE}" = "-B" ]; then
 	if [ ! -f "${WORKPREFIX}/.base.pending" ]; then
 		# must error out to prevent reboot
@@ -517,7 +532,8 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
 		    ${DO_FORCE} ${DO_RELEASE} ${DO_TYPE} ${DO_DEFAULTS} \
-		    ${DO_MIRRORDIR} ${DO_MIRRORURL} ${DO_ABI} ${DO_VERBOSE}
+		    ${DO_MIRRORABI} ${DO_MIRRORDIR} ${DO_MIRRORURL} \
+		    ${DO_ABI} ${DO_VERBOSE}
 	fi
 
 	# stop here to prevent the second pass
