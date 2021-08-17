@@ -348,18 +348,22 @@ if [ -n "${DO_DEFAULTS}" ]; then
 	cp ${ORIGIN}.sample ${ORIGIN}
 fi
 
-if [ -n "${DO_MIRRORABI}" ]; then
-	sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/\)\([^\/]*\)\(\/.*\)/\1'"${DO_MIRRORABI#"-A "}"'\3/' ${ORIGIN}
+if [ -n "${DO_MIRRORURL}" ]; then
+	# replace the package repo location
+	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRRORDIR}" ]; then
 	# replace the package repo name
-	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${DO_MIRRORDIR#"-n "}"'\",/' ${ORIGIN}
+	MIRRORDIR=${DO_MIRRORDIR#"-n "}
+	if [ -n "${MIRRORDIR%%*/*}" ]; then
+		MIRRORDIR="$(opnsense-version -a)\/${MIRRORDIR}"
+	fi
+	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${MIRRORDIR}"'\",/' ${ORIGIN}
 fi
 
-if [ -n "${DO_MIRRORURL}" ]; then
-	# replace the package repo location
-	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
+if [ -n "${DO_MIRRORABI}" ]; then
+	sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/\)\([^\/]*\)\(\/.*\)/\1'"${DO_MIRRORABI#"-A "}"'\3/' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRROR}" ]; then
