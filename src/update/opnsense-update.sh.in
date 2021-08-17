@@ -247,17 +247,13 @@ while getopts A:a:BbcD:defikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 		DO_MIRROR="-M"
 		;;
 	m)
-		if [ -n "${OPTARG}" ]; then
-			DO_MIRRORURL="-m ${OPTARG}"
-		fi
+		DO_MIRRORURL="-m ${OPTARG}"
 		;;
 	N)
 		DO_FLAVOUR="-N ${OPTARG}"
 		;;
 	n)
-		if [ -n "${OPTARG}" ]; then
-			DO_MIRRORDIR="-n ${OPTARG}"
-		fi
+		DO_MIRRORDIR="-n ${OPTARG}"
 		;;
 	O)
 		DO_ORIGIN="-O"
