@@ -745,13 +745,15 @@ install_base()
 		exit_msg " failed, kldxref error ${?}"
 	fi
 
-	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
-		exit_msg " failed, no base.obsolete found"
-	fi
+	if [ "${DO_BASE}" = "-b" ]; then
+		if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
+			exit_msg " failed, no base.obsolete found"
+		fi
 
-	while read FILE; do
-		rm -f ${FILE}
-	done < ${VERSIONDIR}/base.obsolete
+		while read FILE; do
+			rm -f ${FILE}
+		done < ${VERSIONDIR}/base.obsolete
+	fi
 
 	echo " done"
 }
