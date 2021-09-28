@@ -343,7 +343,10 @@ fi
 
 if [ "${DO_RELEASE}" = "-R" ]; then
 	if [ -f ${UPGRADEHINT} ]; then
-		RELEASE=$(cat ${UPGRADEHINT})
+		read RELEASE ABIHINT < ${UPGRADEHINT}
+		if [ -n "${ABIHINT}" ]; then
+			DO_ABI="-a ${ABIHINT}"
+		fi
 	else
 		RELEASE=unknown
 	fi
