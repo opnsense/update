@@ -924,7 +924,7 @@ if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
 	rm -rf ${PENDINGDIR}/base-*
 fi
 
-if [ "${DO_BASE}" = "-b" -o -n "${DO_CLEAN}" ]; then
+if [ "${DO_BASE}" = "-b" -a -z "${DO_UPGRADE}" ] || [ -n "${DO_CLEAN}" ]; then
 	# only remove obsolete files on minor
 	# updates or when being asked directly
 	clean_base
