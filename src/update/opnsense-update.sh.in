@@ -941,6 +941,7 @@ if [ -z "${DO_LOCAL}" ]; then
 	rm -rf ${WORKPREFIX}/*
 fi
 
-if [ -n "${DO_KERNEL}" -o "${DO_BASE}" = "-b" ]; then
+if [ -n "${DO_KERNEL}" -o "${DO_BASE}" = "-b" ] ||
+    [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 	echo "Please reboot."
 fi
