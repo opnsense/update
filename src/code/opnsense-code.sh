@@ -32,13 +32,14 @@ GIT="/usr/local/bin/git"
 PKG="/usr/sbin/pkg"
 NONROOT=
 FORCE=
+UPGRADE=
 
 # fetch defaults
 SITE="https://github.com"
 ACCOUNT="opnsense"
 DIRECTORY="/usr"
 
-while getopts a:d:fns: OPT; do
+while getopts a:d:fns:u OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -54,6 +55,9 @@ while getopts a:d:fns: OPT; do
 		;;
 	s)
 		SITE=${OPTARG}
+		;;
+	u)
+		UPGRADE="-u"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -114,9 +118,15 @@ fi
 
 for ARG in ${@}; do
 	git_update ${ARG}
+	if [ -n "${UPGRADE}" ]; then
+		make -C "${DIRECTORY}/${ARG}" upgrade
+	fi
 done
 
 if [ -z "${*}" ]; then
 	# current directory is probably something we need to update
 	git fetch --all --prune; git pull
+	if [ -n "${UPGRADE}" ]; then
+		make upgrade
+	fi
 fi
