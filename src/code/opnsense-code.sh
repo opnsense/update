@@ -45,7 +45,7 @@ while getopts a:d:fns:u OPT; do
 		ACCOUNT=${OPTARG}
 		;;
 	d)
-		ACCOUNT=${OPTARG}
+		DIRECTORY=${OPTARG}
 		;;
 	f)
 		FORCE="-f"
