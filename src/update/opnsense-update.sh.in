@@ -415,11 +415,13 @@ if [ "${DO_TYPE}" = "-T" ]; then
 	exit 0
 fi
 
-if [ -n "${DO_UPGRADE}" -a -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
-	# default is to enable all set upgrades
-	DO_KERNEL="-k"
-	DO_BASE="-b"
-	DO_PKGS="-p"
+if [ -n "${DO_UPGRADE}" -o -n "${DO_CHECK}" ]; then
+	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
+		# default is to enable all set upgrades
+		DO_KERNEL="-k"
+		DO_BASE="-b"
+		DO_PKGS="-p"
+	fi
 fi
 
 if [ -n "${DO_LOCK}" ]; then
