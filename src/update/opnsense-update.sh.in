@@ -55,11 +55,6 @@ WORKDIR="${WORKPREFIX}/${$}"
 IDENT=$(sysctl -n kern.ident)
 ARCH=$(uname -p)
 
-if [ ! -f ${ORIGIN} ]; then
-	echo "Missing ${ORIGIN}" >&2
-	exit 1
-fi
-
 INSTALLED_BASE=
 if [ -f ${VERSIONDIR}/base ]; then
 	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
@@ -364,6 +359,11 @@ fi
 if [ -n "${DO_DEFAULTS}" ]; then
 	# restore default before potential replace
 	cp ${ORIGIN}.sample ${ORIGIN}
+fi
+
+if [ ! -f ${ORIGIN} ]; then
+	echo "Missing ${ORIGIN}" >&2
+	exit 1
 fi
 
 if [ -n "${DO_MIRRORURL}" ]; then
