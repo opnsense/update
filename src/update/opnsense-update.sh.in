@@ -200,6 +200,7 @@ DO_RELEASE=
 DO_SIZE=
 DO_SKIP=
 DO_SNAPSHOT=
+DO_TEST=
 DO_TYPE=
 DO_UNLOCK=
 DO_UPGRADE=
@@ -294,7 +295,7 @@ while getopts A:a:BbCcD:defikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 		DO_SIZE="-S"
 		;;
 	T)
-		DO_TYPE="-T"
+		DO_TEST="-T"
 		;;
 	t)
 		DO_TYPE="-t ${OPTARG}"
@@ -404,7 +405,7 @@ if ! grep -q "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
 	[ -z "${DO_CHECK}" ] && echo "WARNING: ${ORIGIN} does not use fingerprints, disabling signature checks." >&2
 fi
 
-if [ "${DO_TYPE}" = "-T" ]; then
+if [ -n "${DO_TEST}" ]; then
 	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" ]; then
 		exit 1
 	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
