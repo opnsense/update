@@ -482,6 +482,11 @@ if [ -n "${DO_CHECK}" ]; then
 	if [ -n "${DO_FORCE}" ]; then
 		exit 0
 	fi
+	if [ -n "${DO_TYPE}" ]; then
+		if [ "$(opnsense-version -n)" != "${DO_TYPE#"-t "}" ]; then
+			exit 0
+		fi
+	fi
 	if [ -n "${DO_KERNEL}" ]; then
 		if [ "${RELEASE}" != "${INSTALLED_KERNEL}" ]; then
 			exit 0
