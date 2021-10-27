@@ -416,9 +416,8 @@ if [ -n "${DO_TEST}" ]; then
 	exit 0
 fi
 
-if [ -n "${DO_UPGRADE}" -o -n "${DO_CHECK}" ]; then
-	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
-		# default is to enable all set upgrades
+if [ -z "${DO_TYPE}${DO_KERNEL}${DO_BASE}${DO_PKGS}" ]; then
+	if [ -n "${DO_UPGRADE}" -o -n "${DO_CHECK}" ]; then
 		DO_KERNEL="-k"
 		DO_BASE="-b"
 		DO_PKGS="-p"
