@@ -701,9 +701,13 @@ verify_local(const char *pkgpath)
 
 		} else {
 			warnx("Signature type %s is not supported for "
-			    "bootstrapping.", signature_type);
+			    "verification.", signature_type);
 			goto cleanup;
 		}
+	} else if (signature_type == NULL) {
+		warnx("Signature type disabled is not supported for "
+		    "verification.");
+		goto cleanup;
 	}
 
 	/* all ok */
