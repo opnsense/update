@@ -337,7 +337,7 @@ parse_repo_file(ucl_object_t *obj)
 	ucl_object_iter_t it = NULL;
 	const ucl_object_t *cur;
 	const char *key;
-	int i, ret;
+	int i, ret, found;
 
 	while ((cur = ucl_iterate_object(obj, &it, true))) {
 		key = ucl_object_key(cur);
@@ -350,16 +350,33 @@ parse_repo_file(ucl_object_t *obj)
 
 		ret = config_parse(cur, CONFFILE_REPO);
 
+		found = 0;
+
+		for (i = 0; i < REPOS_MAX; ++i) {
+			if (!reponames[i]) {
+				continue;
+			}
+
+			if (!strcmp(reponames[i], key)) {
+				if (ret) {
+					free(reponames[i]);
+					reponames[i] = NULL;
+				}
+				found = 1;
+				break;
+			}
+		}
+
+		if (found) {
+			continue;
+		}
+
 		for (i = 0; i < REPOS_MAX; ++i) {
 			if (reponames[i]) {
-				if (!strcmp(reponames[i], key)) {
-					if (ret) {
-						free(reponames[i]);
-						reponames[i] = NULL;
-					}
-					break;
-				}
-			} else if (!ret) {
+				continue;
+			}
+
+			if (!ret) {
 				reponames[i] = strdup(key);
 				break;
 			}
