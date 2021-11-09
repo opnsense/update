@@ -382,7 +382,7 @@ if [ -n "${DO_MIRRORDIR}" ]; then
 	MIRRORDIR=${DO_MIRRORDIR#"-n "}
 	if [ -n "${MIRRORDIR%%*/*}" ]; then
 		# only replace subdirectory
-		sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/[^\/]*\)\(\/.*\)/\1'"${MIRRORDIR}"'/' ${ORIGIN}
+		sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/[^\/]*\/\)\(.*\)/\1'"${MIRRORDIR}"'/' ${ORIGIN}
 	else
 		# replace full path
 		sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${MIRRORDIR}"'\",/' ${ORIGIN}
