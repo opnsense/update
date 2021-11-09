@@ -372,17 +372,21 @@ if [ -n "${DO_MIRRORURL}" ]; then
 	sed -i '' '/'"${URL_KEY}"'/s/pkg\+.*${ABI}/pkg\+'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
 fi
 
+if [ -n "${DO_MIRRORABI}" ]; then
+	# replace the package repo abi
+	sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/\)\([^\/]*\)\(\/.*\)/\1'"${DO_MIRRORABI#"-A "}"'\3/' ${ORIGIN}
+fi
+
 if [ -n "${DO_MIRRORDIR}" ]; then
 	# replace the package repo name
 	MIRRORDIR=${DO_MIRRORDIR#"-n "}
 	if [ -n "${MIRRORDIR%%*/*}" ]; then
-		MIRRORDIR="$(opnsense-version -a)\/${MIRRORDIR}"
+		# only replace subdirectory
+		sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/[^\/]*\)\(\/.*\)/\1'"${MIRRORDIR}"'/' ${ORIGIN}
+	else
+		# replace full path
+		sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${MIRRORDIR}"'\",/' ${ORIGIN}
 	fi
-	sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${MIRRORDIR}"'\",/' ${ORIGIN}
-fi
-
-if [ -n "${DO_MIRRORABI}" ]; then
-	sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/\)\([^\/]*\)\(\/.*\)/\1'"${DO_MIRRORABI#"-A "}"'\3/' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRROR}" ]; then
