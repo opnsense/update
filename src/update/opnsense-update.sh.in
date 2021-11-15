@@ -104,6 +104,24 @@ mirror_abi()
 		DIR="snapshots"
 	fi
 
+	ABI=$(opnsense-verify -a)
+
+	if [ -n "${DO_ABI}" ]; then
+		ABIPARTS=${DO_ABI#"-a "}
+
+		ABI=${ABIPARTS%%/*}
+		SUB=${ABIPARTS#*/}
+
+		if [ -z "${SUB%%*/*}" ]; then
+			echo "Mirror has too many subdirectories." >&2
+			exit 1
+		fi
+
+		if [ "${ABI}" != "${SUB}" ]; then
+			DIR=${SUB}
+		fi
+	fi
+
 	# The first part after ABI is our suffix and
 	# we need all of it to find the correct sets.
 
@@ -111,11 +129,6 @@ mirror_abi()
 	if [ -z "${MIRROR}" ]; then
 		echo "Mirror read failed." >&2
 		exit 1
-	fi
-
-	ABI=$(opnsense-verify -a)
-	if [ -n "${DO_ABI}" ]; then
-		ABI=${DO_ABI#"-a "}
 	fi
 
 	eval MIRROR="${MIRROR}"

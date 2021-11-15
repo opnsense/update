@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd October 27, 2021
+.Dd November 15, 2021
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -34,7 +34,7 @@
 .Nm
 .Op Fl BbCdefikPpRsuVvz
 .Op Fl A Ar mirror_abi
-.Op Fl a Ar os_abi
+.Op Fl a Ar abi_hint
 .Op Fl D Ar device
 .Op Fl l Ar directory
 .Op Fl m Ar mirror_url
@@ -78,13 +78,16 @@ The options are as follows:
 .It Fl A Ar mirror_abi
 Change the set fetch and package release ABI to
 .Ar mirror_abi .
-.It Fl a Ar os_abi
+.It Fl a Ar abi_hint
 Change the
-.Ar os_abi
+.Ar abi_hint
 from the detected default
 .Pq output of Sq opnsense-verify Fl a
 to a specific value.
-This does not affect
+If a subdirectory is appended,
+.Fl A Ar mirror_abi
+is emulated for it but not written to the configuration.
+Thus it does not affect
 .Sq Fl p .
 .It Fl B
 Execute single-step base system upgrade after use of
