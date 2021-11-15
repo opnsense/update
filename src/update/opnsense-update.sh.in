@@ -388,7 +388,8 @@ elif [ -n "${DO_RELEASE}" ]; then
 fi
 
 if [ -n "${DO_VERSION}" ]; then
-	if [ "${DO_RELEASE}" != "-R" -o -f ${UPGRADEHINT} ]; then
+	if [ "${DO_RELEASE}" != "-R" -o -f ${UPGRADEHINT} -o \
+	    -n "${CFG_UPGRADE_RELEASE}" ]; then
 		echo ${RELEASE}
 	fi
 	exit 0
