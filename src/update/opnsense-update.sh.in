@@ -32,7 +32,10 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
+# XXX deprecated
 UPGRADEHINT="/usr/local/opnsense/firmware-upgrade"
+
+CONFIGFILE="/usr/local/etc/opnsense-update.conf"
 SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
 VERSIONDIR="/usr/local/opnsense/version"
@@ -80,14 +83,28 @@ if [ -f ${VERSIONDIR}/kernel.lock ]; then
 	LOCKED_KERNEL=1
 fi
 
-kernel_version() {
+read_config()
+{
+	# try to not evaluate syntax errors
+	local LINE=$(grep ^"${1}"='"[^"]*"$' ${CONFIGFILE} 2> /dev/null || true)
+
+	if [ -n "${LINE}" ]; then
+		eval export CFG_${LINE}
+	else
+		eval export CFG_"${1}"=
+	fi
+}
+
+kernel_version()
+{
 	# It's faster to ask uname as long as the base
 	# system is consistent that should work instead
 	# of doing the magic of `freebsd-version -k'.
 	uname -r
 }
 
-base_version() {
+base_version()
+{
 	# The utility has the version embedded, so
 	# we execute it to check which one it is.
 	FREEBSD_VERSION="${1}/bin/freebsd-version"
@@ -351,7 +368,14 @@ if [ -n "${DO_VERBOSE}" ]; then
 fi
 
 if [ "${DO_RELEASE}" = "-R" ]; then
-	if [ -f ${UPGRADEHINT} ]; then
+	read_config UPGRADE_RELEASE
+	if [ -n "${CFG_UPGRADE_RELEASE}" ]; then
+		RELEASE=${CFG_UPGRADE_RELEASE}
+		read_config UPGRADE_HINT
+		if [ -n "${CFG_UPGRADE_HINT}" ]; then
+			DO_ABI="-a ${CFG_UPGRADE_HINT}"
+		fi
+	elif [ -f ${UPGRADEHINT} ]; then
 		read RELEASE ABIHINT < ${UPGRADEHINT}
 		if [ -n "${ABIHINT}" ]; then
 			DO_ABI="-a ${ABIHINT}"
