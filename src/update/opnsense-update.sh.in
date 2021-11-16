@@ -32,9 +32,6 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-# XXX deprecated
-UPGRADEHINT="/usr/local/opnsense/firmware-upgrade"
-
 CONFIGFILE="/usr/local/etc/opnsense-update.conf"
 SIG_KEY="^[[:space:]]*signature_type:[[:space:]]*"
 URL_KEY="^[[:space:]]*url:[[:space:]]*"
@@ -375,11 +372,6 @@ if [ "${DO_RELEASE}" = "-R" ]; then
 		if [ -n "${CFG_UPGRADE_HINT}" ]; then
 			DO_ABI="-a ${CFG_UPGRADE_HINT}"
 		fi
-	elif [ -f ${UPGRADEHINT} ]; then
-		read RELEASE ABIHINT < ${UPGRADEHINT}
-		if [ -n "${ABIHINT}" ]; then
-			DO_ABI="-a ${ABIHINT}"
-		fi
 	else
 		RELEASE=unknown
 	fi
@@ -388,8 +380,7 @@ elif [ -n "${DO_RELEASE}" ]; then
 fi
 
 if [ -n "${DO_VERSION}" ]; then
-	if [ "${DO_RELEASE}" != "-R" -o -f ${UPGRADEHINT} -o \
-	    -n "${CFG_UPGRADE_RELEASE}" ]; then
+	if [ "${DO_RELEASE}" != "-R" -o -n "${CFG_UPGRADE_RELEASE}" ]; then
 		echo ${RELEASE}
 	fi
 	exit 0
