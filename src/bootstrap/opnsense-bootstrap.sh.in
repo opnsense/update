@@ -113,23 +113,25 @@ if [ "${FBSDVER}" != "12." ]; then
 	exit 1
 fi
 
-echo "This utility will attempt to turn this installation into the latest"
-echo "OPNsense ${RELEASE} release.  All packages will be deleted, the base"
-echo "system and kernel will be replaced, and if all went well the system"
-echo "will automatically reboot."
+if [ -z "${DO_QUICK}" ]; then
+	echo "This utility will attempt to turn this installation into the latest"
+	echo "OPNsense ${RELEASE} release.  All packages will be deleted, the base"
+	echo "system and kernel will be replaced, and if all went well the system"
+	echo "will automatically reboot."
 
-if [ -z "${DO_YES}" ]; then
-	echo
-	echo -n "Proceed with this action? [y/N]: "
+	if [ -z "${DO_YES}" ]; then
+		echo
+		echo -n "Proceed with this action? [y/N]: "
 
-	read YN
-	case ${YN} in
-	[yY])
-		;;
-	*)
-		exit 0
-		;;
-	esac
+		read YN
+		case ${YN} in
+		[yY])
+			;;
+		*)
+			exit 0
+			;;
+		esac
+	fi
 fi
 
 if [ -n "${DO_FACTORY}" ]; then
@@ -172,7 +174,6 @@ if [ -n "${DO_QUICK}" ]; then
 	fi
 
 	opnsense-update ${DO_INSECURE} ${DO_VERBOSE} -bkpft "${TYPE}"
-	reboot
 fi
 
 rm -rf /usr/local/etc/pkg
