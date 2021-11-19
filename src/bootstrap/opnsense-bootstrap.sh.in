@@ -118,25 +118,24 @@ if [ -z "${DO_QUICK}" ]; then
 	echo "OPNsense ${RELEASE} release.  All packages will be deleted, the base"
 	echo "system and kernel will be replaced, and if all went well the system"
 	echo "will automatically reboot."
+	echo
+fi
 
-	if [ -z "${DO_YES}" ]; then
-		echo
-		echo -n "Proceed with this action? [y/N]: "
+if [ -z "${DO_YES}" ]; then
+	echo -n "Proceed with this action? [y/N]: "
 
-		read YN
-		case ${YN} in
-		[yY])
-			;;
-		*)
-			exit 0
-			;;
-		esac
-	fi
+	read YN
+	case ${YN} in
+	[yY])
+		;;
+	*)
+		exit 0
+		;;
+	esac
 fi
 
 if [ -n "${DO_FACTORY}" ]; then
 	if [ -z "${DO_YES}" ]; then
-		echo
 		echo -n "Factory reset mode selected, are you sure? [y/N]: "
 
 		read YN
@@ -152,7 +151,6 @@ fi
 
 if [ -n "${DO_INSECURE}" ]; then
 	if [ -z "${DO_YES}" ]; then
-		echo
 		echo -n "Insecure mode selected, are you sure? [y/N]: "
 
 		read YN
@@ -173,7 +171,7 @@ if [ -n "${DO_QUICK}" ]; then
 		rm -rf /conf/*
 	fi
 
-	opnsense-update ${DO_INSECURE} ${DO_VERBOSE} -bkpft "${TYPE}"
+	exec opnsense-update ${DO_INSECURE} ${DO_VERBOSE} -bkpft "${TYPE}"
 fi
 
 rm -rf /usr/local/etc/pkg
