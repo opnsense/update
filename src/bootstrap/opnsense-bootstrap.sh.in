@@ -111,8 +111,8 @@ if [ "${FBSDARCH}" != "amd64" ]; then
 fi
 
 FBSDVER=$(uname -r | colrm 4)
-if [ "${FBSDVER}" != "12." ]; then
-	echo "Must be a FreeBSD 12 release." >&2
+if [ "${FBSDVER}" != "13." ]; then
+	echo "Must be a FreeBSD 13 release." >&2
 	exit 1
 fi
 
