@@ -164,8 +164,6 @@ if [ -n "${DO_INSECURE}" ]; then
 	fi
 fi
 
-echo
-
 if [ -n "${DO_QUICK}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
 		rm -rf /conf/*
