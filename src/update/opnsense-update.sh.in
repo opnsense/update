@@ -754,17 +754,19 @@ install_kernel()
 {
 	echo -n "Installing ${KERNELSET}..."
 
-	if ! mkdir -p ${KERNELDIR} ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR}; then
-		exit_msg " failed, mkdir error ${?}"
-	fi
+	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
+		if ! mkdir -p ${DIR} ${DIR}.old; then
+			exit_msg " failed, mkdir error ${?}"
+		fi
 
-	if ! rm -r ${KERNELDIR}.old ${DEBUGDIR}${KERNELDIR}; then
-		exit_msg " failed, rm error ${?}"
-	fi
+		if ! rm -r ${DIR}.old; then
+			exit_msg " failed, rm error ${?}"
+		fi
 
-	if ! mv ${KERNELDIR} ${KERNELDIR}.old; then
-		exit_msg " failed, mv error ${?}"
-	fi
+		if ! mv ${DIR} ${DIR}.old; then
+			exit_msg " failed, mv error ${?}"
+		fi
+	done
 
 	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET} --exclude="^.abi_hint"; then
 		exit_msg " failed, tar error ${?}"
