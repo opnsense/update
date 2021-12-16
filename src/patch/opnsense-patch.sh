@@ -277,7 +277,6 @@ if [ -n "${DO_DOWNLOAD}" ]; then
 fi
 
 for ARG in ${ARGS}; do
-	# XXX from here we could figure out if we will run in reverse...
 	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
 	fi
