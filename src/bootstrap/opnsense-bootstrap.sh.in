@@ -30,7 +30,6 @@ set -e
 URL="https://github.com/opnsense/core/archive"
 WORKDIR="/tmp/opnsense-bootstrap"
 FLAVOUR="OpenSSL"
-TYPE="opnsense"
 RELEASE="%%RELEASE%%"
 
 DO_ABI=
@@ -38,6 +37,7 @@ DO_BARE=
 DO_FACTORY=
 DO_INSECURE=
 DO_QUICK=
+DO_TYPE=
 DO_VERBOSE=
 DO_YES=
 
@@ -65,7 +65,7 @@ while getopts a:bfin:qr:t:vVyz OPT; do
 		RELEASE=${OPTARG}
 		;;
 	t)
-		TYPE=${OPTARG}
+		DO_TYPE="-t ${OPTARG}"
 		;;
 	V)
 		DO_VERBOSE="-V"
@@ -172,7 +172,7 @@ if [ -n "${DO_QUICK}" ]; then
 		rm -rf /conf/*
 	fi
 
-	exec opnsense-update ${DO_INSECURE} ${DO_VERBOSE} -bkpft "${TYPE}"
+	exec opnsense-update ${DO_INSECURE} ${DO_VERBOSE} ${DO_TYPE} -bkpf
 fi
 
 rm -rf /usr/local/etc/pkg
@@ -220,13 +220,17 @@ fi
 make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= \
     CORE_ABI="${DO_ABI#"-a "}" CORE_FLAVOUR="${FLAVOUR}"
 
+if [ -z "${DO_TYPE}" ]; then
+	DO_TYPE="-t $(make -C ${WORKDIR}/core-${SUBDIR} -v CORE_NAME)"
+fi
+
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
 		rm -rf /conf/*
 	fi
 
 	pkg bootstrap
-	pkg install "${TYPE}"
+	pkg install "${DO_TYPE#"-t "}"
 
 	# beyond this point verify everything
 	unset SSL_NO_VERIFY_PEER
