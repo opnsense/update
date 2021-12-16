@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd July 21, 2021
+.Dd December 16, 2021
 .Dt OPNSENSE-BOOTSTRAP 8
 .Os
 .Sh NAME
@@ -32,16 +32,11 @@
 .Nd OPNsense bootstrap utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl bfiVy
+.Op Fl bfiVvyz
 .Op Fl a Ar abi
 .Op Fl n Ar flavour
 .Op Fl r Ar release
 .Op Fl t Ar type
-.Nm
-.Op Fl fiVy
-.Op Fl t Ar type
-.Nm
-.Op Fl v
 .Sh DESCRIPTION
 The
 .Nm
@@ -80,8 +75,6 @@ Quick mode does an inplace installation without a bootstrap.
 Note that some options are note available for use with this mode.
 .It Fl r Ar release
 Select a different major version target.
-The master branch can be selected by specifying
-.Sq snapshot .
 .It Fl t Ar type
 Select the release package
 .Ar type
@@ -94,6 +87,8 @@ Set debug mode for shell script output.
 Print the current version string.
 .It Fl y
 This option omits the confirmation prompt.
+.It Fl z
+This option selects the development branch as the bootstrap target.
 .El
 .Sh EXIT STATUS
 .Ex -std

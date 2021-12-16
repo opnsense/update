@@ -41,7 +41,7 @@ DO_QUICK=
 DO_VERBOSE=
 DO_YES=
 
-while getopts a:bfin:qr:t:vVy OPT; do
+while getopts a:bfin:qr:t:vVyz OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -76,6 +76,9 @@ while getopts a:bfin:qr:t:vVy OPT; do
 		;;
 	y)
 		DO_YES="-y"
+		;;
+	z)
+		DO_SNAPSHOT="-z"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -193,8 +196,8 @@ fi
 
 SUBFILE="stable/${RELEASE}"
 SUBDIR="stable-${RELEASE}"
-if [ "${RELEASE}" = "snapshot" ]; then
-	RELEASE="snapshots"
+
+if [ -n "${DO_SNAPSHOT}" ]; then
 	SUBDIR="master"
 	SUBFILE="master"
 fi
