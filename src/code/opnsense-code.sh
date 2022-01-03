@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2021 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -30,16 +30,20 @@ set -e
 # internals
 GIT="/usr/local/bin/git"
 PKG="/usr/sbin/pkg"
-NONROOT=
-FORCE=
-UPGRADE=
+
+# options
+DO_FORCE=
+DO_NONROOT=
+DO_REMOVE=
+DO_UPGRADE=
+DO_VERBOSE=
 
 # fetch defaults
 SITE="https://github.com"
 ACCOUNT="opnsense"
 DIRECTORY="/usr"
 
-while getopts a:d:fns:u OPT; do
+while getopts a:d:fnrs:uV OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -48,16 +52,23 @@ while getopts a:d:fns:u OPT; do
 		DIRECTORY=${OPTARG}
 		;;
 	f)
-		FORCE="-f"
+		DO_FORCE="-f"
 		;;
 	n)
-		NONROOT="-n"
+		DO_NONROOT="-n"
+		;;
+	r)
+		DO_FORCE="-f"
+		DO_REMOVE="-r"
 		;;
 	s)
 		SITE=${OPTARG}
 		;;
 	u)
-		UPGRADE="-u"
+		DO_UPGRADE="-u"
+		;;
+	V)
+		DO_VERBOSE="-V"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -68,9 +79,13 @@ done
 
 shift $((${OPTIND} - 1))
 
-if [ -z "${NONROOT}" -a "$(id -u)" != "0" ]; then
+if [ -z "${DO_NONROOT}" -a "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2
 	exit 1
+fi
+
+if [ -n "${DO_VERBOSE}" ]; then
+	set -x
 fi
 
 if [ ! -f ${GIT} ]; then
@@ -83,14 +98,23 @@ if [ -z "${*}" -a -z "$(git rev-parse --git-dir 2> /dev/null)" ]; then
 fi
 
 ABI=$(opnsense-version -a)
-CONF="/usr/tools/config/${ABI}/make.conf"
+CONF="${DIRECTORY}/tools/config/${ABI}/make.conf"
 
 git_update()
 {
-	local REPO=${1}
+	local REPO=${1:-tools}
 
-	if [ -n "${FORCE}" ]; then
+	if [  -n "${1}" -a -n "${DO_FORCE}" -a -d "${DIRECTORY}/${REPO}" ]; then
+		# delete repository contents first...
+		for DIR in $(find "${DIRECTORY}/${REPO}" -depth 1); do
+			rm -rf "${DIR}"
+		done
+		# ...as directory may be a mountpoint
 		rm -rf "${DIRECTORY}/${REPO}"
+	fi
+
+	if [ -n "${1}" -a -n "${DO_REMOVE}" ]; then
+		return
 	fi
 
 	if [ -d "${DIRECTORY}/${REPO}/.git" ]; then
@@ -105,20 +129,23 @@ git_update()
 			(cd "${DIRECTORY}/${REPO}"; git checkout ${BRANCH})
 		fi
 	fi
+
+	if [ -z "${1}" ]; then
+		if [ -f "${CONF}" ]; then
+			rm -f /etc/make.conf
+			make -C /usr/tools make.conf SETTINGS=${ABI} > /etc/make.conf
+		elif [ -d "${DIRECTORY}/tools" ]; then
+			echo "ABI ${ABI} is no longer supported" >&2
+		fi
+	fi
 }
 
-git_update tools
-
-if [ -f "${CONF}" ]; then
-	rm -f /etc/make.conf
-	make -C /usr/tools make.conf SETTINGS=${ABI} > /etc/make.conf
-else
-	echo "ABI ${ABI} is no longer supported" >&2
-fi
+# mandatory tools fetch
+git_update
 
 for ARG in ${@}; do
 	git_update ${ARG}
-	if [ -n "${UPGRADE}" ]; then
+	if [ -n "${DO_UPGRADE}" ]; then
 		make -C "${DIRECTORY}/${ARG}" upgrade
 	fi
 done
@@ -126,7 +153,7 @@ done
 if [ -z "${*}" ]; then
 	# current directory is probably something we need to update
 	git fetch --all --prune; git pull
-	if [ -n "${UPGRADE}" ]; then
+	if [ -n "${DO_UPGRADE}" ]; then
 		make upgrade
 	fi
 fi
