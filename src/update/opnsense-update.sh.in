@@ -788,6 +788,7 @@ install_base()
 
 	if ! tar -C / -xpf ${WORKDIR}/${BASESET} \
 	    --exclude="^.abi_hint" \
+	    --exclude="^boot/efi" \
 	    --exclude="^etc/group" \
 	    --exclude="^etc/master.passwd" \
 	    --exclude="^etc/motd" \
