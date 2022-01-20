@@ -65,6 +65,11 @@ if [ -f ${VERSIONDIR}/base.lock ]; then
 	LOCKED_BASE=1
 fi
 
+INSTALLED_PKGS=
+if [ -f ${VERSIONDIR}/pkgs ]; then
+	INSTALLED_PKGS=$(cat ${VERSIONDIR}/pkgs)
+fi
+
 LOCKED_PKGS=
 if [ -f ${VERSIONDIR}/pkgs.lock ]; then
 	LOCKED_PKGS=1
@@ -511,6 +516,7 @@ if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
 	# disable packages if locked
 	if [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" -a \
 	    -z "${DO_UPGRADE}" ]; then
+		# do not reference INSTALLED_PKGS here
 		[ -z "${DO_CHECK}" ] && echo "Packages locked, skipping."
 		DO_PKGS=
 		DO_TYPE=
@@ -540,8 +546,8 @@ if [ -n "${DO_CHECK}" ]; then
 			exit 0
 		fi
 	fi
-	if [ -n "${DO_PKGS}" ]; then
-		if [ -n "${DO_UPGRADE}" ]; then # XXX check version
+	if [ -n "${DO_PKGS}" -a -n "${DO_UPGRADE}" ]; then
+		if [ "${RELEASE}" != "${INSTALLED_PKGS}" ]; then
 			exit 0
 		fi
 	fi
@@ -985,6 +991,9 @@ fi
 
 if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 	install_pkgs
+
+	# file is a pseudo-marker we feed from this script only
+	echo "${RELEASE}" > ${VERSIONDIR}/pkgs
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*

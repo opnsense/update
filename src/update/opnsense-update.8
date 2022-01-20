@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd January 19, 2022
+.Dd January 20, 2022
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -248,12 +248,6 @@ The file is used to list files to be removed after installation
 which are no longer required, operated by
 .Sq Fl C .
 It is embedded into the base set.
-.It Pa /usr/local/opnsense/version/pkgs.lock
-The lock for preventing an update to all packages,
-operated by
-.Sq Fl \&Lp
-and
-.Sq Fl \&Up .
 .It Pa /usr/local/opnsense/version/kernel
 The file is used to check if a kernel upgrade is necessary.
 It is embedded into the kernel set.
@@ -263,6 +257,16 @@ operated by
 .Sq Fl \&Lk
 and
 .Sq Fl \&Uk .
+.It Pa /usr/local/opnsense/version/pkgs
+The file is used to check if a packages upgrade is necessary.
+It is created by
+.Nm .
+.It Pa /usr/local/opnsense/version/pkgs.lock
+The lock for preventing an update to all packages,
+operated by
+.Sq Fl \&Lp
+and
+.Sq Fl \&Up .
 .It Pa /var/cache/opnsense-update
 The local cache storage directory.
 .El
