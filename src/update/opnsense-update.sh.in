@@ -66,7 +66,7 @@ if [ -f ${VERSIONDIR}/base.lock ]; then
 fi
 
 LOCKED_PKGS=
-if [ -f ${VERSIONDIR}/core.lock ]; then
+if [ -f ${VERSIONDIR}/pkgs.lock ]; then
 	LOCKED_PKGS=1
 fi
 
@@ -476,7 +476,7 @@ if [ -n "${DO_LOCK}" ]; then
 		touch ${VERSIONDIR}/base.lock
 	fi
 	if [ -n "${DO_PKGS}" ]; then
-		touch ${VERSIONDIR}/core.lock
+		touch ${VERSIONDIR}/pkgs.lock
 	fi
 	exit 0
 elif [ -n "${DO_UNLOCK}" ]; then
@@ -487,7 +487,7 @@ elif [ -n "${DO_UNLOCK}" ]; then
 		rm -f ${VERSIONDIR}/base.lock
 	fi
 	if [ -n "${DO_PKGS}" ]; then
-		rm -f ${VERSIONDIR}/core.lock
+		rm -f ${VERSIONDIR}/pkgs.lock
 	fi
 	exit 0
 fi
@@ -541,7 +541,7 @@ if [ -n "${DO_CHECK}" ]; then
 		fi
 	fi
 	if [ -n "${DO_PKGS}" ]; then
-		if [ -n "${DO_RELEASE}" ]; then
+		if [ -n "${DO_UPGRADE}" ]; then # XXX check version
 			exit 0
 		fi
 	fi
@@ -878,7 +878,7 @@ if [ "${DO_PKGS}" = "-p" ]; then
 		exit 1
 	fi
 	if [ -z "${DO_FORCE}" -o -n "${DO_UPGRADE}" ]; then
-		rm -f ${VERSIONDIR}/core.lock
+		rm -f ${VERSIONDIR}/pkgs.lock
 	fi
 	fetch_set ${PACKAGESSET}
 fi
