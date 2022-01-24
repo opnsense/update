@@ -436,7 +436,7 @@ elif  [ -n "${DO_ORIGIN}" ]; then
 	cat ${ORIGIN}
 	exit 0
 elif  [ -n "${DO_LOGFILE}" ]; then
-	# only print repository configuration
+	# only print upgrade log
 	if [ -f ${LOGFILE} ]; then
 		cat ${LOGFILE}
 	fi
