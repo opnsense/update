@@ -389,7 +389,13 @@ elif [ -n "${DO_RELEASE}" ]; then
 fi
 
 if [ -n "${DO_VERSION}" ]; then
-	if [ "${DO_RELEASE}" != "-R" -o -n "${CFG_UPGRADE_RELEASE}" ]; then
+	if [ -n "${DO_BASE}" ]; then
+		echo ${INSTALLED_BASE}
+	elif [ -n "${DO_KERNEL}" ]; then
+		echo ${INSTALLED_KERNEL}
+	elif [ -n "${DO_PKGS}" ]; then
+		echo ${INSTALLED_PKGS}
+	elif [ "${DO_RELEASE}" != "-R" -o -n "${CFG_UPGRADE_RELEASE}" ]; then
 		echo ${RELEASE}
 	fi
 	exit 0
