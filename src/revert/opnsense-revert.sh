@@ -97,7 +97,7 @@ if [ "${DO_RELEASE}" = "-z" ]; then
 	else
 		FLAVOUR="latest"
 	fi
-	MIRROR="$(opnsense-update -Mz)/${FLAVOUR}"
+	MIRROR="$(opnsense-update -Mz)/${FLAVOUR}/Latest"
 fi
 
 if [ -n "${COREPKG}" ]; then
