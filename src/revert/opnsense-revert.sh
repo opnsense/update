@@ -65,15 +65,6 @@ done
 shift $((${OPTIND} - 1))
 
 for PACKAGE in ${@}; do
-	case ${PACKAGE} in
-	base|kernel)
-		# always installed
-		continue
-		;;
-	*)
-		;;
-	esac
-
 	if ! ${PKG} query %n ${PACKAGE} > /dev/null; then
 		echo "Package '${PACKAGE}' is not installed" >&2
 		exit 1
@@ -126,15 +117,6 @@ fetch()
 }
 
 for PACKAGE in ${@}; do
-	case ${PACKAGE} in
-	base|kernel)
-		# fetch done by opnsense-update later
-		continue
-		;;
-	*)
-		;;
-	esac
-
 	if [ -z "${DO_RELEASE}" ]; then
 		${PKG} fetch ${PACKAGE}
 	else
@@ -143,33 +125,6 @@ for PACKAGE in ${@}; do
 done
 
 for PACKAGE in ${@}; do
-	case ${PACKAGE} in
-	base)
-		if [ -z "${DO_LOCKKEEP}" ]; then
-			opnsense-update -bU
-		fi
-		if opnsense-update -bT; then
-			opnsense-update -bf ${DO_RELEASE}
-		else
-			echo "Skipping locked ${PACKAGE} set." >&2
-		fi
-		continue
-		;;
-	kernel)
-		if [ -z "${DO_LOCKKEEP}" ]; then
-			opnsense-update -kU
-		fi
-		if opnsense-update -bT; then
-			opnsense-update -kf ${DO_RELEASE}
-		else
-			echo "Skipping locked ${PACKAGE} set." >&2
-		fi
-		continue
-		;;
-	*)
-		;;
-	esac
-
 	# reset automatic, vital as per package metadata
 	AUTOMATIC="1"
 
