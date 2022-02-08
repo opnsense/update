@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2019 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -41,7 +41,7 @@ DO_INSECURE=
 DO_LOCKKEEP=
 DO_RELEASE=
 
-while getopts ilr: OPT; do
+while getopts ilr:z OPT; do
 	case ${OPT} in
 	i)
 		DO_INSECURE="-i"
@@ -51,6 +51,9 @@ while getopts ilr: OPT; do
 		;;
 	r)
 		DO_RELEASE="-r ${OPTARG}"
+		;;
+	z)
+		DO_RELEASE="-z"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -87,6 +90,15 @@ fi
 MIRROR="$(opnsense-update -M)/MINT/${DO_RELEASE#-r }/${FLAVOUR}/Latest"
 COREPKG=$(opnsense-version -n 2> /dev/null || true)
 COREDEP=
+
+if [ "${DO_RELEASE}" = "-z" ]; then
+	if [ "${FLAVOUR}]" == "LibreSSL" ]; then
+		FLAVOUR="libressl"
+	else
+		FLAVOUR="latest"
+	fi
+	MIRROR="$(opnsense-update -Mz)/${FLAVOUR}"
+fi
 
 if [ -n "${COREPKG}" ]; then
 	COREDEP=$(echo ${COREPKG}; ${PKG} query %dn ${COREPKG})
