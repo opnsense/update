@@ -55,12 +55,35 @@ WORKDIR="${WORKPREFIX}/${$}"
 IDENT=$(sysctl -n kern.ident)
 ARCH=$(uname -p)
 
-INSTALLED_BASE=$(opnsense-version -v base 2> /dev/null)
-LOCKED_BASE=$(opnsense-version -l base 2> /dev/null)
-INSTALLED_KERNEL=$(opnsense-version -v kernel 2> /dev/null)
-LOCKED_KERNEL=$(opnsense-version -l kernel 2> /dev/null)
-INSTALLED_PKGS=$(opnsense-version -v pkgs 2> /dev/null)
-LOCKED_PKGS=$(opnsense-version -l pkgs 2> /dev/null)
+INSTALLED_BASE=
+if [ -f ${VERSIONDIR}/base ]; then
+	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
+fi
+
+LOCKED_BASE=
+if [ -f ${VERSIONDIR}/base.lock ]; then
+	LOCKED_BASE=1
+fi
+
+INSTALLED_PKGS=
+if [ -f ${VERSIONDIR}/pkgs ]; then
+	INSTALLED_PKGS=$(cat ${VERSIONDIR}/pkgs)
+fi
+
+LOCKED_PKGS=
+if [ -f ${VERSIONDIR}/pkgs.lock ]; then
+	LOCKED_PKGS=1
+fi
+
+INSTALLED_KERNEL=
+if [ -f ${VERSIONDIR}/kernel ]; then
+	INSTALLED_KERNEL=$(cat ${VERSIONDIR}/kernel)
+fi
+
+LOCKED_KERNEL=
+if [ -f ${VERSIONDIR}/kernel.lock ]; then
+	LOCKED_KERNEL=1
+fi
 
 read_config()
 {
@@ -437,11 +460,11 @@ if ! grep -q "${SIG_KEY}\"fingerprints\"" ${ORIGIN}; then
 fi
 
 if [ -n "${DO_TEST}" ]; then
-	if [ -n "${DO_BASE}" -a "${LOCKED_BASE}" = "1"]; then
+	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" ]; then
 		exit 1
-	elif [ -n "${DO_KERNEL}" -a "${LOCKED_KERNEL}" = "1" ]; then
+	elif [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" ]; then
 		exit 1
-	elif [ -n "${DO_PKGS}" -a "${LOCKED_PKGS}" = "1" ]; then
+	elif [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" ]; then
 		exit 1
 	fi
 	exit 0
@@ -483,21 +506,21 @@ fi
 # DO_CHECK is not included, must be forced because we need both modes
 if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
 	# disable kernel if locked
-	if [ -n "${DO_KERNEL}" -a "${LOCKED_KERNEL}" = "1" -a \
+	if [ -n "${DO_KERNEL}" -a -n "${LOCKED_KERNEL}" -a \
 	    -z "${DO_UPGRADE}" ]; then
 		[ -z "${DO_CHECK}" ] && echo "Kernel locked at ${INSTALLED_KERNEL}, skipping."
 		DO_KERNEL=
 	fi
 
 	# disable base if locked
-	if [ -n "${DO_BASE}" -a "${LOCKED_BASE}" = "1" -a \
+	if [ -n "${DO_BASE}" -a -n "${LOCKED_BASE}" -a \
 	    -z "${DO_UPGRADE}" ]; then
 		[ -z "${DO_CHECK}" ] && echo "Base locked at ${INSTALLED_BASE}, skipping."
 		DO_BASE=
 	fi
 
 	# disable packages if locked
-	if [ -n "${DO_PKGS}" -a "${LOCKED_PKGS}" = "1"  -a \
+	if [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" -a \
 	    -z "${DO_UPGRADE}" ]; then
 		# do not reference INSTALLED_PKGS here
 		[ -z "${DO_CHECK}" ] && echo "Packages locked, skipping."
