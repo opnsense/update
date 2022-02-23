@@ -124,7 +124,7 @@ while getopts a:c:defilNP:p:r:s:V OPT; do
 	esac
 done
 
-shift $((${OPTIND} - 1))
+shift $((OPTIND - 1))
 
 if [ -n "${DO_VERBOSE}" ]; then
 	set -x

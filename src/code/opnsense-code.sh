@@ -77,7 +77,7 @@ while getopts a:d:fnrs:uV OPT; do
 	esac
 done
 
-shift $((${OPTIND} - 1))
+shift $((OPTIND - 1))
 
 if [ -z "${DO_NONROOT}" -a "$(id -u)" != "0" ]; then
 	echo "Must be root." >&2

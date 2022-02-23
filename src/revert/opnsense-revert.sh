@@ -62,7 +62,7 @@ while getopts ilr:z OPT; do
 	esac
 done
 
-shift $((${OPTIND} - 1))
+shift $((OPTIND - 1))
 
 for PACKAGE in ${@}; do
 	if ! ${PKG} query %n ${PACKAGE} > /dev/null; then

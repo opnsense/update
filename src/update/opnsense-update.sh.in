@@ -362,7 +362,7 @@ while getopts A:a:BbCcD:defGikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 	esac
 done
 
-shift $((${OPTIND} - 1))
+shift $((OPTIND - 1))
 
 if [ -n "${*}" ]; then
 	echo "Usage: man ${0##*/}" >&2

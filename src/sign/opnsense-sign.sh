@@ -49,7 +49,7 @@ while getopts c:k:p: OPT; do
 	esac
 done
 
-shift $((${OPTIND} - 1))
+shift $((OPTIND - 1))
 
 FILE=${1}
 
