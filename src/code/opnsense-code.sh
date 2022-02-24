@@ -35,6 +35,7 @@ PKG="/usr/sbin/pkg"
 DO_FORCE=
 DO_NONROOT=
 DO_REMOVE=
+DO_SNAPSHOT=
 DO_UPGRADE=
 DO_VERBOSE=
 
@@ -43,7 +44,7 @@ SITE="https://github.com"
 ACCOUNT="opnsense"
 DIRECTORY="/usr"
 
-while getopts a:d:fnrs:uV OPT; do
+while getopts a:d:fnrs:uVz OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -69,6 +70,9 @@ while getopts a:d:fnrs:uV OPT; do
 		;;
 	V)
 		DO_VERBOSE="-V"
+		;;
+	z)
+		DO_SNAPSHOT="-z"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -125,7 +129,7 @@ git_update()
 		if [ -f ${CONF} ]; then
 			BRANCH=$(make -C /usr/tools -v "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
 		fi
-		if [ -n "${BRANCH}" ]; then
+		if [ -z ${DO_SNAPSHOT} -a -n "${BRANCH}" ]; then
 			(cd "${DIRECTORY}/${REPO}"; git checkout ${BRANCH})
 		fi
 	fi
