@@ -129,7 +129,7 @@ git_update()
 		if [ -f ${CONF} ]; then
 			BRANCH=$(make -C /usr/tools -v "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
 		fi
-		if [ -z ${DO_SNAPSHOT} -a -n "${BRANCH}" ]; then
+		if [ -z "${DO_SNAPSHOT}" -a -n "${BRANCH}" ]; then
 			(cd "${DIRECTORY}/${REPO}"; git checkout ${BRANCH})
 		fi
 	fi
