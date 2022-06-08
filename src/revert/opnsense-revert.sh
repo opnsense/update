@@ -120,7 +120,7 @@ for PACKAGE in ${@}; do
 	if [ -z "${DO_RELEASE}" ]; then
 		${PKG} fetch ${PACKAGE}
 	else
-		fetch ${PACKAGE}.txz
+		fetch ${PACKAGE}.pkg
 	fi
 done
 
@@ -144,7 +144,7 @@ for PACKAGE in ${@}; do
 	if [ -z "${DO_RELEASE}" ]; then
 		${PKG} install -f ${PACKAGE}
 	else
-		${PKG} install -f ${WORKDIR}/${PACKAGE}.txz
+		${PKG} install -f ${WORKDIR}/${PACKAGE}.pkg
 	fi
 
 	${PKG} set -A ${AUTOMATIC} ${PACKAGE}
