@@ -244,7 +244,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:defGikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
+while getopts A:a:BbCcD:defGgikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -281,6 +281,9 @@ while getopts A:a:BbCcD:defGikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 		;;
 	G)
 		DO_LOGFILE="-G"
+		;;
+	g)
+		DO_LOGFILE="-g"
 		;;
 	i)
 		DO_INSECURE="-i"
@@ -441,7 +444,13 @@ elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
 	cat ${ORIGIN}
 	exit 0
-elif  [ -n "${DO_LOGFILE}" ]; then
+elif  [ "${DO_LOGFILE}" = "-g" ]; then
+	# only test for upgrade log
+	if [ -f ${LOGFILE} ]; then
+		exit 0
+	fi
+	exit 1
+elif  [ "${DO_LOGFILE}" = "-G" ]; then
 	# only print upgrade log
 	if [ -f ${LOGFILE} ]; then
 		cat ${LOGFILE}

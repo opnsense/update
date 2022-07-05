@@ -47,7 +47,7 @@
 .Nm
 .Op Fl LSTU Op Fl bkp
 .Nm
-.Op Fl GMO
+.Op Fl GgMO
 .Sh DESCRIPTION
 The
 .Nm
@@ -120,6 +120,9 @@ Since upgrades run without network connectivity and user
 interaction there is no direct way to observe it other than
 an attached console or monitor which can still miss important
 context.
+.It Fl g
+Return success if the log file of the last upgrade is available.
+Otherwise, return failure.
 .It Fl i
 Ignore the signature verification result.
 Otherwise, the
