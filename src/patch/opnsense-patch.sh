@@ -294,9 +294,11 @@ for ARG in ${ARGS}; do
 			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
 				PATCHFILE=${FILEIN}
 			fi
-			FILESH="${PATCHFILE%%.sh}"
-			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
-				PATCHFILE=${FILESH}
+			if [ -z "${REPOSITORY%%*installer*}" -o "${REPOSITORY%%*update*}" ]; then
+				FILESH="${PATCHFILE%%.sh}"
+				if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
+					PATCHFILE=${FILESH}
+				fi
 			fi
 			PATCHFILE="${PREFIX}/${PATCHFILE}"
 			;;
