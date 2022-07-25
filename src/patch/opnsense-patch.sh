@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2021 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -294,7 +294,7 @@ for ARG in ${ARGS}; do
 			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
 				PATCHFILE=${FILEIN}
 			fi
-			if [ -z "${REPOSITORY%%*installer*}" -o "${REPOSITORY%%*update*}" ]; then
+			if [ -z "${REPOSITORY%%*installer*}" -o -z "${REPOSITORY%%*update*}" ]; then
 				FILESH="${PATCHFILE%%.sh}"
 				if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
 					PATCHFILE=${FILESH}
