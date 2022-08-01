@@ -231,6 +231,7 @@ if [ -z "${DO_BARE}" ]; then
 
 	pkg bootstrap
 	pkg install "${DO_TYPE#"-t "}"
+	echo "${RELEASE}" > /usr/local/opnsense/version/pkgs
 
 	# beyond this point verify everything
 	unset SSL_NO_VERIFY_PEER
