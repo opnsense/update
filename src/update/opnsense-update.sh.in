@@ -881,6 +881,9 @@ install_pkgs()
 		${PKG} check -yda > ${PIPEFILE} 2>&1
 		${TEE} ${LOGFILE} < ${PIPEFILE} &
 		${PKG} clean -qya > ${PIPEFILE} 2>&1
+
+		# file is a pseudo-marker we feed from this script only
+		echo "${RELEASE}" > ${VERSIONDIR}/pkgs
 	fi
 }
 
@@ -997,9 +1000,6 @@ fi
 
 if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 	install_pkgs
-
-	# file is a pseudo-marker we feed from this script only
-	echo "${RELEASE}" > ${VERSIONDIR}/pkgs
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
