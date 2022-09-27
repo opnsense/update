@@ -118,6 +118,7 @@ base_version()
 mirror_abi()
 {
 	local DIR="\2"
+	local RAW=${1}
 
 	if [ -n "${DO_SNAPSHOT}" ]; then
 		DIR="snapshots"
@@ -150,7 +151,9 @@ mirror_abi()
 		exit 1
 	fi
 
-	eval MIRROR="${MIRROR}"
+	if [ -z "${RAW}" ]; then
+		eval MIRROR="${MIRROR}"
+	fi
 
 	echo "${MIRROR}"
 }
@@ -244,7 +247,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:defGikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
+while getopts A:a:BbCcD:defGiKkLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -284,6 +287,9 @@ while getopts A:a:BbCcD:defGikLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 		;;
 	i)
 		DO_INSECURE="-i"
+		;;
+	K)
+		DO_MIRROR="-K"
 		;;
 	k)
 		DO_KERNEL="-k"
@@ -433,9 +439,18 @@ if [ -n "${DO_MIRRORDIR}" ]; then
 	fi
 fi
 
-if [ -n "${DO_MIRROR}" ]; then
+if [ "${DO_MIRROR}" = "-M" ]; then
 	# only print mirror URL
 	mirror_abi
+	exit 0
+elif [ "${DO_MIRROR}" = "-K" ]; then
+	# only print mirror subscription key while
+	# making sure it actually looks like a key
+	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
+	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}')
+	if [ -n "${URL}" ]; then
+		echo ${URL}
+	fi
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration

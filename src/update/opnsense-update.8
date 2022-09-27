@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd January 20, 2022
+.Dd September 27, 2022
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -47,7 +47,7 @@
 .Nm
 .Op Fl LSTU Op Fl bkp
 .Nm
-.Op Fl GMO
+.Op Fl GKMO
 .Sh DESCRIPTION
 The
 .Nm
@@ -127,6 +127,8 @@ Otherwise, the
 utility is used to verify a set signature.
 The default is off meaning secure, unless the package mirror
 configuration does not use fingerprints.
+.It Fl K
+Return the subscription key if it exists in the release URL.
 .It Fl k
 Select the kernel.
 .It Fl L
