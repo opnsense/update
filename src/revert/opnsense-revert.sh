@@ -73,22 +73,12 @@ done
 
 export ASSUME_ALWAYS_YES=yes
 
-FLAVOUR="Base"
-if [ -f ${OPENSSL} ]; then
-	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
-fi
-
-MIRROR="$(opnsense-update -M)/MINT/${DO_RELEASE#-r }/${FLAVOUR}/Latest"
+MIRROR="$(opnsense-update -M)/MINT/${DO_RELEASE#-r }/latest/Latest"
 COREPKG=$(opnsense-version -n 2> /dev/null || true)
 COREDEP=
 
 if [ "${DO_RELEASE}" = "-z" ]; then
-	if [ "${FLAVOUR}]" == "LibreSSL" ]; then
-		FLAVOUR="libressl"
-	else
-		FLAVOUR="latest"
-	fi
-	MIRROR="$(opnsense-update -Mz)/${FLAVOUR}/Latest"
+	MIRROR="$(opnsense-update -Mz)/latest/Latest"
 fi
 
 if [ -n "${COREPKG}" ]; then
