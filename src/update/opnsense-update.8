@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015-2022 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2023 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd September 27, 2022
+.Dd February 7, 2023
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -39,7 +39,6 @@
 .Op Fl l Ar directory
 .Op Fl m Ar mirror_url
 .Op Fl n Ar mirror_dir
-.Op Fl N Ar crypto_lib
 .Op Fl r Ar release
 .Op Fl t Ar type
 .Nm
@@ -146,17 +145,6 @@ Return the full release URL of the selected mirror.
 .It Fl m Ar mirror_url
 Change the set fetch and package location to
 .Ar mirror_url .
-.It Fl N Ar crypto_lib
-When using
-.Sq Fl up ,
-the cryptographic library may be specified.
-Possible values are
-.Sq OpenSSL
-or
-.Sq LibreSSL .
-The value
-.Sq Base
-is reserved for future use.
 .It Fl n Ar mirror_dir
 Change the mirror directory to
 .Ar mirror_dir .

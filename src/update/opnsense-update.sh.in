@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2022 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2023 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -219,7 +219,6 @@ DO_CHECK=
 DO_CLEAN=
 DO_DEFAULTS=
 DO_DEVICE=
-DO_FLAVOUR=
 DO_FORCE=
 DO_INSECURE=
 DO_KERNEL=
@@ -247,7 +246,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:defGiKkLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
+while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -305,9 +304,6 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:N:n:OPpRr:SsTt:UuVvz OPT; do
 		;;
 	m)
 		DO_MIRRORURL="-m ${OPTARG}"
-		;;
-	N)
-		DO_FLAVOUR="-N ${OPTARG}"
 		;;
 	n)
 		DO_MIRRORDIR="-n ${OPTARG}"
@@ -463,7 +459,7 @@ elif  [ -n "${DO_LOGFILE}" ]; then
 	fi
 	exit 0
 elif [ -n "${DO_SKIP}" ]; then
-	# only invoke flavour and mirror replacement
+	# only invoke mirror replacements
 	exit 0
 fi
 
@@ -670,13 +666,6 @@ if [ -n "${DO_TYPE}" ]; then
 	fi
 fi
 
-FLAVOUR="Base"
-if [ -n "${DO_FLAVOUR}" ]; then
-	FLAVOUR=${DO_FLAVOUR#"-N "}
-elif [ -f ${OPENSSL} ]; then
-	FLAVOUR=$(${OPENSSL} version | awk '{ print $1 }')
-fi
-
 DEVICE=
 if [ -n "${DO_DEVICE}" ]; then
 	DEVICE="${DO_DEVICE#-D }"
@@ -685,8 +674,8 @@ if [ -n "${DO_DEVICE}" ]; then
 	fi
 fi
 
-PACKAGESSET=packages-${RELEASE}-${FLAVOUR}-${ARCH}.tar
 KERNELSET=kernel-${RELEASE}-${ARCH}${DEVICE}.txz
+PACKAGESSET=packages-${RELEASE}-${ARCH}.tar
 BASESET=base-${RELEASE}-${ARCH}.txz
 
 MIRROR="$(mirror_abi)/sets"
