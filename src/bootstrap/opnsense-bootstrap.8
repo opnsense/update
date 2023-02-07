@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015-2021 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2023 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd December 16, 2021
+.Dd February 7, 2023
 .Dt OPNSENSE-BOOTSTRAP 8
 .Os
 .Sh NAME
@@ -34,7 +34,6 @@
 .Nm
 .Op Fl bfiVvyz
 .Op Fl a Ar abi
-.Op Fl n Ar flavour
 .Op Fl r Ar release
 .Op Fl t Ar type
 .Sh DESCRIPTION
@@ -47,7 +46,7 @@ It can be used to repair a broken system or transform a matching
 installation.
 .Pp
 The options are as follows:
-.Bl -tag -width ".Fl n Ar flavour" -offset indent
+.Bl -tag -width ".Fl r Ar release" -offset indent
 .It Fl a Ar abi
 Select the package ABI.
 If not specified it is derived from the default release version.
@@ -61,15 +60,6 @@ Insecure mode trusts the remote URL and does not run package manager
 bootstrapping.
 This is necessary when no remote binary packages are available on the
 source operating system.
-.It Fl n Ar flavour
-Change the package repository to
-.Ar flavour .
-Possible values are
-.Sq LibreSSL
-and
-.Sq OpenSSL .
-The default is
-.Sq OpenSSL .
 .It Fl q
 Quick mode does an inplace installation without a bootstrap.
 Note that some options are note available for use with this mode.

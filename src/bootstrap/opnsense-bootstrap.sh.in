@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2021 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2023 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -29,7 +29,6 @@ set -e
 
 URL="https://github.com/opnsense/core/archive"
 WORKDIR="/tmp/opnsense-bootstrap"
-FLAVOUR="OpenSSL"
 RELEASE="%%RELEASE%%"
 
 DO_ABI=
@@ -41,7 +40,7 @@ DO_TYPE=
 DO_VERBOSE=
 DO_YES=
 
-while getopts a:bfin:qr:t:vVyz OPT; do
+while getopts a:bfiqr:t:vVyz OPT; do
 	case ${OPT} in
 	a)
 		DO_ABI="-a ${OPTARG}"
@@ -54,9 +53,6 @@ while getopts a:bfin:qr:t:vVyz OPT; do
 		;;
 	i)
 		DO_INSECURE="-i"
-		;;
-	n)
-		FLAVOUR=${OPTARG}
 		;;
 	q)
 		DO_QUICK="-q"
@@ -217,8 +213,7 @@ if [ -z "${DO_BARE}" ]; then
 	rm -f /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= \
-    CORE_ABI="${DO_ABI#"-a "}" CORE_FLAVOUR="${FLAVOUR}"
+make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= CORE_ABI="${DO_ABI#"-a "}"
 
 if [ -z "${DO_TYPE}" ]; then
 	DO_TYPE="-t $(make -C ${WORKDIR}/core-${SUBDIR} -v CORE_NAME)"
