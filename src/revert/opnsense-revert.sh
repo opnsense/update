@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2023 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,7 +33,6 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 WORKPREFIX="/tmp/opnsense-revert"
-OPENSSL="/usr/local/bin/openssl"
 WORKDIR=${WORKPREFIX}/${$}
 PKG="pkg-static"
 

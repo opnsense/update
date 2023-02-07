@@ -53,9 +53,8 @@ opnsense-sign(8) and opnsense-verify(8) sign and verify arbitrary
 files using signature verification methods available by pkg(8),
 so that a single key store can be used for packages and sets.
 
-opnsense-verify(8) is almost entirely based on the pkg bootstrap
-code present in the FreeBSD base code, but may be linked against
-either OpenSSL or LibreSSL from ports.
+opnsense-verify(8) is based on the existing pkg bootstrap code present
+in the FreeBSD base code, but has been improved for multi-repo use.
 
 Both utilities were first introduced in December 2015.
 
