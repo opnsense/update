@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2021 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2023 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -30,12 +30,12 @@ set -e
 EXIT=0
 OUTFILE=
 
-while getopts ao:qT: OPT; do
+while getopts ao:qT:w: OPT; do
 	case ${OPT} in
 	o)
 		OUTFILE="${OPTARG}"
 		;;
-	a|q|T)
+	a|q|T|w)
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
