@@ -32,7 +32,7 @@
 .Nd OPNsense update utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl BbCdefikPpRsuVvz
+.Op Fl BbCdefiKkPpRsuVvz
 .Op Fl A Ar mirror_abi
 .Op Fl a Ar abi_hint
 .Op Fl D Ar device
@@ -126,6 +126,11 @@ Otherwise, the
 utility is used to verify a set signature.
 The default is off meaning secure, unless the package mirror
 configuration does not use fingerprints.
+.It Fl K
+Execute single-step kernel set upgrade after use of
+.Sq Fl u .
+Implies
+.Sq Fl f .
 .It Fl k
 Select the kernel.
 .It Fl L

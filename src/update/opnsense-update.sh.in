@@ -218,6 +218,7 @@ DO_CHECK=
 DO_CLEAN=
 DO_DEFAULTS=
 DO_DEVICE=
+DO_EMPTY=
 DO_FORCE=
 DO_INSECURE=
 DO_KERNEL=
@@ -275,7 +276,7 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxz OPT; do
 		DO_DEFAULTS="-d"
 		;;
 	e)
-		empty_cache
+		DO_EMPTY="-e"
 		;;
 	f)
 		DO_FORCE="-f"
@@ -285,6 +286,12 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxz OPT; do
 		;;
 	i)
 		DO_INSECURE="-i"
+		;;
+	K)
+		DO_FORCE="-f"
+		DO_BASE=
+		DO_KERNEL="-K"
+		DO_PKGS=
 		;;
 	k)
 		DO_KERNEL="-k"
@@ -372,6 +379,10 @@ fi
 
 if [ -n "${DO_VERBOSE}" ]; then
 	set -x
+fi
+
+if [ "${DO_EMPTY}" ]; then
+	empty_cache
 fi
 
 if [ "${DO_RELEASE}" = "-R" ]; then
@@ -570,7 +581,17 @@ if [ -n "${DO_CHECK}" ]; then
 	exit 1
 fi
 
-if [ "${DO_BASE}" = "-B" ]; then
+if [ "${DO_KERNEL}" = "-K" ]; then
+	if [ ! -f "${WORKPREFIX}/.kernel.pending" ]; then
+		# must error out to prevent reboot
+		exit 1
+	fi
+
+	RELEASE=$(cat "${WORKPREFIX}/.kernel.pending")
+	WORKDIR=${PENDINGDIR}
+
+	rm -f "${WORKPREFIX}/.kernel.pending"
+elif [ "${DO_BASE}" = "-B" ]; then
 	if [ ! -f "${WORKPREFIX}/.base.pending" ]; then
 		# must error out to prevent reboot
 		exit 1
@@ -705,7 +726,7 @@ if [ -z "${DO_FORCE}" ]; then
 	fi
 
 	# nothing to do
-	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}${DO_CLEAN}" ]; then
+	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}${DO_CLEAN}${DO_EMPTY}" ]; then
 		echo "Nothing to do."
 		exit 0
 	fi
@@ -915,7 +936,7 @@ if [ "${DO_KERNEL}" = "-k" ]; then
 	fetch_set ${KERNELSET}
 fi
 
-if [ "${DO_KERNEL}" = "-k" ] || \
+if [ -n "${DO_KERNEL}" -a -z "${DO_UPGRADE}" ] || \
     [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ] || \
     [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 	echo "!!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!!!"
@@ -962,8 +983,27 @@ if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
 	echo " done"
 fi
 
-if [ "${DO_KERNEL}" = "-k" ]; then
+if [ "${DO_KERNEL}" = "-k" -a -n "${DO_UPGRADE}" ]; then
+	echo -n "Extracting ${KERNELSET}..."
+
+	# clean up from a potential previous run
+	rm -rf ${PENDINGDIR}/kernel-*
+	mkdir -p ${PENDINGDIR}
+
+	# push pending base update to deferred
+	mv ${WORKDIR}/${KERNELSET} ${PENDINGDIR}
+
+	# add action marker for next run
+	echo ${RELEASE} > "${WORKPREFIX}/.kernel.pending"
+
+	echo " done"
+fi
+
+if [ -n "${DO_KERNEL}" -a -z "${DO_UPGRADE}" ]; then
 	install_kernel
+
+	# clean up deferred sets that could be there
+	rm -rf ${PENDINGDIR}/kernel-*
 fi
 
 if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
@@ -1012,7 +1052,6 @@ if [ -z "${DO_LOCAL}" ]; then
 	rm -rf ${WORKPREFIX}/*
 fi
 
-if [ -n "${DO_KERNEL}" -o "${DO_BASE}" = "-b" ] ||
-    [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
+if [ "${DO_KERNEL}" = "-k" -o "${DO_BASE}" = "-b" -o -n "${DO_UPGRADE}" ]; then
 	echo "Please reboot."
 fi
