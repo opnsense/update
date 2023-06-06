@@ -245,7 +245,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvz OPT; do
+while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -285,9 +285,6 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvz OPT; do
 		;;
 	i)
 		DO_INSECURE="-i"
-		;;
-	K)
-		DO_MIRROR="-K"
 		;;
 	k)
 		DO_KERNEL="-k"
@@ -352,6 +349,9 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvz OPT; do
 		;;
 	v)
 		DO_VERSION="-v"
+		;;
+	x)
+		DO_MIRROR="-x"
 		;;
 	z)
 		DO_SNAPSHOT="-z"
@@ -438,7 +438,7 @@ if [ "${DO_MIRROR}" = "-M" ]; then
 	# only print mirror URL
 	mirror_abi
 	exit 0
-elif [ "${DO_MIRROR}" = "-K" ]; then
+elif [ "${DO_MIRROR}" = "-x" ]; then
 	# only print mirror subscription key while
 	# making sure it actually looks like a key
 	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
