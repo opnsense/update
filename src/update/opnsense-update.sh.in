@@ -792,16 +792,16 @@ install_kernel()
 	echo -n "Installing ${KERNELSET}..."
 
 	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
-		if ! mkdir -p ${DIR} ${DIR}.old; then
-			exit_msg " failed, mkdir error ${?}"
+		if [ -d ${DIR}.old ]; then
+			if ! rm -r ${DIR}.old; then
+				exit_msg " failed, rm error ${?}"
+			fi
 		fi
 
-		if ! rm -r ${DIR}.old; then
-			exit_msg " failed, rm error ${?}"
-		fi
-
-		if ! mv ${DIR} ${DIR}.old; then
-			exit_msg " failed, mv error ${?}"
+		if [ -d ${DIR} ]; then
+			if ! mv ${DIR} ${DIR}.old; then
+				exit_msg " failed, mv error ${?}"
+			fi
 		fi
 	done
 
