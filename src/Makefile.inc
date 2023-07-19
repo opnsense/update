@@ -9,7 +9,7 @@ VERSIONBIN=		/usr/local/sbin/opnsense-version
 # for driver reasons.
 _UPDATE_RELEASE!=	${VERSIONBIN} -v base
 .else
-_UPDATE_RELEASE=	23.1
+_UPDATE_RELEASE=	23.7
 .endif
 
 UPDATE_RELEASE?=	${_UPDATE_RELEASE}
