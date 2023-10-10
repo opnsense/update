@@ -179,15 +179,7 @@ mkdir -p ${WORKDIR}
 export ASSUME_ALWAYS_YES=yes
 
 if [ -n "${DO_INSECURE}" ]; then
-	# no CA file around to verify against, user choice
 	export SSL_NO_VERIFY_PEER=yes
-else
-	pkg bootstrap -f
-	pkg install ca_root_nss
-
-	# save a copy of the CA file to use for the bootstrap
-	cp /etc/ssl/cert.pem ${WORKDIR}/cert.pem
-	export SSL_CA_CERT_FILE=${WORKDIR}/cert.pem
 fi
 
 SUBFILE="stable/${RELEASE}"
@@ -230,7 +222,6 @@ if [ -z "${DO_BARE}" ]; then
 
 	# beyond this point verify everything
 	unset SSL_NO_VERIFY_PEER
-	unset SSL_CA_CERT_FILE
 
 	opnsense-update ${DO_VERBOSE} -bkf
 	reboot
