@@ -144,7 +144,7 @@ mirror_abi()
 	# The first part after ABI is our suffix and
 	# we need all of it to find the correct sets.
 
-	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"pkg\+\(.*\/${ABI}\/\)\([^\/]*\)\/.*/\1'"${DIR}"'/p' ${ORIGIN})
+	MIRROR=$(sed -n 's/'"${URL_KEY}"'\"\(.*\/${ABI}\/\)\([^\/]*\)\/.*/\1'"${DIR}"'/p' ${ORIGIN})
 	if [ -z "${MIRROR}" ]; then
 		echo "Mirror read failed." >&2
 		exit 1
