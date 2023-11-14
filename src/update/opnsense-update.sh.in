@@ -117,13 +117,18 @@ base_version()
 mirror_abi()
 {
 	local DIR="\2"
-	local RAW=${1}
+	local OPT=${1}
 
 	if [ -n "${DO_SNAPSHOT}" ]; then
 		DIR="snapshots"
 	fi
 
 	ABI=$(opnsense-verify -a)
+
+        if [ "${OPT}" = "pin" ]; then
+		# main archtecture to guarantee aux set fetch success
+		ABI="${ABI%:*}:amd64"
+	fi
 
 	if [ -n "${DO_ABI}" ]; then
 		ABIPARTS=${DO_ABI#"-a "}
@@ -150,7 +155,7 @@ mirror_abi()
 		exit 1
 	fi
 
-	if [ -z "${RAW}" ]; then
+	if [ "${OPT}" != "raw" ]; then
 		eval MIRROR="${MIRROR}"
 	fi
 
@@ -246,7 +251,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxz OPT; do
+while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -357,6 +362,9 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxz OPT; do
 	v)
 		DO_VERSION="-v"
 		;;
+	X)
+		DO_MIRROR="-X"
+		;;
 	x)
 		DO_MIRROR="-x"
 		;;
@@ -453,10 +461,26 @@ elif [ "${DO_MIRROR}" = "-x" ]; then
 	# only print mirror subscription key while
 	# making sure it actually looks like a key
 	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
-	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}')
+	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}' || true)
 	if [ -n "${URL}" ]; then
 		echo ${URL}
 	fi
+	exit 0
+elif [ "${DO_MIRROR}" = "-X" ]; then
+	# print bogons/changelog fetch URL
+	# appropriate for the configuration
+	# requiring pre and postprocessing
+	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
+	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}' || true)
+	if [ -z "${URL}" ]; then
+		ORIGIN=${ORIGIN}.sample
+		if [ ! -f ${ORIGIN} ]; then
+			echo "Missing ${ORIGIN}" >&2
+			exit 1
+		fi
+	fi
+	URL=$(mirror_abi pin)
+	echo ${URL%/*}/$(opnsense-version -x)
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration

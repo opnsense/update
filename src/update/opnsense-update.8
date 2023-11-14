@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd June 8, 2023
+.Dd November 14, 2023
 .Dt OPNSENSE-UPDATE 8
 .Os
 .Sh NAME
@@ -46,7 +46,7 @@
 .Nm
 .Op Fl LSTU Op Fl bkp
 .Nm
-.Op Fl GKMO
+.Op Fl GKMOXx
 .Sh DESCRIPTION
 The
 .Nm
@@ -212,6 +212,8 @@ after each individual step.
 Set debug mode for shell script output.
 .It Fl v
 Print the latest set version.
+.It Fl X
+Return the respective full release URL for the auxiliary set fetch.
 .It Fl x
 Return the subscription key if it exists in the release URL.
 .It Fl z
