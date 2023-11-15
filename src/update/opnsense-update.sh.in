@@ -162,6 +162,16 @@ mirror_abi()
 	echo "${MIRROR}"
 }
 
+mirror_sub()
+{
+	# make sure it actually looks like a key before returning
+	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
+	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}' || true)
+	if [ -n "${URL}" ]; then
+		echo ${URL}
+	fi
+}
+
 empty_cache() {
 	if [ -d ${WORKPREFIX} ]; then
 		# completely empty cache as per request
@@ -458,21 +468,14 @@ if [ "${DO_MIRROR}" = "-M" ]; then
 	mirror_abi
 	exit 0
 elif [ "${DO_MIRROR}" = "-x" ]; then
-	# only print mirror subscription key while
-	# making sure it actually looks like a key
-	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
-	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}' || true)
-	if [ -n "${URL}" ]; then
-		echo ${URL}
-	fi
+	# only print mirror subscription key
+	mirror_sub
 	exit 0
 elif [ "${DO_MIRROR}" = "-X" ]; then
 	# print bogons/changelog fetch URL
 	# appropriate for the configuration
 	# requiring pre and postprocessing
-	URL=$(mirror_abi raw | sed -n 's/.*\/\([^\/]*\)\/${ABI}\/.*/\1/p' |
-	    egrep -i '[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}' || true)
-	if [ -z "${URL}" ]; then
+	if [ -z "$(mirror_sub)" ]; then
 		ORIGIN=${ORIGIN}.sample
 		if [ ! -f ${ORIGIN} ]; then
 			echo "Missing ${ORIGIN}" >&2
