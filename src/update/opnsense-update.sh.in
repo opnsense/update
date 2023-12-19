@@ -861,6 +861,8 @@ install_base()
 
 	if ! tar -C / -xpf ${WORKDIR}/${BASESET} \
 	    --exclude="^.abi_hint" \
+	    --exclude="^.cshrc" \
+	    --exclude="^.profile" \
 	    --exclude="^boot/efi" \
 	    --exclude="^etc/group" \
 	    --exclude="^etc/master.passwd" \
@@ -873,9 +875,8 @@ install_base()
 	    --exclude="^etc/spwd.db" \
 	    --exclude="^etc/ttys" \
 	    --exclude="^proc" \
-	    --exclude="^var/cache/pkg" \
-	    --exclude="^var/crash" \
-	    --exclude="^var/db/pkg"; then
+	    --exclude="^root/.cshrc" \
+	    --exclude="^root/.profile"; then
 		exit_msg " failed, tar error ${?}"
 	fi
 
