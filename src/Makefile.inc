@@ -1,5 +1,8 @@
 upgrade: all install clean
 
+BINDIR=			${PREFIX}/sbin
+MANDIR=			${PREFIX}/share/man/man
+
 VERSIONBIN=		/usr/local/sbin/opnsense-version
 
 .if exists(${VERSIONBIN})
