@@ -39,7 +39,7 @@ an OPNsense installation.  Both UFS and ZFS installations are supported.
 The usage is simple, starting with a FreeBSD 13.2-RELEASE image:
 
     # fetch https://raw.githubusercontent.com/opnsense/update/master/src/bootstrap/opnsense-bootstrap.sh.in
-    # sh ./opnsense-bootstrap.sh.in -r 23.7
+    # sh ./opnsense-bootstrap.sh.in -r 24.1
 
 After successful reboot, OPNsense should be up and running.  :)
 
