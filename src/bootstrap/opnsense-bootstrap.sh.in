@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2023 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2024 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -107,8 +107,8 @@ if [ "${FBSDARCH}" != "amd64" ]; then
 fi
 
 FBSDVER=$(uname -r | colrm 4)
-if [ "${FBSDVER}" != "13." ]; then
-	echo "Must be a FreeBSD 13 release." >&2
+if [ "${FBSDVER}" != "14." ]; then
+	echo "Must be a FreeBSD 14 release." >&2
 	exit 1
 fi
 
@@ -199,7 +199,7 @@ tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
 
 if [ -z "${DO_BARE}" ]; then
 	if pkg -N; then
-		pkg unlock -a
+		pkg unlock -ya
 		pkg delete -fa
 	fi
 	rm -f /var/db/pkg/*
