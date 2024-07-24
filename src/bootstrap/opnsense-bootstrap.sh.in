@@ -202,7 +202,7 @@ if [ -z "${DO_BARE}" ]; then
 		pkg unlock -ya
 		pkg delete -fa
 	fi
-	rm -f /var/db/pkg/*
+	rm -rf /var/db/pkg/*
 fi
 
 make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= CORE_ABI="${DO_ABI#"-a "}"
