@@ -30,6 +30,7 @@ set -e
 URL="https://github.com/opnsense/core/archive"
 WORKDIR="/tmp/opnsense-bootstrap"
 RELEASE="%%RELEASE%%"
+FREEBSD="%%FREEBSD%%"
 
 DO_ABI=
 DO_BARE=
@@ -107,8 +108,8 @@ if [ "${FBSDARCH}" != "amd64" ]; then
 fi
 
 FBSDVER=$(uname -r | colrm 4)
-if [ "${FBSDVER}" != "14." ]; then
-	echo "Must be a FreeBSD 14 release." >&2
+if [ -n "${FREEBSD%"%%FREEBSD%%"}" -a "${FBSDVER}" != "${FREEBSD%.*}." ]; then
+	echo "Must be a FreeBSD ${FREEBSD%.*} release." >&2
 	exit 1
 fi
 
