@@ -108,7 +108,7 @@ if [ "${FBSDARCH}" != "amd64" ]; then
 fi
 
 FBSDVER=$(uname -r | colrm 4)
-if [ -n "${FREEBSD%"%%FREEBSD%%"}" -a "${FBSDVER}" != "${FREEBSD%.*}." ]; then
+if [ -n "${FREEBSD%"%%"*"%%"}" -a "${FBSDVER}" != "${FREEBSD%.*}." ]; then
 	echo "Must be a FreeBSD ${FREEBSD%.*} release." >&2
 	exit 1
 fi
