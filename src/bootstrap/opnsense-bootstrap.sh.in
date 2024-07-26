@@ -95,20 +95,22 @@ if [ -n "${DO_VERBOSE}" ]; then
 	set -x
 fi
 
-FBSDNAME=$(uname -s)
-if [ "${FBSDNAME}" != "FreeBSD" ]; then
+if [ -z "${RELEASE%"%%"*"%%"}" ]; then
+	echo "Must specify an OPNsense release." >&2
+	exit 1
+fi
+
+if [ "$(uname -s)" != "FreeBSD" ]; then
 	echo "Must be FreeBSD." >&2
 	exit 1
 fi
 
-FBSDARCH=$(uname -p)
-if [ "${FBSDARCH}" != "amd64" ]; then
+if [ "=$(uname -p)" != "amd64" ]; then
 	echo "Must be amd64 architecture." >&2
 	exit 1
 fi
 
-FBSDVER=$(uname -r | colrm 4)
-if [ -n "${FREEBSD%"%%"*"%%"}" -a "${FBSDVER}" != "${FREEBSD%.*}." ]; then
+if [ -n "${FREEBSD%"%%"*"%%"}" -a "$(uname -r | colrm 4)" != "${FREEBSD%.*}." ]; then
 	echo "Must be a FreeBSD ${FREEBSD%.*} release." >&2
 	exit 1
 fi
