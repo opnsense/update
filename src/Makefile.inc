@@ -14,7 +14,7 @@ FREEBSDBIN=		/bin/freebsd-version
 _UPDATE_RELEASE!=	${VERSIONBIN} -v base
 .endif
 
-.if exists(${$FREEBSDBIN})
+.if exists(${FREEBSDBIN})
 _UPDATE_FREEBSD!=	${FREEBSDBIN} -u
 .endif
 
