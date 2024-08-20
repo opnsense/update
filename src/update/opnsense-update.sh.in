@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2023 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2024 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -172,11 +172,26 @@ mirror_sub()
 	fi
 }
 
-empty_cache() {
+empty_cache()
+{
 	if [ -d ${WORKPREFIX} ]; then
 		# completely empty cache as per request
 		rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.??*
 	fi
+
+	# remove our stale pyc files not handled by pkg
+	find /usr/local/opnsense -type f -name "*.pyc" -delete
+
+	for DIR in /boot /usr/libexec/bsdinstall /usr/local; do
+		# remove spurious files from pkg
+		find ${DIR} ! \( -type d \) -a \
+		    \( -name "*.pkgsave" -o -name ".pkgtemp.*" \) -delete
+
+	        # processs spurious directories from pkg
+	        # (may not be empty so -delete does not work)
+		find ${DIR} -type d -name ".pkgtemp.*" -print0 | \
+		    xargs -0 -n1 rm -r
+	done
 }
 
 backup_origin()
