@@ -178,7 +178,10 @@ empty_cache()
 		# completely empty cache as per request
 		rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.??*
 	fi
+}
 
+flush_temporary()
+{
 	# remove our stale pyc files not handled by pkg
 	find /usr/local/opnsense -type f -name "*.pyc" -delete
 
@@ -249,6 +252,7 @@ DO_CLEAN=
 DO_DEFAULTS=
 DO_DEVICE=
 DO_EMPTY=
+DO_FLUSH=
 DO_FORCE=
 DO_INSECURE=
 DO_KERNEL=
@@ -276,7 +280,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxXz OPT; do
+while getopts A:a:BbCcD:deFfGiKkLl:Mm:n:OPpRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -307,6 +311,9 @@ while getopts A:a:BbCcD:defGiKkLl:Mm:n:OPpRr:SsTt:UuVvxXz OPT; do
 		;;
 	e)
 		DO_EMPTY="-e"
+		;;
+	F)
+		DO_FLUSH="-F"
 		;;
 	f)
 		DO_FORCE="-f"
@@ -416,6 +423,10 @@ fi
 
 if [ "${DO_EMPTY}" ]; then
 	empty_cache
+fi
+
+if [ "${DO_FLUSH}" ]; then
+	flush_temporary
 fi
 
 if [ "${DO_RELEASE}" = "-R" ]; then

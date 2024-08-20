@@ -32,7 +32,7 @@
 .Nd OPNsense update utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl BbCdefiKkPpRsuVvz
+.Op Fl BbCdeFfiKkPpRsuVvz
 .Op Fl A Ar mirror_abi
 .Op Fl a Ar abi_hint
 .Op Fl D Ar device
@@ -110,7 +110,9 @@ If unset it is automatically detected.
 .It Fl d
 Restore the repository defaults.
 .It Fl e
-Empty the cache directory and remove temporary files left behind by
+Empty the cache directory.
+.It Fl F
+Remove remove temporary files left behind by
 .Xr pkg 8 .
 .It Fl f
 Force an update even when the latest release is already installed.
