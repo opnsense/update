@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2016-2021 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd August 3, 2021
+.Dd August 31, 2024
 .Dt OPNSENSE-PATCH 8
 .Os
 .Sh NAME
@@ -34,7 +34,7 @@
 .Nm
 .Op Fl defiNV
 .Op Fl c Ar repo_default
-.Ar commit_hash ...
+.Ar commit_hash_or_url ...
 .Nm
 .Op Fl defiNV
 .Op Fl a Ar account
@@ -42,7 +42,7 @@
 .Op Fl p Ar patch_level
 .Op Fl r Ar repository
 .Op Fl s Ar site
-.Ar commit_hash ...
+.Ar commit_hash_or_url ...
 .Nm
 .Fl l
 .Op Fl c Ar repo_default
@@ -54,10 +54,30 @@ The
 .Nm
 utility treats all arguments as upstream
 .Xr git 1
-repository commit hashes, downloads them with
+repository commits, downloads them with
 .Xr fetch 1
 and finally applies them in order using
 .Xr patch 1 .
+.Pp
+It is possible to give a commit hash or full URL to the commit.
+The full URL has advantages and disadvantages:
+.Pp
+.Bl -bullet -compact
+.It
+It is fast to share a patch URL and explicit where it is found.
+While applying a patch and having to rely on typing the command
+as opposed to copy and paste, however, it is slower to perform.
+.It
+The repository setup will be done per patch so it is possible to
+run patches from different repositories in a single command invoke,
+but it also means manual setup of these options is overwritten.
+.It
+The given URL must match the
+.Ar site
+and
+.Ar account
+options being used.
+.El
 .Pp
 A preprocess run will remove repository meta data file changes,
 only keep file modifications inside the

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -53,36 +53,41 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
+patch_repository()
+{
+	REPOSITORY=${1}
+
+	case ${REPOSITORY} in
+	core)
+		PREFIX="/usr/local"
+		PATCHLEVEL="2"
+		;;
+	installer)
+		PREFIX="/usr/libexec/bsdinstall"
+		PATCHLEVEL="2"
+		;;
+	plugins)
+		PREFIX="/usr/local"
+		PATCHLEVEL="4"
+		;;
+	update)
+		PREFIX="/usr/local/sbin"
+		PATCHLEVEL="3"
+		;;
+	*)
+		echo "Unknown repository default: ${REPOSITORY}" >&2
+		exit 1
+		;;
+	esac
+}
+
 while getopts a:c:defilNP:p:r:s:V OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
 		;;
 	c)
-		case ${OPTARG} in
-		core)
-			PREFIX="/usr/local"
-			PATCHLEVEL="2"
-			;;
-		installer)
-			PREFIX="/usr/libexec/bsdinstall"
-			PATCHLEVEL="2"
-			;;
-		plugins)
-			PREFIX="/usr/local"
-			PATCHLEVEL="4"
-			;;
-		update)
-			PREFIX="/usr/local/sbin"
-			PATCHLEVEL="3"
-			;;
-		*)
-			echo "Unknown repository default: ${OPTARG}" >&2
-			exit 1
-			;;
-		esac
-
-		REPOSITORY=${OPTARG}
+		patch_repository ${OPTARG}
 		;;
 	d)
 		DO_DOWNLOAD="-d"
@@ -185,12 +190,23 @@ patch_print()
 	done
 }
 
+patch_setup()
+{
+	URL="${ARG#"${SITE}/${ACCOUNT}/"}"
+	if [ "${URL}" != ${ARG} ]; then
+		ARG=${URL#*/commit/}
+		patch_repository ${URL%/commit/*}
+	fi
+}
+
 if [ -n "${DO_LIST}" ]; then
 	patch_print
 	exit 0
 fi
 
 for ARG in ${@}; do
+	patch_setup # modify environment as required for patch
+
 	FOUND="$(patch_found ${ARG})"
 
 	if [ -n "${FOUND}" ]; then
@@ -198,7 +214,7 @@ for ARG in ${@}; do
 			rm ${CACHEDIR}/${FOUND}
 		else
 			echo "Found local copy of ${ARG}, skipping fetch."
-			ARGS="${ARGS} ${FOUND}"
+			ARGS="${ARGS} ${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${FOUND#*-}"
 			continue
 		fi
 	fi
@@ -267,7 +283,7 @@ for ARG in ${@}; do
 
 	echo "Fetched ${ARG} via ${SITE}/${ACCOUNT}/${REPOSITORY}"
 
-	ARGS="${ARGS} ${WANT}"
+	ARGS="${ARGS} ${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${WANT#*-}"
 done
 
 rm -f ${CACHEDIR}/~*
@@ -277,6 +293,9 @@ if [ -n "${DO_DOWNLOAD}" ]; then
 fi
 
 for ARG in ${ARGS}; do
+	patch_setup # modify environment as required for patch
+	ARG=${REPOSITORY}-${ARG} # reconstruct file name on disk
+
 	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
 	fi
