@@ -139,7 +139,9 @@ git_update()
 			rm -f /etc/make.conf
 			make -C /usr/tools make.conf SETTINGS=${ABI} > /etc/make.conf
 		elif [ -d "${DIRECTORY}/tools" ]; then
-			echo "ABI ${ABI} is no longer supported" >&2
+			echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+			echo "!!! ABI ${ABI} is no longer supported !!!" >&2
+			echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
 		fi
 	fi
 }
