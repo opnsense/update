@@ -144,7 +144,7 @@ mkdir -p ${CACHEDIR}
 
 patch_load()
 {
-	for PATCH in $(find ${CACHEDIR}/ -name "${REPOSITORY}-*"); do
+	for PATCH in $(find -s ${CACHEDIR} -type f); do
 		if [ ! -s "${PATCH}" ]; then
 			rm -f "${PATCH}"
 			continue
@@ -171,10 +171,16 @@ patch_found()
 	ARGLEN=$(echo -n ${ARG} | wc -c | awk '{ print $1 }')
 
 	echo "${PATCHES}" | while read FILE HASH SUBJECT; do
-		if [ "$(echo ${HASH} | cut -c -${ARGLEN})" = ${ARG} ]; then
-			echo ${FILE}
-			return
+		if [ "${FILE%-*}" != ${REPOSITORY} ]; then
+			continue
 		fi
+
+		if [ "$(echo ${HASH##*-} | cut -c -${ARGLEN})" != ${ARG} ]; then
+			continue
+		fi
+
+		echo ${FILE}
+		return
 	done
 }
 
@@ -184,6 +190,11 @@ patch_print()
 		if [ -z "${FILE}" ]; then
 			continue
 		fi
+
+		if [ "${FILE%-*}" != ${REPOSITORY} ]; then
+			continue
+		fi
+
 		LINE="$(echo ${HASH} | cut -c -11)"
 		LINE="${LINE} $(echo ${SUBJECT} | cut -c -50)"
 		echo ${LINE}
