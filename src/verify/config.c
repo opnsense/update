@@ -54,6 +54,7 @@ struct config_value {
 
 #define REPOS_MAX	16
 static char *reponames[REPOS_MAX];
+static char *repoprios[REPOS_MAX];
 
 struct config_entry {
 	uint8_t type;
@@ -146,7 +147,16 @@ static struct config_entry c[] = {
 		NULL,
 		false,
 		false,
-	}
+	},
+	[PRIORITY] = {
+		PKG_CONFIG_STRING,
+		"PRIORITY",
+		NULL,
+		NULL,
+		NULL,
+		false,
+		false
+	},
 };
 
 int
@@ -214,7 +224,7 @@ boolstr_to_bool(const char *str)
 }
 
 static int
-config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
+config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype, char **priority)
 {
 	FILE *buffp;
 	char *buf = NULL;
@@ -226,6 +236,10 @@ config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 	const char *key, *evkey;
 	int i;
 	size_t j;
+
+	if (priority) {
+		*priority = NULL;
+	}
 
 	/* Temporary config for configs that may be disabled. */
 	temp_config = calloc(CONFIG_SIZE, sizeof(struct config_entry));
@@ -252,6 +266,8 @@ config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 				fputs("MIRROR_TYPE", buffp);
 			else if (strcasecmp(key, "signature_type") == 0)
 				fputs("SIGNATURE_TYPE", buffp);
+			else if (strcasecmp(key, "priority") == 0)
+				fputs("PRIORITY", buffp);
 			else if (strcasecmp(key, "fingerprints") == 0)
 				fputs("FINGERPRINTS", buffp);
 			else if (strcasecmp(key, "pubkey") == 0)
@@ -316,8 +332,8 @@ config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 			}
 			break;
 		default:
-			/* Normal string value. */
-			temp_config[i].value = strdup(ucl_object_tostring(cur));
+			/* Forced string value. */
+			temp_config[i].value = strdup(ucl_object_tostring_forced(cur));
 			break;
 		}
 	}
@@ -338,6 +354,13 @@ config_parse(const ucl_object_t *obj, pkg_conf_file_t conftype)
 			break;
 		}
 	}
+
+	if (priority) {
+		*priority = temp_config[PRIORITY].value ?
+		    strdup(temp_config[PRIORITY].value) : NULL;
+	}
+
+	free(temp_config);
 
 	return (0);
 
@@ -363,6 +386,7 @@ parse_repo_file(ucl_object_t *obj, const char *requested_repo)
 	const ucl_object_t *cur;
 	const char *key;
 	int i, ret, found;
+	char *priority;
 
 	while ((cur = ucl_iterate_object(obj, &it, true))) {
 		key = ucl_object_key(cur);
@@ -376,7 +400,7 @@ parse_repo_file(ucl_object_t *obj, const char *requested_repo)
 		if (requested_repo != NULL && strcmp(requested_repo, key) != 0)
 			continue;
 
-		ret = config_parse(cur, CONFFILE_REPO);
+		ret = config_parse(cur, CONFFILE_REPO, &priority);
 
 		found = 0;
 
@@ -389,6 +413,15 @@ parse_repo_file(ucl_object_t *obj, const char *requested_repo)
 				if (ret) {
 					free(reponames[i]);
 					reponames[i] = NULL;
+					free(repoprios[i]);
+					repoprios[i] = NULL;
+				} else if (priority) {
+					/*
+					 * Re-reading lets last match win
+					 * unless the key is not set.
+					 */
+					free(repoprios[i]);
+					repoprios[i] = priority;
 				}
 				found = 1;
 				break;
@@ -406,6 +439,7 @@ parse_repo_file(ucl_object_t *obj, const char *requested_repo)
 
 			if (!ret) {
 				reponames[i] = strdup(key);
+				repoprios[i] = priority;
 				break;
 			}
 		}
@@ -437,7 +471,7 @@ read_conf_file(const char *confpath, const char *requested_repo,
 		    "configuration file %s", confpath);
 	else {
 		if (conftype == CONFFILE_PKG)
-			config_parse(obj, conftype);
+			config_parse(obj, conftype, NULL);
 		else if (conftype == CONFFILE_REPO)
 			parse_repo_file(obj, requested_repo);
 	}
@@ -623,7 +657,7 @@ config_print_repos(void)
 
 	for (i = 0; i < REPOS_MAX; i++) {
 		if (reponames[i]) {
-			printf("%s\n", reponames[i]);
+			printf("%s (Priority: %s)\n", reponames[i], repoprios[i] ?: "0");
 		}
 	}
 }
