@@ -469,7 +469,7 @@ fi
 
 if [ -n "${DO_MIRRORURL}" ]; then
 	# replace the package repo location
-	sed -i '' '/'"${URL_KEY}"'/s/".*${ABI}/"'"${DO_MIRRORURL#"-m "}"'\/${ABI}/' ${ORIGIN}
+	sed -i '' '/'"${URL_KEY}"'/s|".*${ABI}|"'"${DO_MIRRORURL#"-m "}"'/${ABI}|' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRRORABI}" ]; then
