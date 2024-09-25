@@ -473,19 +473,27 @@ if [ -n "${DO_MIRRORURL}" ]; then
 fi
 
 if [ -n "${DO_MIRRORABI}" ]; then
-	# replace the package repo abi
-	sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/\)\([^\/]*\)\(\/.*\)/\1'"${DO_MIRRORABI#"-A "}"'\3/' ${ORIGIN}
+	# replace the package repo ABI
+	MIRRORABI=${DO_MIRRORABI#"-A "}
+
+	if [ -z "${MIRRORABI%%*/*}" ]; then
+		echo "Mirror ABI cannot be a subdirectory" >&2
+		exit 1
+	fi
+
+	sed -i '' '/'"${URL_KEY}"'/s|\(${ABI}\/\)\([^\/]*\)\(\/.*\)|\1'"${MIRRORABI}"'\3|' ${ORIGIN}
 fi
 
 if [ -n "${DO_MIRRORDIR}" ]; then
 	# replace the package repo name
 	MIRRORDIR=${DO_MIRRORDIR#"-n "}
+
 	if [ -n "${MIRRORDIR%%*/*}" ]; then
 		# only replace subdirectory
-		sed -i '' '/'"${URL_KEY}"'/s/\(${ABI}\/[^\/]*\/\)\(.*\)/\1'"${MIRRORDIR}"'\",/' ${ORIGIN}
+		sed -i '' '/'"${URL_KEY}"'/s|\(${ABI}\/[^\/]*\/\)\(.*\)|\1'"${MIRRORDIR}"'\",|' ${ORIGIN}
 	else
 		# replace full path
-		sed -i '' '/'"${URL_KEY}"'/s/${ABI}.*/${ABI}\/'"${MIRRORDIR}"'\",/' ${ORIGIN}
+		sed -i '' '/'"${URL_KEY}"'/s|${ABI}.*|${ABI}\/'"${MIRRORDIR}"'\",|' ${ORIGIN}
 	fi
 fi
 
