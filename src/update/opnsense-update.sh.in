@@ -270,6 +270,7 @@ DO_SIZE=
 DO_SKIP=
 DO_SNAPSHOT=
 DO_TEST=
+DO_TESTS=
 DO_TYPE=
 DO_UNLOCK=
 DO_UPGRADE=
@@ -280,7 +281,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:deFfGiKkLl:Mm:n:OPpRr:SsTt:UuVvxXz OPT; do
+while getopts A:a:BbCcD:deFfGiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -359,6 +360,9 @@ while getopts A:a:BbCcD:deFfGiKkLl:Mm:n:OPpRr:SsTt:UuVvxXz OPT; do
 		;;
 	p)
 		DO_PKGS="-p"
+		;;
+	Q)
+		DO_TESTS="-Q"
 		;;
 	R)
 		DO_RELEASE="-R"
@@ -757,6 +761,7 @@ fi
 
 KERNELSET=kernel-${RELEASE}-${ARCH}${DEVICE}.txz
 PACKAGESSET=packages-${RELEASE}-${ARCH}.tar
+TESTSSET=tests-${RELEASE}-${ARCH}.txz
 BASESET=base-${RELEASE}-${ARCH}.txz
 
 MIRROR="$(mirror_abi)/sets"
@@ -787,7 +792,7 @@ if [ -z "${DO_FORCE}" ]; then
 	fi
 
 	# nothing to do
-	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}${DO_CLEAN}${DO_EMPTY}" ]; then
+	if [ -z "${DO_KERNEL}${DO_BASE}${DO_PKGS}${DO_TESTS}${DO_CLEAN}${DO_EMPTY}" ]; then
 		echo "Nothing to do."
 		exit 0
 	fi
@@ -843,6 +848,20 @@ fetch_set()
 		if ! ${STAGE3} 2> /dev/null; then
 			exit_msg " failed, signature invalid"
 		fi
+	fi
+
+	echo " done"
+}
+
+install_tests()
+{
+	echo -n "Installing ${TESTSSET}..."
+
+	# clear the previous state as it is contained here
+	rm -rf /usr/tests
+
+	if ! tar -C / -xpf ${WORKDIR}/${TESTSSET} --exclude="^.abi_hint"; then
+		exit_msg " failed, tar error ${?}"
 	fi
 
 	echo " done"
@@ -996,6 +1015,12 @@ if [ "${DO_KERNEL}" = "-k" ]; then
 		rm -f ${VERSIONDIR}/kernel.lock
 	fi
 	fetch_set ${KERNELSET}
+fi
+
+if [ -n "${DO_TESTS}" ]; then
+	# since tests are not vital they do not have a lock or version check
+	fetch_set ${TESTSSET}
+	install_tests
 fi
 
 if [ -n "${DO_KERNEL}" -a -z "${DO_UPGRADE}" ] || \
