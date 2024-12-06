@@ -35,6 +35,7 @@ REFRESH="/usr/local/opnsense/www/index.php"
 
 # fetch defaults
 ACCOUNT="opnsense"
+CONFIG="core"
 PATCHLEVEL="2"
 PREFIX="/usr/local"
 REPOSITORY="core"
@@ -55,9 +56,9 @@ fi
 
 patch_repository()
 {
-	REPOSITORY=${1}
+	CONFIG=${1}
 
-	case ${REPOSITORY} in
+	case ${CONFIG} in
 	core)
 		PREFIX="/usr/local"
 		PATCHLEVEL="2"
@@ -75,7 +76,7 @@ patch_repository()
 		PATCHLEVEL="3"
 		;;
 	*)
-		echo "Unknown repository default: ${REPOSITORY}" >&2
+		echo "Unknown configuration default: ${CONFIG}" >&2
 		exit 1
 		;;
 	esac
@@ -171,7 +172,7 @@ patch_found()
 	ARGLEN=$(echo -n ${ARG} | wc -c | awk '{ print $1 }')
 
 	echo "${PATCHES}" | while read FILE HASH SUBJECT; do
-		if [ "${FILE%-*}" != ${REPOSITORY} ]; then
+		if [ "${FILE%-*}" != ${CONFIG} ]; then
 			continue
 		fi
 
@@ -191,7 +192,7 @@ patch_print()
 			continue
 		fi
 
-		if [ "${FILE%-*}" != ${REPOSITORY} ]; then
+		if [ "${FILE%-*}" != ${CONFIG} ]; then
 			continue
 		fi
 
@@ -230,7 +231,7 @@ for ARG in ${@}; do
 		fi
 	fi
 
-	WANT="${REPOSITORY}-${ARG}"
+	WANT="${CONFIG}-${ARG}"
 
 	fetch ${DO_INSECURE} -q -o "${CACHEDIR}/~${WANT}" \
 	    "${SITE}/${ACCOUNT}/${REPOSITORY}/commit/${ARG}.patch"
@@ -305,7 +306,7 @@ fi
 
 for ARG in ${ARGS}; do
 	patch_setup # modify environment as required for patch
-	ARG=${REPOSITORY}-${ARG} # reconstruct file name on disk
+	ARG=${CONFIG}-${ARG} # reconstruct file name on disk
 
 	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
@@ -324,7 +325,7 @@ for ARG in ${ARGS}; do
 			if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
 				PATCHFILE=${FILEIN}
 			fi
-			if [ -z "${REPOSITORY%%*installer*}" -o -z "${REPOSITORY%%*update*}" ]; then
+			if [ "${CONFIG}" = "installer" -o "${CONFIG}" == "update" ]; then
 				FILESH="${PATCHFILE%%.sh}"
 				if [ ! -f "${PREFIX}/${PATCHFILE}" ]; then
 					PATCHFILE=${FILESH}
