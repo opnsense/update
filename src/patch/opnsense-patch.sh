@@ -56,7 +56,9 @@ fi
 
 patch_repository()
 {
-	case ${1} in
+	REPOSITORY=${1}
+
+	case ${REPOSITORY} in
 	*core*)
 		PREFIX="/usr/local"
 		PATCHLEVEL="2"
@@ -78,7 +80,8 @@ patch_repository()
 		CONFIG="update"
 		;;
 	*)
-		echo "Unknown configuration default '${1}', using '${CONFIG}'" >&2
+		echo "Unknown repository default: ${REPOSITORY}" >&2
+		exit 1
 		;;
 	esac
 }
@@ -209,8 +212,7 @@ patch_setup()
 	URL="${ARG#"${SITE}/${ACCOUNT}/"}"
 	if [ "${URL}" != ${ARG} ]; then
 		ARG=${URL#*/commit/}
-		REPOSITORY=${URL%/commit/*}
-		patch_repository ${REPOSITORY}
+		patch_repository ${URL%/commit/*}
 		return
 	fi
 
