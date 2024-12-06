@@ -56,28 +56,29 @@ fi
 
 patch_repository()
 {
-	CONFIG=${1}
-
-	case ${CONFIG} in
-	core)
+	case ${1} in
+	*core*)
 		PREFIX="/usr/local"
 		PATCHLEVEL="2"
+		CONFIG="core"
 		;;
-	installer)
+	*installer*)
 		PREFIX="/usr/libexec/bsdinstall"
 		PATCHLEVEL="2"
+		CONFIG="installer"
 		;;
-	plugins)
+	*plugins*)
 		PREFIX="/usr/local"
 		PATCHLEVEL="4"
+		CONFIG="plugins"
 		;;
-	update)
+	*update*)
 		PREFIX="/usr/local/sbin"
 		PATCHLEVEL="3"
+		CONFIG="update"
 		;;
 	*)
-		echo "Unknown configuration default: ${CONFIG}" >&2
-		exit 1
+		echo "Unknown configuration default '${1}', using '${CONFIG}'" >&2
 		;;
 	esac
 }
@@ -204,11 +205,23 @@ patch_print()
 
 patch_setup()
 {
+	# only allow patching with the right -a option set
 	URL="${ARG#"${SITE}/${ACCOUNT}/"}"
 	if [ "${URL}" != ${ARG} ]; then
 		ARG=${URL#*/commit/}
-		patch_repository ${URL%/commit/*}
+		REPOSITORY=${URL%/commit/*}
+		patch_repository ${REPOSITORY}
+		return
 	fi
+
+	# error to the user if -a did not match
+	URL="${ARG#"${SITE}/"}"
+	if [ "${URL}" != ${ARG} ]; then
+		echo "Account '${ACCOUNT}' does not match given URL." >&2
+		exit 1
+	fi
+
+	# continue here with a hash-only argument
 }
 
 if [ -n "${DO_LIST}" ]; then
