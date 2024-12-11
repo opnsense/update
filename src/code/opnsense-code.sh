@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,10 +33,11 @@ PKG="/usr/sbin/pkg"
 
 # options
 DO_FORCE=
+DO_MAKE=
 DO_NONROOT=
+DO_ORIGIN=
 DO_REMOVE=
 DO_SNAPSHOT=
-DO_UPGRADE=
 DO_VERBOSE=
 
 # fetch defaults
@@ -44,7 +45,7 @@ SITE="https://github.com"
 ACCOUNT="opnsense"
 DIRECTORY="/usr"
 
-while getopts a:d:fnrs:uVz OPT; do
+while getopts a:d:fino:rs:uVz OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -58,6 +59,13 @@ while getopts a:d:fnrs:uVz OPT; do
 	n)
 		DO_NONROOT="-n"
 		;;
+	i)
+		# for ports tree in particular
+		DO_MAKE="install"
+		;;
+	o)
+		DO_ORIGIN="-o ${OPTARG}"
+		;;
 	r)
 		DO_FORCE="-f"
 		DO_REMOVE="-r"
@@ -66,7 +74,8 @@ while getopts a:d:fnrs:uVz OPT; do
 		SITE=${OPTARG}
 		;;
 	u)
-		DO_UPGRADE="-u"
+		# for ports tree in particular
+		DO_MAKE="reinstall"
 		;;
 	V)
 		DO_VERBOSE="-V"
@@ -149,17 +158,43 @@ git_update()
 # mandatory tools fetch
 git_update
 
+make_upgrade()
+{
+	TARGETDIR=${1}
+
+	if [ -z "${DO_MAKE}" ]; then
+		return
+	fi
+
+	case "$(basename ${TARGETDIR})" in
+	ports)
+		if [ -z "${DO_ORIGIN}" ]; then
+			echo "Origin (-o) needed for ports install (-i) or upgrade (-u)." >&2
+			exit 1
+		fi
+		# do clean and package creation before doing actual step
+		make -C "${TARGETDIR}/${DO_ORIGIN#"-o "}" clean package ${DO_MAKE}
+		;;
+	plugins)
+		if [ -z "${DO_ORIGIN}" ]; then
+			echo "Origin (-o) needed for plugins upgrade (-u)." >&2
+			exit 1
+		fi
+		make -C "${TARGETDIR}/${DO_ORIGIN#"-o "}" upgrade
+		;;
+	*)
+		make -C "${TARGETDIR}" upgrade
+		;;
+	esac
+}
+
 for ARG in ${@}; do
 	git_update ${ARG}
-	if [ -n "${DO_UPGRADE}" ]; then
-		make -C "${DIRECTORY}/${ARG}" upgrade
-	fi
+	make_upgrade "${DIRECTORY}/${ARG}"
 done
 
 if [ -z "${*}" ]; then
 	# current directory is probably something we need to update
 	git fetch --all --prune; git pull
-	if [ -n "${DO_UPGRADE}" ]; then
-		make upgrade
-	fi
+	make_upgrade "$(realpath ${PWD})"
 fi

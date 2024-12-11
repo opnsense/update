@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2016-2022 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd February 24, 2022
+.Dd December 11, 2024
 .Dt OPNSENSE-CODE 8
 .Os
 .Sh NAME
@@ -32,9 +32,10 @@
 .Nd OPNsense code utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl fnruVz
+.Op Fl finruVz
 .Op Fl a Ar account
 .Op Fl d Ar directory
+.Op Fl o Ar origin
 .Op Fl s Ar site
 .Op Ar repo ...
 .Sh DESCRIPTION
@@ -59,10 +60,27 @@ Defaults to
 .Sq /usr .
 .It Fl f
 Forcefully remove a previously available repository directory.
+.It Fl i
+Additionally run
+.Xr make 1
+for a code upgrade / install on the requested repository.
+Use with
+.Sq Fl o
+option on ports only.
+Required instead of
+.Fl u
+when the port is not yet installed.
 .It Fl n
 Allow to run the command as a non-root user.
 Intended for use in conjunction with
 .Sq Fl d .
+.It Fl o Ar origin
+Chose the subdirectory
+.Ar origin
+for the ports or plugins when using
+.Fl i
+or
+.Fl u .
 .It Fl r
 Remove the explicitly named repositories.
 Implies
@@ -76,9 +94,10 @@ Defaults to
 .It Fl u
 Additionally run
 .Xr make 1
-.Sq upgrade
-target on the requested repositories.
-Not supported by all repositories.
+for a code upgrade / reinstall on the requested repository.
+Use with
+.Sq Fl o
+option on ports or plugins.
 .It Fl V
 Set debug mode for shell script output.
 .It Fl z
