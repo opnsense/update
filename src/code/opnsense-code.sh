@@ -45,7 +45,7 @@ SITE="https://github.com"
 ACCOUNT="opnsense"
 DIRECTORY="/usr"
 
-while getopts a:d:fino:rs:uVz OPT; do
+while getopts a:d:fno:rs:uVz OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -59,10 +59,6 @@ while getopts a:d:fino:rs:uVz OPT; do
 	n)
 		DO_NONROOT="-n"
 		;;
-	i)
-		# for ports tree in particular
-		DO_MAKE="install"
-		;;
 	o)
 		DO_ORIGIN="-o ${OPTARG}"
 		;;
@@ -74,8 +70,7 @@ while getopts a:d:fino:rs:uVz OPT; do
 		SITE=${OPTARG}
 		;;
 	u)
-		# for ports tree in particular
-		DO_MAKE="reinstall"
+		DO_MAKE="-u"
 		;;
 	V)
 		DO_VERBOSE="-V"
@@ -169,11 +164,11 @@ make_upgrade()
 	case "$(basename ${TARGETDIR})" in
 	ports)
 		if [ -z "${DO_ORIGIN}" ]; then
-			echo "Origin (-o) needed for ports install (-i) or upgrade (-u)." >&2
+			echo "Origin (-o) needed for ports upgrade (-u)." >&2
 			exit 1
 		fi
 		# do clean and package creation before doing actual step
-		make -C "${TARGETDIR}/${DO_ORIGIN#"-o "}" clean package ${DO_MAKE}
+		make -C "${TARGETDIR}/${DO_ORIGIN#"-o "}" clean package reinstall
 		;;
 	plugins)
 		if [ -z "${DO_ORIGIN}" ]; then

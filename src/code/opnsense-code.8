@@ -32,7 +32,7 @@
 .Nd OPNsense code utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl finruVz
+.Op Fl fnruVz
 .Op Fl a Ar account
 .Op Fl d Ar directory
 .Op Fl o Ar origin
@@ -60,16 +60,6 @@ Defaults to
 .Sq /usr .
 .It Fl f
 Forcefully remove a previously available repository directory.
-.It Fl i
-Additionally run
-.Xr make 1
-for a code upgrade / install on the requested repository.
-Use with
-.Sq Fl o
-option on ports only.
-Required instead of
-.Fl u
-when the port is not yet installed.
 .It Fl n
 Allow to run the command as a non-root user.
 Intended for use in conjunction with
@@ -78,8 +68,6 @@ Intended for use in conjunction with
 Chose the subdirectory
 .Ar origin
 for the ports or plugins when using
-.Fl i
-or
 .Fl u .
 .It Fl r
 Remove the explicitly named repositories.
