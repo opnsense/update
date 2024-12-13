@@ -33,11 +33,11 @@ PKG="/usr/sbin/pkg"
 
 # options
 DO_FORCE=
-DO_MAKE=
 DO_NONROOT=
 DO_ORIGIN=
 DO_REMOVE=
 DO_SNAPSHOT=
+DO_UPGRADE=
 DO_VERBOSE=
 
 # fetch defaults
@@ -70,7 +70,7 @@ while getopts a:d:fno:rs:uVz OPT; do
 		SITE=${OPTARG}
 		;;
 	u)
-		DO_MAKE="-u"
+		DO_UPGRADE="-u"
 		;;
 	V)
 		DO_VERBOSE="-V"
@@ -157,7 +157,7 @@ make_upgrade()
 {
 	TARGETDIR=${1}
 
-	if [ -z "${DO_MAKE}" ]; then
+	if [ -z "${DO_UPGRADE}" ]; then
 		return
 	fi
 
