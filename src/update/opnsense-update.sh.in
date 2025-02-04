@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2024 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2025 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -176,7 +176,7 @@ empty_cache()
 {
 	if [ -d ${WORKPREFIX} ]; then
 		# completely empty cache as per request
-		rm -rf ${WORKPREFIX}/* ${WORKPREFIX}/.??*
+		find ${WORKPREFIX} -d 1 | xargs rm -r
 	fi
 }
 
@@ -1136,7 +1136,8 @@ if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
-	rm -rf ${WORKPREFIX}/*
+	# remove temporary update directories but keep upgrades and logs
+	find ${WORKPREFIX} \! -name ".*" -d 1 | xargs rm -r
 fi
 
 if [ "${DO_KERNEL}" = "-k" -o "${DO_BASE}" = "-b" -o -n "${DO_UPGRADE}" ]; then
