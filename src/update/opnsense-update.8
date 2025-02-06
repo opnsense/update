@@ -220,6 +220,10 @@ and
 .Sq Fl P
 must be invoked in this particular order, accompanied by a reboot
 after each individual step.
+If a requested upgrade has been previously applied the individual
+step is not staged unless
+.Sq Fl f
+is provided.
 .It Fl V
 Set debug mode for shell script output.
 .It Fl v

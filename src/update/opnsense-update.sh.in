@@ -613,8 +613,7 @@ if [ -z "${DO_FORCE}${DO_SIZE}" ]; then
 	# disable packages if locked
 	if [ -n "${DO_PKGS}" -a -n "${LOCKED_PKGS}" -a \
 	    -z "${DO_UPGRADE}" ]; then
-		# do not reference INSTALLED_PKGS here
-		[ -z "${DO_CHECK}" ] && echo "Packages locked, skipping."
+		[ -z "${DO_CHECK}" ] && echo "Packages locked at ${INSTALLED_PKGS}, skipping."
 		DO_PKGS=
 		DO_TYPE=
 	fi
@@ -806,6 +805,11 @@ if [ -z "${DO_FORCE}" ]; then
 	# disable base update if up-to-date
 	if [ "${RELEASE}" = "${INSTALLED_BASE}" -a -n "${DO_BASE}" ]; then
 		DO_BASE=
+	fi
+
+	# disable packages upgrade if up-to-date
+	if [ "${RELEASE}" = "${INSTALLED_PKGS}" -a -n "${DO_PKGS}" ]; then
+		[ -n "${DO_UPGRADE}" ] && DO_PKGS=
 	fi
 
 	# nothing to do
