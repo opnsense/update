@@ -176,7 +176,7 @@ empty_cache()
 {
 	if [ -d ${WORKPREFIX} ]; then
 		# completely empty cache as per request
-		find ${WORKPREFIX} -d 1 | xargs rm -r
+		find ${WORKPREFIX} -d 1 -print0 | xargs -0 rm -r
 	fi
 }
 
@@ -1145,7 +1145,7 @@ fi
 
 if [ -z "${DO_LOCAL}" ]; then
 	# remove temporary update directories but keep upgrades and logs
-	find ${WORKPREFIX} \! -name ".*" -d 1 | xargs rm -r
+	find ${WORKPREFIX} \! -name ".*" -d 1 -print0 | xargs -0 rm -r
 fi
 
 if [ "${DO_KERNEL}" = "-k" -o "${DO_BASE}" = "-b" -o -n "${DO_UPGRADE}" ]; then
