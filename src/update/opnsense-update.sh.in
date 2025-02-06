@@ -54,6 +54,11 @@ WORKDIR="${WORKPREFIX}/${$}"
 IDENT=$(sysctl -n kern.ident)
 ARCH=$(uname -p)
 
+PENDING_BASE="${WORKPREFIX}/.base.pending"
+PENDING_KERNEL="${WORKPREFIX}/.kernel.pending"
+PENDING_PKGS="${WORKPREFIX}/.pkgs.pending"
+INSECURE_PKGS="${WORKPREFIX}/.pkgs.insecure"
+
 INSTALLED_BASE=
 if [ -f ${VERSIONDIR}/base ]; then
 	INSTALLED_BASE=$(cat ${VERSIONDIR}/base)
@@ -620,23 +625,27 @@ if [ -n "${DO_CHECK}" ]; then
 		# always error if we selected unknown release
 		exit 1
 	fi
+
+	# -B / -K are setting -f so lead with their checks here
 	if [ "${DO_BASE}" = "-B" ]; then
-		if [ -f "${WORKPREFIX}/.base.pending" ]; then
+		if [ -f "${PENDING_BASE}" ]; then
 			exit 0
 		fi
 	elif [ "${DO_KERNEL}" = "-K" ]; then
-		if [ -f "${WORKPREFIX}/.kernel.pending" ]; then
+		if [ -f "${PENDING_KERNEL}" ]; then
 			exit 0
 		fi
 	elif [ -n "${DO_FORCE}" ]; then
 		exit 0
 	fi
+
+	# non-upgrade compare operations can be done now when not forced
 	if [ -n "${DO_TYPE}" ]; then
 		if [ "$(opnsense-version -n)" != "${DO_TYPE#"-t "}" ]; then
 			exit 0
 		fi
 	fi
-	if [ "${DO_KERNEL}" = "-k" ]; then
+	if [ -n "${DO_KERNEL}" ]; then
 		if [ "${RELEASE}" != "${INSTALLED_KERNEL}" ]; then
 			exit 0
 		fi
@@ -651,44 +660,44 @@ if [ -n "${DO_CHECK}" ]; then
 			exit 0
 		fi
 	fi
+
 	exit 1
 fi
 
 if [ "${DO_KERNEL}" = "-K" ]; then
-	if [ ! -f "${WORKPREFIX}/.kernel.pending" ]; then
+	if [ ! -f "${PENDING_KERNEL}" ]; then
 		# must error out to prevent reboot
 		exit 1
 	fi
 
-	RELEASE=$(cat "${WORKPREFIX}/.kernel.pending")
+	RELEASE=$(cat "${PENDING_KERNEL}")
 	WORKDIR=${PENDINGDIR}
 
-	rm -f "${WORKPREFIX}/.kernel.pending"
+	rm -f "${PENDING_KERNEL}"
 elif [ "${DO_BASE}" = "-B" ]; then
-	if [ ! -f "${WORKPREFIX}/.base.pending" ]; then
+	if [ ! -f "${PENDING_BASE}" ]; then
 		# must error out to prevent reboot
 		exit 1
 	fi
 
-	RELEASE=$(cat "${WORKPREFIX}/.base.pending")
+	RELEASE=$(cat "${PENDING_BASE}")
 	WORKDIR=${PENDINGDIR}
 
-	rm -f "${WORKPREFIX}/.base.pending"
+	rm -f "${PENDING_BASE}"
 elif [ "${DO_PKGS}" = "-P" ]; then
-	if [ ! -f "${WORKPREFIX}/.pkgs.pending" ]; then
+	if [ ! -f "${PENDING_PKGS}" ]; then
 		# must error out to prevent reboot
 		exit 1
 	fi
 
-	RELEASE=$(cat "${WORKPREFIX}/.pkgs.pending")
+	RELEASE=$(cat "${PENDING_PKGS}")
 	WORKDIR=${PENDINGDIR}
 
-	if [ -f "${WORKPREFIX}/.pkgs.insecure" ]; then
+	if [ -f "${INSECURE_PKGS}" ]; then
 		DO_INSECURE="-i"
 	fi
 
-	rm -f "${WORKPREFIX}/.pkgs.pending"
-	rm -f "${WORKPREFIX}/.pkgs.insecure"
+	rm -f "${PENDING_PKGS}" "${INSECURE_PKGS}"
 elif [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
 fi
@@ -1053,10 +1062,10 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 	    ${WORKDIR}/${PACKAGESSET}
 
 	# add action marker for next run
-	echo ${RELEASE} > "${WORKPREFIX}/.pkgs.pending"
+	echo ${RELEASE} > "${PENDING_PKGS}"
 
 	if [ -n "${DO_INSECURE}" ]; then
-		touch "${WORKPREFIX}/.pkgs.insecure"
+		touch "${INSECURE_PKGS}"
 	fi
 
 	echo " done"
@@ -1073,7 +1082,7 @@ if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
 	mv ${WORKDIR}/${BASESET} ${PENDINGDIR}
 
 	# add action marker for next run
-	echo ${RELEASE} > "${WORKPREFIX}/.base.pending"
+	echo ${RELEASE} > "${PENDING_BASE}"
 
 	echo " done"
 fi
@@ -1089,7 +1098,7 @@ if [ "${DO_KERNEL}" = "-k" -a -n "${DO_UPGRADE}" ]; then
 	mv ${WORKDIR}/${KERNELSET} ${PENDINGDIR}
 
 	# add action marker for next run
-	echo ${RELEASE} > "${WORKPREFIX}/.kernel.pending"
+	echo ${RELEASE} > "${PENDING_KERNEL}"
 
 	echo " done"
 fi
@@ -1144,8 +1153,10 @@ if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
-	# remove temporary update directories but keep upgrades and logs
-	find ${WORKPREFIX} \! -name ".*" -d 1 -print0 | xargs -0 rm -r
+	if [ -d ${WORKPREFIX} ]; then
+		# remove temporary update directories but keep upgrades and logs
+		find ${WORKPREFIX} \! -name ".*" -d 1 -print0 | xargs -0 rm -r
+	fi
 fi
 
 if [ "${DO_KERNEL}" = "-k" -o "${DO_BASE}" = "-b" -o -n "${DO_UPGRADE}" ]; then
