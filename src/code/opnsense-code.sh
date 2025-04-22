@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2025 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -29,6 +29,11 @@ set -e
 
 # internals
 GIT="/usr/local/bin/git"
+GIT_CHECKOUT="${GIT} checkout"
+GIT_CLONE="${GIT} clone --filter=blob:none"
+GIT_FETCH="${GIT} fetch --all --prune"
+GIT_REV_PARSE="${GIT} rev-parse --git-dir"
+GIT_PULL="${GIT} pull"
 PKG="/usr/sbin/pkg"
 
 # options
@@ -100,7 +105,7 @@ if [ ! -f ${GIT} ]; then
 	${PKG} install -y git
 fi
 
-if [ -z "${*}" -a -z "$(git rev-parse --git-dir 2> /dev/null)" ]; then
+if [ -z "${*}" -a -z "$(${GIT_REV_PARSE} 2> /dev/null)" ]; then
 	echo "Nothing to do."
 	exit 0
 fi
@@ -126,15 +131,15 @@ git_update()
 	fi
 
 	if [ -d "${DIRECTORY}/${REPO}/.git" ]; then
-		(cd "${DIRECTORY}/${REPO}"; git fetch --all --prune; git pull)
+		(cd "${DIRECTORY}/${REPO}"; ${GIT_FETCH}; ${GIT_PULL})
 	else
-		git clone ${SITE}/${ACCOUNT}/${REPO} "${DIRECTORY}/${REPO}"
+		${GIT_CLONE} ${SITE}/${ACCOUNT}/${REPO} "${DIRECTORY}/${REPO}"
 		BRANCH=
 		if [ -f ${CONF} ]; then
 			BRANCH=$(make -C /usr/tools -v "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
 		fi
 		if [ -z "${DO_SNAPSHOT}" -a -n "${BRANCH}" ]; then
-			(cd "${DIRECTORY}/${REPO}"; git checkout ${BRANCH})
+			(cd "${DIRECTORY}/${REPO}"; ${GIT_CHECKOUT} ${BRANCH})
 		fi
 	fi
 
@@ -190,6 +195,6 @@ done
 
 if [ -z "${*}" ]; then
 	# current directory is probably something we need to update
-	git fetch --all --prune; git pull
+	${GIT_FETCH}; ${GIT_PULL}
 	make_upgrade "$(realpath ${PWD})"
 fi
