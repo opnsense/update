@@ -712,7 +712,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 	if ${PKG} update ${DO_FORCE} && ${PKG} upgrade -y ${DO_FORCE}; then
 		if [ ! -f ${ORIGIN} ]; then
 			recover_origin ${CORE}
-		elif ! diff -q ${WORKDIR}/${PRODUCT}.conf ${ORIGIN} > /dev/null; then
+		elif ! cmp -s ${WORKDIR}/${PRODUCT}.conf ${ORIGIN}; then
 			# rerun sync before there are any complaints
 			${PKG} update ${DO_FORCE}
 		fi
