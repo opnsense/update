@@ -36,10 +36,10 @@ root certificates -> HTTPS -> OPNsense package fingerprints.
 What it will also do is turn a supported stock FreeBSD release into
 an OPNsense installation.  Both UFS and ZFS installations are supported.
 
-The usage is simple, starting with a FreeBSD 14.2-RELEASE image:
+The usage is simple, starting with a FreeBSD 14.3-RELEASE image:
 
     # fetch https://raw.githubusercontent.com/opnsense/update/master/src/bootstrap/opnsense-bootstrap.sh.in
-    # sh ./opnsense-bootstrap.sh.in -r 25.1
+    # sh ./opnsense-bootstrap.sh.in -r 25.7
 
 After successful reboot, OPNsense should be up and running.  :)
 
