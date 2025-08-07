@@ -45,11 +45,13 @@ PRODUCT="OPNsense"
 PKG="pkg-static"
 RELEASE="%%RELEASE%%"
 
+LOGFILE_UPGRADE="${WORKPREFIX}/.upgrade.log"
+LOGFILE_UPDATE="${WORKPREFIX}/.update.log"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
-LOGFILE="${WORKPREFIX}/.upgrade.log"
 ORIGIN="${REPOSDIR}/${PRODUCT}.conf"
 WORKDIR="${WORKPREFIX}/${$}"
+LOGFILE="${LOGFILE_UPGRADE}"
 
 IDENT=$(sysctl -n kern.ident)
 ARCH=$(uname -p)
@@ -286,7 +288,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:deFfGiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
+while getopts A:a:BbCcD:deFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -325,7 +327,12 @@ while getopts A:a:BbCcD:deFfGiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 		DO_FORCE="-f"
 		;;
 	G)
+		LOGFILE="${LOGFILE_UPGRADE}"
 		DO_LOGFILE="-G"
+		;;
+	g)
+		LOGFILE="${LOGFILE_UPDATE}"
+		DO_LOGFILE="-g"
 		;;
 	i)
 		DO_INSECURE="-i"
@@ -533,7 +540,7 @@ elif  [ -n "${DO_ORIGIN}" ]; then
 	cat ${ORIGIN}
 	exit 0
 elif  [ -n "${DO_LOGFILE}" ]; then
-	# only print upgrade log
+	# only print requested log file
 	if [ -f ${LOGFILE} ]; then
 		cat ${LOGFILE}
 	fi
