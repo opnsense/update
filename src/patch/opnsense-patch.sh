@@ -378,4 +378,4 @@ if [ -f ${REFRESH} ]; then
 	touch ${REFRESH}
 fi
 
-rm -f /tmp/opnsense_acl_cache.json /tmp/opnsense_menu_cache.xml
+rm -f /var/lib/php/tmp/opnsense_acl_cache.json /var/lib/php/tmp/opnsense_menu_cache.xml
