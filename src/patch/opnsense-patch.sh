@@ -374,8 +374,9 @@ if [ -n "${ARGS}" ]; then
 fi
 
 if [ -f ${REFRESH} ]; then
-	# always force browser to reload JS/CSS
+	# always force browser to reload JS/CSS if this is a proper install
 	touch ${REFRESH}
-fi
 
-rm -f /var/lib/php/tmp/opnsense_acl_cache.json /var/lib/php/tmp/opnsense_menu_cache.xml
+	# clear caches that could prevent the patch from working
+	pluginctl -cq cache_flush
+fi
