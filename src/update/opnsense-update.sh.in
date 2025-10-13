@@ -945,6 +945,7 @@ install_base()
 	    --exclude="^.cshrc" \
 	    --exclude="^.profile" \
 	    --exclude="^boot/efi" \
+	    --exclude="^etc/cron.d/at" \
 	    --exclude="^etc/group" \
 	    --exclude="^etc/master.passwd" \
 	    --exclude="^etc/motd" \
