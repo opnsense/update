@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2024 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2025 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,10 +27,12 @@
 
 set -e
 
-URL="https://github.com/opnsense/core/archive"
+URL="https://github.com/\${ACCOUNT}/\${REPOSITORY}/archive"
 WORKDIR="/tmp/opnsense-bootstrap"
 RELEASE="%%RELEASE%%"
 FREEBSD="%%FREEBSD%%"
+ACCOUNT=opnsense
+REPOSITORY=core
 
 DO_ABI=
 DO_BARE=
@@ -41,8 +43,11 @@ DO_TYPE=
 DO_VERBOSE=
 DO_YES=
 
-while getopts a:bfiqr:t:vVyz OPT; do
+while getopts A:a:bfiqr:R:t:vVyz OPT; do
 	case ${OPT} in
+	A)
+		ACCOUNT="${OPTARG}"
+		;;
 	a)
 		DO_ABI="-a ${OPTARG}"
 		;;
@@ -57,6 +62,9 @@ while getopts a:bfiqr:t:vVyz OPT; do
 		;;
 	q)
 		DO_QUICK="-q"
+		;;
+	R)
+		REPOSITORY="${OPTARG}"
 		;;
 	r)
 		RELEASE=${OPTARG}
@@ -105,10 +113,14 @@ if [ "$(uname -s)" != "FreeBSD" ]; then
 	exit 1
 fi
 
-if [ "$(uname -p)" != "amd64" ]; then
-	echo "Must be amd64 architecture." >&2
+case "$(uname -p)" in
+amd64|aarch64)
+	;;
+*)
+	echo "Must be amd64 or aarch64 architecture." >&2
 	exit 1
-fi
+	;;
+esac
 
 if [ -n "${FREEBSD%"%%"*"%%"}" -a "$(uname -r | colrm 4)" != "${FREEBSD%.*}." ]; then
 	echo "Must be a FreeBSD ${FREEBSD%.*} release." >&2
@@ -121,6 +133,11 @@ if [ -z "${DO_QUICK}" ]; then
 	echo "system and kernel will be replaced, and if all went well the system"
 	echo "will automatically reboot."
 	echo
+
+	if [ -n "${DO_BARE}" ]; then
+		echo "The selected bare mode will only bootstrap the package repository."
+		echo
+	fi
 fi
 
 if [ -z "${DO_YES}" ]; then
@@ -197,8 +214,10 @@ if [ -z "${DO_ABI}" ]; then
 	DO_ABI="-a ${RELEASE}"
 fi
 
-fetch -o ${WORKDIR}/core.tar.gz "${URL}/${SUBFILE}.tar.gz"
-tar -C ${WORKDIR} -xf ${WORKDIR}/core.tar.gz
+eval URL="${URL}"
+
+fetch -o ${WORKDIR}/${REPOSITORY}.tar.gz "${URL}/${SUBFILE}.tar.gz"
+tar -C ${WORKDIR} -xf ${WORKDIR}/${REPOSITORY}.tar.gz
 
 if [ -z "${DO_BARE}" ]; then
 	if pkg -N; then
@@ -208,15 +227,15 @@ if [ -z "${DO_BARE}" ]; then
 	rm -rf /var/db/pkg/*
 fi
 
-make -C ${WORKDIR}/core-${SUBDIR} bootstrap DESTDIR= CORE_ABI="${DO_ABI#"-a "}"
-
-if [ -z "${DO_TYPE}" ]; then
-	DO_TYPE="-t $(make -C ${WORKDIR}/core-${SUBDIR} -v CORE_NAME)"
-fi
+make -C ${WORKDIR}/${REPOSITORY}-${SUBDIR} bootstrap DESTDIR= CORE_ABI="${DO_ABI#"-a "}"
 
 if [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
 		rm -rf /conf/*
+	fi
+
+	if [ -z "${DO_TYPE}" ]; then
+		DO_TYPE="-t $(make -C ${WORKDIR}/${REPOSITORY}-${SUBDIR} -v CORE_NAME)"
 	fi
 
 	pkg bootstrap
