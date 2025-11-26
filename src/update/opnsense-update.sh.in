@@ -132,11 +132,6 @@ mirror_abi()
 
 	ABI=$(opnsense-verify -a)
 
-        if [ "${OPT}" = "pin" ]; then
-		# main archtecture to guarantee aux set fetch success
-		ABI="${ABI%:*}:amd64"
-	fi
-
 	if [ -n "${DO_ABI}" ]; then
 		ABIPARTS=${DO_ABI#"-a "}
 
@@ -532,7 +527,7 @@ elif [ "${DO_MIRROR}" = "-X" ]; then
 			exit 1
 		fi
 	fi
-	URL=$(mirror_abi pin)
+	URL=$(mirror_abi)
 	echo ${URL%/*}/$(opnsense-version -x)
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
