@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2025 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -164,6 +164,11 @@ make_upgrade()
 
 	if [ -z "${DO_UPGRADE}" ]; then
 		return
+	fi
+
+	if [ -x "${TARGETDIR}/configure" -a \
+	    ! -e "${TARGETDIR}/Makefile" ]; then
+		(cd ${TARGETDIR} && ./configure)
 	fi
 
 	case "$(basename ${TARGETDIR})" in
