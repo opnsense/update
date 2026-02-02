@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2025 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -260,7 +260,8 @@ DO_INSECURE=
 DO_KERNEL=
 DO_LOCAL=
 DO_LOCK=
-DO_LOGFILE=
+DO_LOGFILEG=
+DO_LOGFILEg=
 DO_MIRROR=
 DO_MIRRORABI=
 DO_MIRRORDIR=
@@ -322,12 +323,10 @@ while getopts A:a:BbCcD:deFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 		DO_FORCE="-f"
 		;;
 	G)
-		LOGFILE="${LOGFILE_UPGRADE}"
-		DO_LOGFILE="-G"
+		DO_LOGFILEG="-G"
 		;;
 	g)
-		LOGFILE="${LOGFILE_UPDATE}"
-		DO_LOGFILE="-g"
+		DO_LOGFILEg="-g"
 		;;
 	i)
 		DO_INSECURE="-i"
@@ -534,11 +533,12 @@ elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
 	cat ${ORIGIN}
 	exit 0
-elif  [ -n "${DO_LOGFILE}" ]; then
-	# only print requested log file
-	if [ -f ${LOGFILE} ]; then
-		cat ${LOGFILE}
-	fi
+elif  [ -n "${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
+	for LOG in ${DO_LOGFILEg} ${DO_LOGFILEG}; do
+		[ "${LOG}" = "-G" ] && LOGFILE=${LOGFILE_UPGRADE}
+		[ "${LOG}" = "-g" ] && LOGFILE=${LOGFILE_UPDATE}
+		[ -f ${LOGFILE} ] && cat ${LOGFILE}
+	done
 	exit 0
 elif [ -n "${DO_SKIP}" ]; then
 	# only invoke mirror replacements
