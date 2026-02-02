@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2016-2026 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -32,10 +32,11 @@
 .Nd OPNsense code utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl fnruVz
+.Op Fl fnuVz
 .Op Fl a Ar account
 .Op Fl d Ar directory
 .Op Fl o Ar origin
+.Op Fl r Ar release
 .Op Fl s Ar site
 .Op Ar repo ...
 .Sh DESCRIPTION
@@ -68,11 +69,11 @@ Intended for use in conjunction with
 Chose the subdirectory
 .Ar origin
 for the ports or plugins when using
-.Fl u .
-.It Fl r
-Remove the explicitly named repositories.
-Implies
-.Sq Fl f .
+.Sq Fl u Ns .
+.It Fl r Ar release
+Select the major release branch to use.
+Overrides
+.Sq Fl z Ns .
 .It Fl s Ar site
 Set the
 .Ar site
@@ -89,7 +90,9 @@ option on ports or plugins.
 .It Fl V
 Set debug mode for shell script output.
 .It Fl z
-Snapshot mode does not switch to stable branch on creation.
+Snapshot mode uses the development branch.
+Overrides
+.Sq Fl r Ar release Ns .
 .El
 .Sh EXIT STATUS
 .Ex -std

@@ -40,8 +40,7 @@ PKG="/usr/sbin/pkg"
 DO_FORCE=
 DO_NONROOT=
 DO_ORIGIN=
-DO_REMOVE=
-DO_SNAPSHOT=
+DO_RELEASE=
 DO_UPGRADE=
 DO_VERBOSE=
 
@@ -50,7 +49,7 @@ SITE="https://github.com"
 ACCOUNT="opnsense"
 DIRECTORY="/usr"
 
-while getopts a:d:fno:rs:uVz OPT; do
+while getopts a:d:fno:r:s:uVz OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -68,8 +67,7 @@ while getopts a:d:fno:rs:uVz OPT; do
 		DO_ORIGIN="-o ${OPTARG}"
 		;;
 	r)
-		DO_FORCE="-f"
-		DO_REMOVE="-r"
+		DO_RELEASE="-r ${OPTARG}"
 		;;
 	s)
 		SITE=${OPTARG}
@@ -81,7 +79,7 @@ while getopts a:d:fno:rs:uVz OPT; do
 		DO_VERBOSE="-V"
 		;;
 	z)
-		DO_SNAPSHOT="-z"
+		DO_RELEASE="-z"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -126,24 +124,32 @@ git_update()
 		rm -rf "${DIRECTORY}/${REPO}"
 	fi
 
-	if [ -n "${1}" -a -n "${DO_REMOVE}" ]; then
-		return
-	fi
-
-	if [ -d "${DIRECTORY}/${REPO}/.git" ]; then
-		(cd "${DIRECTORY}/${REPO}"; ${GIT_FETCH}; ${GIT_PULL})
-	else
+	if [ ! -d "${DIRECTORY}/${REPO}/.git" ]; then
 		${GIT_CLONE} ${SITE}/${ACCOUNT}/${REPO} "${DIRECTORY}/${REPO}"
-		BRANCH=
-		if [ -f ${CONF} ]; then
-			BRANCH=$(make -C /usr/tools -v "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
-		fi
-		if [ -z "${DO_SNAPSHOT}" -a -n "${BRANCH}" ]; then
-			(cd "${DIRECTORY}/${REPO}"; ${GIT_CHECKOUT} ${BRANCH})
-		fi
+	else
+		(cd "${DIRECTORY}/${REPO}"; ${GIT_FETCH})
 	fi
 
-	if [ -z "${1}" ]; then
+	if [ -n "${1}" ]; then
+		BRANCH="master"
+		if [ -n "${DO_RELEASE}" ]; then
+			if [ "${DO_RELEASE}" != "-z" ]; then
+				BRANCH="stable/${DO_RELEASE#"-r "}"
+			fi
+		elif [ -f ${CONF} ]; then
+			BRANCH=$(make -C /usr/tools -v "$(echo ${REPO} | tr '[:lower:]' '[:upper:]')BRANCH" SETTINGS=${ABI})
+		else
+			case "${REPO}" in
+			core|plugins)
+				BRANCH="stable/${ABI}"
+				;;
+			*)
+				;;
+			esac
+		fi
+
+		(cd "${DIRECTORY}/${REPO}"; ${GIT_CHECKOUT} ${BRANCH}; ${GIT_PULL})
+	else
 		if [ -f "${CONF}" ]; then
 			rm -f /etc/make.conf
 			make -C /usr/tools make.conf SETTINGS=${ABI} > /etc/make.conf
