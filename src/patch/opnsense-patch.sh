@@ -327,7 +327,7 @@ for ARG in ${ARGS}; do
 		exit 1
 	fi
 
-	patch ${DO_FORWARD} -E -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
+	patch ${DO_FORWARD} -V none -E -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
 
 	while IFS= read -r PATCHLINE; do
 		case "${PATCHLINE}" in
