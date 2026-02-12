@@ -45,11 +45,13 @@ PRODUCT="OPNsense"
 PKG="pkg-static"
 RELEASE="%%RELEASE%%"
 
+ORIGIN_AUX="${REPOSDIR}/${PRODUCT}-aux.conf"
+ORIGIN="${REPOSDIR}/${PRODUCT}.conf"
+
 LOGFILE_UPGRADE="${WORKPREFIX}/.upgrade.log"
 LOGFILE_UPDATE="${WORKPREFIX}/.update.log"
 PENDINGDIR="${WORKPREFIX}/.sets.pending"
 PIPEFILE="${WORKPREFIX}/.upgrade.pipe"
-ORIGIN="${REPOSDIR}/${PRODUCT}.conf"
 WORKDIR="${WORKPREFIX}/${$}"
 LOGFILE="${LOGFILE_UPGRADE}"
 
@@ -470,7 +472,15 @@ fi
 
 if [ -n "${DO_DEFAULTS}" ]; then
 	# restore default before potential replace
-	cp ${ORIGIN}.sample ${ORIGIN}
+	if [ -f ${ORIGIN}.sample ]; then
+		cp ${ORIGIN}.sample ${ORIGIN}
+	fi
+	# aux file is not critical; remove if not sampled
+	if [ -f ${ORIGIN_AUX}.sample ]; then
+		cp ${ORIGIN_AUX}.sample ${ORIGIN_AUX}
+	else
+		rm -f ${ORIGIN_AUX}
+	fi
 fi
 
 if [ ! -f ${ORIGIN} ]; then
@@ -478,12 +488,18 @@ if [ ! -f ${ORIGIN} ]; then
 	exit 1
 fi
 
-if [ -n "${DO_MIRRORURL}" ]; then
-	# replace the package repo location
-	sed -i '' '/'"${URL_KEY}"'/s|".*${ABI}|"'"${DO_MIRRORURL#"-m "}"'/${ABI}|' ${ORIGIN}
-fi
+mod_mirrorurl()
+{
+	if [ ! -f ${1} ]; then
+		return 0
+	fi
 
-if [ -n "${DO_MIRRORABI}" ]; then
+	# replace the package repo location
+	sed -i '' '/'"${URL_KEY}"'/s|".*${ABI}|"'"${DO_MIRRORURL#"-m "}"'/${ABI}|' ${1}
+}
+
+mod_mirrorabi()
+{
 	# replace the package repo ABI
 	MIRRORABI=${DO_MIRRORABI#"-A "}
 
@@ -492,20 +508,44 @@ if [ -n "${DO_MIRRORABI}" ]; then
 		exit 1
 	fi
 
-	sed -i '' '/'"${URL_KEY}"'/s|\(${ABI}/\)\([^/]*\)\(/.*\)|\1'"${MIRRORABI}"'\3|' ${ORIGIN}
-fi
+	if [ ! -f ${1} ]; then
+		return 0
+	fi
 
-if [ -n "${DO_MIRRORDIR}" ]; then
+	sed -i '' '/'"${URL_KEY}"'/s|\(${ABI}/\)\([^/]*\)\(/.*\)|\1'"${MIRRORABI}"'\3|' ${1}
+}
+
+mod_mirrordir()
+{
 	# replace the package repo name
 	MIRRORDIR=${DO_MIRRORDIR#"-n "}
 
+	if [ ! -f ${1} ]; then
+		return 0
+	fi
+
 	if [ -n "${MIRRORDIR%%*/*}" ]; then
 		# only replace subdirectory
-		sed -i '' '/'"${URL_KEY}"'/s|\(${ABI}/[^/]*/\)\(.*\)|\1'"${MIRRORDIR}"'\",|' ${ORIGIN}
+		sed -i '' '/'"${URL_KEY}"'/s|\(${ABI}/[^/]*/\)\(.*\)|\1'"${MIRRORDIR}"'\",|' ${1}
 	else
 		# replace full path
-		sed -i '' '/'"${URL_KEY}"'/s|${ABI}.*|${ABI}/'"${MIRRORDIR}"'\",|' ${ORIGIN}
+		sed -i '' '/'"${URL_KEY}"'/s|${ABI}.*|${ABI}/'"${MIRRORDIR}"'\",|' ${1}
 	fi
+}
+
+if [ -n "${DO_MIRRORURL}" ]; then
+	mod_mirrorurl ${ORIGIN}
+	mod_mirrorurl ${ORIGIN_AUX}
+fi
+
+if [ -n "${DO_MIRRORABI}" ]; then
+	mod_mirrorabi ${ORIGIN}
+	mod_mirrorabi ${ORIGIN_AUX}
+fi
+
+if [ -n "${DO_MIRRORDIR}" ]; then
+	mod_mirrordir ${ORIGIN}
+	mod_mirrordir ${ORIGIN_AUX}
 fi
 
 if [ "${DO_MIRROR}" = "-M" ]; then
