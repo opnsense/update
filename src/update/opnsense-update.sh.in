@@ -728,9 +728,6 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		exit 1
 	fi
 
-        # relaunch here for cleanup
-	opnsense-update -Fs
-
 	if [ -n "${DO_BASE}${DO_KERNEL}${DO_TYPE}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
@@ -738,6 +735,9 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		    ${DO_MIRRORABI} ${DO_MIRRORDIR} ${DO_MIRRORURL} \
 		    ${DO_ABI} ${DO_VERBOSE} ${DO_CLEAN}
 	fi
+
+	# relaunch for final cleanup now
+	opnsense-update -Fs
 
 	# stop here to prevent the second pass
 	exit 0
