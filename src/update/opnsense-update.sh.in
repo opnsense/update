@@ -724,6 +724,7 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		${PKG} clean -ya
 	else
 		# cannot continue after failed upgrade
+		flush_temporary
 		exit 1
 	fi
 
@@ -1061,6 +1062,8 @@ if [ -n "${DO_KERNEL}" -a -z "${DO_UPGRADE}" ] || \
 fi
 
 if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
+	flush_temporary
+
 	echo -n "Extracting ${PACKAGESSET}..."
 
 	# clean up from a potential previous run
