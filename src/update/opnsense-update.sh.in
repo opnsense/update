@@ -184,8 +184,7 @@ empty_cache()
 
 flush_temporary()
 {
-	# remove our stale pyc files not handled by pkg
-	find /usr/local/opnsense -type f -name "*.pyc" -delete
+	echo -n "Flushing temporary package files..."
 
 	for DIR in /boot /usr/libexec/bsdinstall /usr/local; do
 		# remove spurious files from pkg
@@ -197,6 +196,8 @@ flush_temporary()
 		find ${DIR} -type d -name ".pkgtemp.*" -print0 | \
 		    xargs -0 -n1 rm -r
 	done
+
+	echo " done"
 }
 
 backup_origin()
@@ -726,6 +727,9 @@ if [ "${DO_PKGS}" = "-p" -a -z "${DO_UPGRADE}${DO_SIZE}" ]; then
 		exit 1
 	fi
 
+        # relaunch here for cleanup
+	opnsense-update -Fs
+
 	if [ -n "${DO_BASE}${DO_KERNEL}${DO_TYPE}" ]; then
 		# script may have changed, relaunch...
 		opnsense-update ${DO_BASE} ${DO_KERNEL} ${DO_LOCAL} \
@@ -1157,6 +1161,9 @@ if [ "${DO_PKGS}" = "-P" -a -z "${DO_UPGRADE}" ]; then
 
 	# clean up deferred sets that could be there
 	rm -rf ${PENDINGDIR}/packages-*
+
+	# relaunch here for cleanup
+	opnsense-update -Fs
 fi
 
 if [ -z "${DO_LOCAL}" ]; then
