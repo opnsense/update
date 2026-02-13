@@ -257,6 +257,7 @@ DO_CLEAN=
 DO_DEFAULTS=
 DO_DEVICE=
 DO_EMPTY=
+DO_ENABLEREPO=
 DO_FLUSH=
 DO_FORCE=
 DO_INSECURE=
@@ -287,7 +288,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:deFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
+while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -315,6 +316,9 @@ while getopts A:a:BbCcD:deFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 		;;
 	d)
 		DO_DEFAULTS="-d"
+		;;
+	E)
+		DO_ENABLEREPO="-E"
 		;;
 	e)
 		DO_EMPTY="-e"
@@ -533,6 +537,16 @@ mod_mirrordir()
 	fi
 }
 
+mod_enablerepo()
+{
+	if [ ! -f ${1} ]; then
+		return 0
+	fi
+
+	# we only ever enable here for simplicity
+	sed -i '' '/^[[:space:]]*enabled:[[:space:]]*/s/no/yes/' ${1}
+}
+
 if [ -n "${DO_MIRRORURL}" ]; then
 	mod_mirrorurl ${ORIGIN}
 	mod_mirrorurl ${ORIGIN_AUX}
@@ -546,6 +560,11 @@ fi
 if [ -n "${DO_MIRRORDIR}" ]; then
 	mod_mirrordir ${ORIGIN}
 	mod_mirrordir ${ORIGIN_AUX} aux
+fi
+
+if [ -n "${DO_ENABLEREPO}" ]; then
+	# since we cannot disable ignore ORIGIN
+	mod_enablerepo ${ORIGIN_AUX}
 fi
 
 if [ "${DO_MIRROR}" = "-M" ]; then
