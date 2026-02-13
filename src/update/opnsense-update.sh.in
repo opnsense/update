@@ -592,6 +592,7 @@ elif [ "${DO_MIRROR}" = "-X" ]; then
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
 	cat ${ORIGIN}
+	[ -f ${ORIGIN_AUX} ] && cat ${ORIGIN_AUX}
 	exit 0
 elif  [ -n "${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
 	for LOG in ${DO_LOGFILEg} ${DO_LOGFILEG}; do
