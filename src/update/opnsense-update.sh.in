@@ -475,6 +475,20 @@ if [ -n "${DO_VERSION}" ]; then
 fi
 
 if [ -n "${DO_DEFAULTS}" ]; then
+	if [ -n "${DO_CHECK}" ]; then
+		# conditional restore: recover defaults if origin is missing
+		if [ ! -f ${ORIGIN} ]; then
+			echo "Missing ${ORIGIN}, attempting to recover." >&2
+			for CONF in $(find ${REPOSDIR} -name '*.conf.sample'); do
+				cp ${CONF} ${CONF%.sample}
+			done
+			if [ ! -f ${ORIGIN} ]; then
+				echo "Recovery failed, no sample found." >&2
+				exit 1
+			fi
+		fi
+		exit 0
+	fi
 	# restore default before potential replace
 	if [ -f ${ORIGIN}.sample ]; then
 		cp ${ORIGIN}.sample ${ORIGIN}
@@ -488,15 +502,8 @@ if [ -n "${DO_DEFAULTS}" ]; then
 fi
 
 if [ ! -f ${ORIGIN} ]; then
-	if [ -f ${ORIGIN}.sample ]; then
-		echo "Missing ${ORIGIN}, attempting recovery." >&2
-		for CONF in $(find ${REPOSDIR} -name '*.conf.sample'); do
-			cp ${CONF} ${CONF%.sample}
-		done
-	else
-		echo "Missing ${ORIGIN}" >&2
-		exit 1
-	fi
+	echo "Missing ${ORIGIN}" >&2
+	exit 1
 fi
 
 mod_mirrorurl()

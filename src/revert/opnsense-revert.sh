@@ -72,6 +72,9 @@ done
 
 export ASSUME_ALWAYS_YES=yes
 
+# recover repo defaults in case a previous run was aborted
+opnsense-update -cd
+
 MIRROR="$(opnsense-update -M)/MINT/${DO_RELEASE#-r }/latest/Latest"
 COREPKG=$(opnsense-version -n 2> /dev/null || true)
 COREDEP=
