@@ -488,8 +488,15 @@ if [ -n "${DO_DEFAULTS}" ]; then
 fi
 
 if [ ! -f ${ORIGIN} ]; then
-	echo "Missing ${ORIGIN}" >&2
-	exit 1
+	if [ -f ${ORIGIN}.sample ]; then
+		echo "Missing ${ORIGIN}, attempting recovery." >&2
+		for CONF in $(find ${REPOSDIR} -name '*.conf.sample'); do
+			cp ${CONF} ${CONF%.sample}
+		done
+	else
+		echo "Missing ${ORIGIN}" >&2
+		exit 1
+	fi
 fi
 
 mod_mirrorurl()
