@@ -45,7 +45,9 @@ PRODUCT="OPNsense"
 PKG="pkg-static"
 RELEASE="%%RELEASE%%"
 
+# package repo files provided via core
 ORIGIN_AUX="${REPOSDIR}/${PRODUCT}-aux.conf"
+ORIGIN_FBSD="${REPOSDIR}/FreeBSD.conf"
 ORIGIN="${REPOSDIR}/${PRODUCT}.conf"
 
 LOGFILE_UPGRADE="${WORKPREFIX}/.upgrade.log"
@@ -475,16 +477,12 @@ if [ -n "${DO_VERSION}" ]; then
 fi
 
 if [ -n "${DO_DEFAULTS}" ]; then
-	# restore default before potential replace
-	if [ -f ${ORIGIN}.sample ]; then
-		cp ${ORIGIN}.sample ${ORIGIN}
-	fi
-	# aux file is not critical; remove if not sampled
-	if [ -f ${ORIGIN_AUX}.sample ]; then
-		cp ${ORIGIN_AUX}.sample ${ORIGIN_AUX}
-	else
-		rm -f ${ORIGIN_AUX}
-	fi
+	# restore defaults before potential replace
+	for FILE in ${ORIGIN} ${ORIGIN_AUX} ${ORIGIN_FBSD}; do
+		if [ -f ${FILE}.sample ]; then
+			cp ${FILE}.sample ${FILE}
+		fi
+	done
 fi
 
 if [ ! -f ${ORIGIN} ]; then
@@ -591,8 +589,7 @@ elif [ "${DO_MIRROR}" = "-X" ]; then
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
-	cat ${ORIGIN}
-	[ -f ${ORIGIN_AUX} ] && cat ${ORIGIN_AUX}
+	cat ${ORIGIN} ${ORIGIN_AUX} # ORIGIN_FBSD is static
 	exit 0
 elif  [ -n "${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
 	for LOG in ${DO_LOGFILEg} ${DO_LOGFILEG}; do
