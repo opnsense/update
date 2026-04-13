@@ -272,6 +272,7 @@ DO_MIRRORDIR=
 DO_MIRRORURL=
 DO_ORIGIN=
 DO_PKGS=
+DO_HEAL=
 DO_RELEASE=
 DO_SIZE=
 DO_SKIP=
@@ -288,7 +289,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
+while getopts A:a:BbCcD:dEeFfGgHiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -334,6 +335,9 @@ while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 		;;
 	g)
 		DO_LOGFILEg="-g"
+		;;
+	H)
+		DO_HEAL="-H"
 		;;
 	i)
 		DO_INSECURE="-i"
@@ -474,29 +478,26 @@ if [ -n "${DO_VERSION}" ]; then
 	exit 0
 fi
 
-if [ -n "${DO_DEFAULTS}" ]; then
-	if [ -n "${DO_CHECK}" ]; then
-		# conditional restore: recover defaults if origin is missing
-		if [ ! -f ${ORIGIN} ]; then
-			echo "Missing ${ORIGIN}, attempting to recover." >&2
-			for CONF in $(find ${REPOSDIR} -name '*.conf.sample'); do
-				cp ${CONF} ${CONF%.sample}
-			done
-			if [ ! -f ${ORIGIN} ]; then
-				echo "Recovery failed, no sample found." >&2
-				exit 1
-			fi
-		fi
+if [ -n "${DO_HEAL}" ]; then
+	if [ -f ${ORIGIN} ]; then
 		exit 0
 	fi
-	# restore default before potential replace
-	if [ -f ${ORIGIN}.sample ]; then
-		cp ${ORIGIN}.sample ${ORIGIN}
+	# try full firmware reconfiguration (preserves user settings)
+	if timeout 30 pluginctl firmware_reload 2>/dev/null && [ -f ${ORIGIN} ]; then
+		exit 0
 	fi
+	# fall back to restoring repo defaults
+	DO_DEFAULTS="-d"
+	DO_SKIP="-s"
+fi
+
+if [ -n "${DO_DEFAULTS}" ]; then
+	# restore all repo defaults from sample files
+	for CONF in $(find ${REPOSDIR} -name '*.conf.sample'); do
+		cp ${CONF} ${CONF%.sample}
+	done
 	# aux file is not critical; remove if not sampled
-	if [ -f ${ORIGIN_AUX}.sample ]; then
-		cp ${ORIGIN_AUX}.sample ${ORIGIN_AUX}
-	else
+	if [ ! -f ${ORIGIN_AUX}.sample ]; then
 		rm -f ${ORIGIN_AUX}
 	fi
 fi
