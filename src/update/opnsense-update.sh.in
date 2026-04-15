@@ -589,7 +589,7 @@ elif [ "${DO_MIRROR}" = "-X" ]; then
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
-	cat ${ORIGIN} ${ORIGIN_AUX} # ORIGIN_FBSD is static
+	cat ${ORIGIN} ${ORIGIN_AUX} ${ORIGIN_FBSD}
 	exit 0
 elif  [ -n "${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
 	for LOG in ${DO_LOGFILEg} ${DO_LOGFILEG}; do
