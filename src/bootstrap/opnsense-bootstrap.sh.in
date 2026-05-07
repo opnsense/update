@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015-2025 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2015-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -28,6 +28,7 @@
 set -e
 
 URL="https://github.com/\${ACCOUNT}/\${REPOSITORY}/archive"
+REPOSDIR="/usr/local/etc/pkg/repos"
 WORKDIR="/tmp/opnsense-bootstrap"
 RELEASE="%%RELEASE%%"
 FREEBSD="%%FREEBSD%%"
@@ -43,13 +44,16 @@ DO_TYPE=
 DO_VERBOSE=
 DO_YES=
 
-while getopts A:a:bfiqr:R:t:vVyz OPT; do
+while getopts A:a:Bbfiqr:R:t:vVyz OPT; do
 	case ${OPT} in
 	A)
 		ACCOUNT="${OPTARG}"
 		;;
 	a)
 		DO_ABI="-a ${OPTARG}"
+		;;
+	B)
+		DO_BARE="-B"
 		;;
 	b)
 		DO_BARE="-b"
@@ -229,7 +233,13 @@ fi
 
 make -C ${WORKDIR}/${REPOSITORY}-${SUBDIR} bootstrap DESTDIR= CORE_ABI="${DO_ABI#"-a "}"
 
-if [ -z "${DO_BARE}" ]; then
+if [ "${DO_BARE}" = "-B" ]; then
+	for FILE in $(find -s ${REPOSDIR} -type f -name "*.conf"); do
+		mv ${FILE} ${FILE}.sample
+	done
+
+	pluginctl -c firmware_reload
+elif [ -z "${DO_BARE}" ]; then
 	if [ -n "${DO_FACTORY}" ]; then
 		rm -rf /conf/*
 	fi

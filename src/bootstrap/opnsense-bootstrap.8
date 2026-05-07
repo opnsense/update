@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2015-2025 Franco Fichtner <franco@opnsense.org>
+.\" Copyright (c) 2015-2026 Franco Fichtner <franco@opnsense.org>
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd November 20, 2025
+.Dd May 7, 2026
 .Dt OPNSENSE-BOOTSTRAP 8
 .Os
 .Sh NAME
@@ -32,7 +32,7 @@
 .Nd OPNsense bootstrap utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl bfiVvyz
+.Op Fl BbfiqVvyz
 .Op Fl A Ar account
 .Op Fl a Ar abi
 .Op Fl R Ar repository
@@ -58,6 +58,9 @@ Select the package ABI.
 If not specified it is derived from the default release version.
 .It Fl b
 Do a bare-mode bootstrap, installing the package repository files only.
+.It Fl B
+Do a bare-mode bootstrap, but use the previously installed system and
+configuration to recover firmware settings as well.
 .It Fl f
 Do a full factory reset, removing all previous OPNsense configuration
 files.
