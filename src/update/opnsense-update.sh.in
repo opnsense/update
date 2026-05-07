@@ -589,7 +589,11 @@ elif [ "${DO_MIRROR}" = "-X" ]; then
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
-	cat ${ORIGIN} ${ORIGIN_AUX} ${ORIGIN_FBSD}
+	# by scanning all available files
+	for FILE in $(find -s $(dirname ${ORIGIN}) -type f -name "*.conf"); do
+		echo ${FILE}:
+		cat ${FILE}
+	done
 	exit 0
 elif  [ -n "${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
 	for LOG in ${DO_LOGFILEg} ${DO_LOGFILEG}; do
