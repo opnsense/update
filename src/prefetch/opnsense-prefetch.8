@@ -1,0 +1,81 @@
+.\"
+.\" Copyright (c) 2026 Franco Fichtner <franco@opnsense.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.Dd September 2, 2026
+.Dt OPNSENSE-PREFETCH 8
+.Os
+.Sh NAME
+.Nm opnsense-prefetch
+.Nd OPNsense set prefetcher
+.Sh SYNOPSIS
+.Nm
+.Op Fl iVz
+.Op Fl A Ar abi
+.Fl r Ar release
+.Ar set ...
+.Sh DESCRIPTION
+The
+.Nm
+utility downloads requested sets for local firmware updates.
+It will use
+.Xr curl 1
+if available.
+Otherwise,
+.Xr fetch 1
+will be used.
+Typically,
+.Sq Ar base kernel packages
+are fetched for a major upgrade.
+.Pp
+The options are as follows:
+.Bl -tag -width ".Fl a Ar abi" -offset indent
+.It Fl A Ar abi
+Use an ABI that differs from the currently set one.
+.It Fl i
+Ignore the signature verification result.
+Otherwise, the
+.Xr opnsense-verify 8
+utility is used to verify a set signature.
+.It Fl r Ar release
+Select the
+.Ar release
+to be downloaded.
+.It Fl V
+Set debug mode for shell script output.
+.It Fl z
+Use the snapshots ABI.
+Same as
+.Sq Fl A Ar snapshots .
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr curl 1 ,
+.Xr fetch 1 ,
+.Xr opnsense-update 8 ,
+.Xr opnsense-verify 8
+.Sh AUTHORS
+.An Franco Fichtner Aq Mt franco@opnsense.org
