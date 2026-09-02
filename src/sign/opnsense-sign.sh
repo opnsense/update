@@ -81,7 +81,7 @@ fi
 
 (
 	echo SIGNATURE
-	echo -n ${SUM} | openssl dgst -sign ${KEY} -sha256 -binary
+	printf %s "${SUM}" | openssl dgst -sign ${KEY} -sha256 -binary
 	echo
 	echo CERT
 	cat ${CERT}
