@@ -227,7 +227,7 @@ if [ -z "${DO_BARE}" ]; then
 	if pkg -N; then
 		pkg unlock -ya
 		pkg unregister -fg 'FreeBSD-*'
-		pkg delete -a
+		pkg delete -fa
 	fi
 	rm -rf /var/db/pkg/*
 fi
