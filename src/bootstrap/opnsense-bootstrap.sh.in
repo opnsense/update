@@ -226,6 +226,9 @@ tar -C ${WORKDIR} -xf ${WORKDIR}/${REPOSITORY}.tar.gz
 if [ -z "${DO_BARE}" ]; then
 	if pkg -N; then
 		pkg unlock -ya
+		if [ -n "$(pkg query %n FreeBSD-set-base)" ]; then
+			pkg unregister -fg 'FreeBSD-*'
+		fi
 		pkg delete -fa
 	fi
 	rm -rf /var/db/pkg/*
