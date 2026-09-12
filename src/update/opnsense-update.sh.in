@@ -737,6 +737,9 @@ if [ "${DO_KERNEL}" = "-K" ]; then
 	WORKDIR=${PENDINGDIR}
 
 	rm -f "${PENDING_KERNEL}"
+
+	# marker is gone; any failure now is a botched apply
+	FAILURE=2
 elif [ "${DO_BASE}" = "-B" ]; then
 	if [ ! -f "${PENDING_BASE}" ]; then
 		# must error out to prevent reboot
@@ -747,6 +750,9 @@ elif [ "${DO_BASE}" = "-B" ]; then
 	WORKDIR=${PENDINGDIR}
 
 	rm -f "${PENDING_BASE}"
+
+	# marker is gone; any failure now is a botched apply
+	FAILURE=2
 elif [ "${DO_PKGS}" = "-P" ]; then
 	if [ ! -f "${PENDING_PKGS}" ]; then
 		# must error out to prevent reboot
@@ -761,6 +767,9 @@ elif [ "${DO_PKGS}" = "-P" ]; then
 	fi
 
 	rm -f "${PENDING_PKGS}" "${INSECURE_PKGS}"
+
+	# marker is gone; any failure now is a botched apply
+	FAILURE=2
 elif [ -n "${DO_LOCAL}" ]; then
 	WORKDIR=${DO_LOCAL#"-l "}
 fi
@@ -893,7 +902,10 @@ exit_msg()
 		echo "${1}"
 	fi
 
-	exit 1
+	# exits 2 instead when a consumed pending set could not
+	# be applied so that callers can tell a botched apply
+	# apart from "nothing to do"
+	exit ${FAILURE:-1}
 }
 
 fetch_set()
@@ -956,6 +968,18 @@ install_tests()
 	echo " done"
 }
 
+revert_kernel()
+{
+	# a failed install must not leave a stub kernel that the
+	# loader would pick by default on the next boot
+	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
+		if [ -d ${DIR}.old ]; then
+			rm -rf ${DIR}
+			mv ${DIR}.old ${DIR}
+		fi
+	done
+}
+
 install_kernel()
 {
 	echo -n "Installing ${KERNELSET}..."
@@ -975,12 +999,14 @@ install_kernel()
 	done
 
 	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET} --exclude="^.abi_hint"; then
-		exit_msg " failed, tar error ${?}"
+		revert_kernel
+		exit_msg " failed, tar error, previous kernel restored"
 	fi
 
 	if [ -z "${DO_UPGRADE}" ]; then
 		if ! kldxref ${KERNELDIR}; then
-			exit_msg " failed, kldxref error ${?}"
+			revert_kernel
+			exit_msg " failed, kldxref error, previous kernel restored"
 		fi
 	fi
 
@@ -1204,7 +1230,7 @@ if [ -n "${DO_BASE}" -a -z "${DO_UPGRADE}" ]; then
 			# Clean all the pending updates, so that
 			# packages are not upgraded as well.
 			empty_cache
-			exit 1
+			exit ${FAILURE:-1}
 		fi
 	fi
 
