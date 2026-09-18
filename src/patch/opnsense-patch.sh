@@ -173,7 +173,7 @@ PATCHES=$(patch_load)
 patch_found()
 {
 	ARG=${1}
-	ARGLEN=$(echo -n ${ARG} | wc -c | awk '{ print $1 }')
+	ARGLEN=$(printf %s ${ARG} | wc -c | awk '{ print $1 }')
 
 	echo "${PATCHES}" | while read FILE HASH SUBJECT; do
 		if [ "${FILE%-*}" != ${CONFIG} ]; then

@@ -96,7 +96,7 @@ fetch()
 		STAGE3=":"
 	fi
 
-	echo -n "Fetching ${1}: ."
+	printf %s "Fetching ${1}: ."
 
 	mkdir -p ${WORKDIR} && ${STAGE1} && ${STAGE2} && \
 	    echo " done" && ${STAGE3} && return

@@ -145,7 +145,7 @@ if [ -z "${DO_QUICK}" ]; then
 fi
 
 if [ -z "${DO_YES}" ]; then
-	echo -n "Proceed with this action? [y/N]: "
+	printf %s "Proceed with this action? [y/N]: "
 
 	read YN
 	case ${YN} in
@@ -159,7 +159,7 @@ fi
 
 if [ -n "${DO_FACTORY}" ]; then
 	if [ -z "${DO_YES}" ]; then
-		echo -n "Factory reset mode selected, are you sure? [y/N]: "
+		printf %s "Factory reset mode selected, are you sure? [y/N]: "
 
 		read YN
 		case ${YN} in
@@ -174,7 +174,7 @@ fi
 
 if [ -n "${DO_INSECURE}" ]; then
 	if [ -z "${DO_YES}" ]; then
-		echo -n "Insecure mode selected, are you sure? [y/N]: "
+		printf %s "Insecure mode selected, are you sure? [y/N]: "
 
 		read YN
 		case ${YN} in

@@ -56,14 +56,14 @@ daemon -f -m 2 -o ${ERRFILE} -p ${PIDFILE} fetch ${@}
 
 while :; do
 	sleep 1
-	echo -n .
+	printf %s .
 	[ ! -f ${PIDFILE} ] && break
 	pgrep -qF ${PIDFILE} || break
 done
 
 # emit a download failure when the file was not written
 if [ -n "${OUTFILE}" -a ! -f "${OUTFILE}" ]; then
-	echo -n "[$(cat ${ERRFILE})]"
+	printf %s "[$(cat ${ERRFILE})]"
 	EXIT=1
 fi
 
