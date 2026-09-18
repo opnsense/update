@@ -100,13 +100,13 @@ for SET in ${*}; do
 
 	for FILE in ${FILES}; do
 		if [ -n "${DO_CURL}" ]; then
-			REFSIZE=$(curl -sI $URL | grep -i Content-Length | awk '{print $2}')
+			REFSIZE=$(curl -sI "${MIRROR}/sets/${FILE}" | grep -i Content-Length | awk '{print $2}')
 		else
-			REFSIZE=$(fetch -s ${MIRROR}/${BASESET} 2> /dev/null)
+			REFSIZE=$(fetch -s "${MIRROR}/sets/${FILE}" 2> /dev/null)
 		fi
 
 		if [ -z ${REFSIZE} ]; then
-			REFSIZE="unknown"
+			REFSIZE="Unknown"
 		fi
 
 		echo "Downloading ${FILE} with remote size ${REFSIZE}:"
