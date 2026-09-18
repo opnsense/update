@@ -102,10 +102,10 @@ for SET in ${*}; do
 		if [ -n "${DO_CURL}" ]; then
 			REFSIZE=$(curl -sI "${MIRROR}/sets/${FILE}" | grep -i Content-Length | awk '{print $2}')
 		else
-			REFSIZE=$(fetch -s "${MIRROR}/sets/${FILE}" 2> /dev/null)
+			REFSIZE=$(fetch -s "${MIRROR}/sets/${FILE}" || true 2> /dev/null)
 		fi
 
-		if [ -z ${REFSIZE} ]; then
+		if [ -z "${REFSIZE}" ]; then
 			REFSIZE="Unknown"
 		fi
 
@@ -120,7 +120,7 @@ for SET in ${*}; do
 
 	SIZE=$(stat -f %z "${SETFILE}")
 	if [ "${REFSIZE}" != "${SIZE}" ]; then
-		echo "Remote size ${PRESIZE} does not match downloaded file size ${SIZE}"
+		echo "Remote size ${REFSIZE} does not match downloaded file size ${SIZE}"
 	fi
 
 	if [ -z "${DO_INSECURE}" ]; then
