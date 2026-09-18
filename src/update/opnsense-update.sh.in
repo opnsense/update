@@ -188,7 +188,7 @@ empty_cache()
 
 flush_temporary()
 {
-	echo -n "Flushing temporary package files..."
+	printf %s "Flushing temporary package files..."
 
 	for DIR in /boot /usr/libexec/bsdinstall /usr/local; do
 		# remove spurious files from pkg
@@ -239,7 +239,7 @@ recover_origin()
 
 clean_base()
 {
-	echo -n "Cleaning obsolete files..."
+	printf %s "Cleaning obsolete files..."
 
 	if [ ! -f ${VERSIONDIR}/base.obsolete ]; then
 		exit_msg " failed, no base.obsolete found"
@@ -914,7 +914,7 @@ fetch_set()
 		STAGE3=":"
 	fi
 
-	echo -n "Fetching ${1}: ."
+	printf %s "Fetching ${1}: ."
 
 	if ! mkdir -p ${WORKDIR}; then
 		exit_msg " failed, mkdir error ${?}"
@@ -944,7 +944,7 @@ fetch_set()
 
 install_tests()
 {
-	echo -n "Installing ${TESTSSET}..."
+	printf %s "Installing ${TESTSSET}..."
 
 	# clear the previous state as it is contained here
 	rm -rf /usr/tests
@@ -958,7 +958,7 @@ install_tests()
 
 install_kernel()
 {
-	echo -n "Installing ${KERNELSET}..."
+	printf %s "Installing ${KERNELSET}..."
 
 	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
 		if [ -d ${DIR}.old ]; then
@@ -991,7 +991,7 @@ install_base()
 {
 	NOSCHGDIRS="/bin /sbin /lib /libexec /usr/bin /usr/sbin /usr/lib /var/empty"
 
-	echo -n "Installing ${BASESET}..."
+	printf %s "Installing ${BASESET}..."
 
 	if ! mkdir -p ${NOSCHGDIRS}; then
 		exit_msg " failed, mkdir error ${?}"
@@ -1125,7 +1125,7 @@ fi
 if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 	flush_temporary
 
-	echo -n "Extracting ${PACKAGESSET}..."
+	printf %s "Extracting ${PACKAGESSET}..."
 
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/packages-*
@@ -1147,7 +1147,7 @@ if [ "${DO_PKGS}" = "-p" -a -n "${DO_UPGRADE}" ]; then
 fi
 
 if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
-	echo -n "Extracting ${BASESET}..."
+	printf %s "Extracting ${BASESET}..."
 
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/base-*
@@ -1163,7 +1163,7 @@ if [ "${DO_BASE}" = "-b" -a -n "${DO_UPGRADE}" ]; then
 fi
 
 if [ "${DO_KERNEL}" = "-k" -a -n "${DO_UPGRADE}" ]; then
-	echo -n "Extracting ${KERNELSET}..."
+	printf %s "Extracting ${KERNELSET}..."
 
 	# clean up from a potential previous run
 	rm -rf ${PENDINGDIR}/kernel-*
