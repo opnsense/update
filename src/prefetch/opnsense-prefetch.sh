@@ -100,7 +100,7 @@ for SET in ${*}; do
 
 	for FILE in ${FILES}; do
 		if [ -n "${DO_CURL}" ]; then
-			REFSIZE=$(curl -sI "${MIRROR}/sets/${FILE}" | grep -i Content-Length | awk '{print $2}')
+			REFSIZE=$(curl -sI "${MIRROR}/sets/${FILE}" | grep -i Content-Length | awk '{sub("\r", ""); print $2}')
 		else
 			REFSIZE=$(fetch -s "${MIRROR}/sets/${FILE}" || true 2> /dev/null)
 		fi
