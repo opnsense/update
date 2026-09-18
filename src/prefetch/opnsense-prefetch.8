@@ -24,7 +24,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.Dd September 2, 2026
+.Dd September 18, 2026
 .Dt OPNSENSE-PREFETCH 8
 .Os
 .Sh NAME
@@ -32,20 +32,15 @@
 .Nd OPNsense set prefetcher
 .Sh SYNOPSIS
 .Nm
-.Op Fl iVz
+.Op Fl ciVz
 .Op Fl A Ar abi
 .Fl r Ar release
 .Ar set ...
 .Sh DESCRIPTION
 The
 .Nm
-utility downloads requested sets for local firmware updates.
-It will use
-.Xr curl 1
-if available.
-Otherwise,
-.Xr fetch 1
-will be used.
+utility downloads requested sets for local firmware updates
+and checks integrity of the downloaded sets.
 Typically,
 .Sq Ar base kernel packages
 are fetched for a major upgrade.
@@ -54,6 +49,12 @@ The options are as follows:
 .Bl -tag -width ".Fl a Ar abi" -offset indent
 .It Fl A Ar abi
 Use an ABI that differs from the currently set one.
+.It Fl c
+Use
+.Xr curl 1
+instead of
+.Xr fetch 1
+to download the sets.
 .It Fl i
 Ignore the signature verification result.
 Otherwise, the

@@ -27,23 +27,19 @@
 
 set -e
 
-CURL=/usr/local/bin/curl
-FETCH=/usr/bin/fetch
-
-DOWNLOAD=${FETCH}
-if [ -x ${CURL} ]; then
-	DOWNLOAD="${CURL} -f"
-fi
-
 DO_ABI=
+DO_CURL=
 DO_INSECURE=
 DO_RELEASE=
 DO_VERBOSE=
 
-while getopts A:ir:Vz OPT; do
+while getopts A:cir:Vz OPT; do
 	case ${OPT} in
 	A)
 		DO_ABI="-A ${OPTARG}"
+		;;
+	c)
+		DO_CURL="-c"
 		;;
 	i)
 		DO_INSECURE="-i"
@@ -103,10 +99,29 @@ for SET in ${*}; do
 	rm -f ${FILES}
 
 	for FILE in ${FILES}; do
-		echo "Downloading ${FILE}:"
+		if [ -n "${DO_CURL}" ]; then
+			REFSIZE=$(curl -sI $URL | grep -i Content-Length | awk '{print $2}')
+		else
+			REFSIZE=$(fetch -s ${MIRROR}/${BASESET} 2> /dev/null)
+		fi
 
-		${DOWNLOAD} -o "${FILE}" "${MIRROR}/sets/${FILE}"
+		if [ -z ${REFSIZE} ]; then
+			REFSIZE="unknown"
+		fi
+
+		echo "Downloading ${FILE} with remote size ${REFSIZE}:"
+
+		if [ -n "${DO_CURL}" ]; then
+			curl -f -o "${FILE}" "${MIRROR}/sets/${FILE}"
+		else
+			fetch -o "${FILE}" "${MIRROR}/sets/${FILE}"
+		fi
 	done
+
+	SIZE=$(stat -f %z "${SETFILE}")
+	if [ "${REFSIZE}" != "${SIZE}" ]; then
+		echo "Remote size ${PRESIZE} does not match downloaded file size ${SIZE}"
+	fi
 
 	if [ -z "${DO_INSECURE}" ]; then
 		if ! opnsense-verify "${SETFILE}"; then
