@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -44,9 +44,9 @@ SITE="https://github.com"
 # user options
 DO_DOWNLOAD=
 DO_FORCE=
-DO_FORWARD="-t"
 DO_INSECURE=
 DO_LIST=
+DO_MODE="-t"
 DO_VERBOSE=
 
 if [ "$(id -u)" != "0" ]; then
@@ -86,7 +86,7 @@ patch_repository()
 	esac
 }
 
-while getopts a:c:defilNP:p:r:s:V OPT; do
+while getopts a:c:defilNP:p:Rr:s:V OPT; do
 	case ${OPT} in
 	a)
 		ACCOUNT=${OPTARG}
@@ -110,13 +110,16 @@ while getopts a:c:defilNP:p:r:s:V OPT; do
 		DO_LIST="-l"
 		;;
 	N)
-		DO_FORWARD="-f"
+		DO_MODE="-fN"
 		;;
 	P)
 		PREFIX=${OPTARG}
 		;;
 	p)
 		PATCHLEVEL=${OPTARG}
+		;;
+	R)
+		DO_MODE="-fR"
 		;;
 	r)
 		REPOSITORY=${OPTARG}
@@ -323,11 +326,11 @@ for ARG in ${ARGS}; do
 	patch_setup # modify environment as required for patch
 	ARG=${CONFIG}-${ARG} # reconstruct file name on disk
 
-	if ! patch ${DO_FORWARD} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
+	if ! patch ${DO_MODE} -sCE -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"; then
 		exit 1
 	fi
 
-	patch ${DO_FORWARD} -V none -E -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
+	patch ${DO_MODE} -V none -E -p ${PATCHLEVEL} -d "${PREFIX}" -i "${CACHEDIR}/${ARG}"
 
 	while IFS= read -r PATCHLINE; do
 		case "${PATCHLINE}" in
