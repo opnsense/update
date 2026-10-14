@@ -167,6 +167,7 @@ git_update
 make_upgrade()
 {
 	TARGETDIR=${1}
+	EXTRAENV=
 
 	if [ -z "${DO_UPGRADE}" ]; then
 		return
@@ -175,6 +176,10 @@ make_upgrade()
 	if [ -x "${TARGETDIR}/configure" -a \
 	    ! -e "${TARGETDIR}/Makefile" ]; then
 		(cd ${TARGETDIR} && ./configure)
+	fi
+
+	if [ "${DO_RELEASE}" = "-z" ]; then
+		EXTRAENV="CORE_NAME='$(opnsense-version -n)'"
 	fi
 
 	case "$(basename ${TARGETDIR})" in
@@ -194,7 +199,7 @@ make_upgrade()
 		make -C "${TARGETDIR}/${DO_ORIGIN#"-o "}" upgrade
 		;;
 	*)
-		make -C "${TARGETDIR}" upgrade
+		make -C "${TARGETDIR}" upgrade ${EXTRAENV}
 		;;
 	esac
 }
