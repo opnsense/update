@@ -179,7 +179,10 @@ make_upgrade()
 	fi
 
 	if [ "${DO_RELEASE}" = "-z" ]; then
-		EXTRAENV="CORE_NAME=$(opnsense-version -n)"
+		EXTRAENV="
+CORE_NAME=$(opnsense-version -n)
+CORE_HASH=fake$(date +%s)
+"
 	fi
 
 	case "$(basename ${TARGETDIR})" in
