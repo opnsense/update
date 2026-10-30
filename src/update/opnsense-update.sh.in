@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# kernel-cleanup-protocol: 1
+
 # Copyright (c) 2015-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -295,6 +297,9 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
+# Parse in a function so that the original arguments remain available for lockf.
+parse_options()
+{
 while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 	case ${OPT} in
 	A)
@@ -439,6 +444,57 @@ shift $((OPTIND - 1))
 if [ -n "${*}" ]; then
 	echo "Usage: man ${0##*/}" >&2
 	exit 1
+fi
+}
+
+parse_options "${@}"
+
+# Keep the inode: cleanup uses flock(2) on this same file. Nested updates inherit
+# the transaction; read-only queries remain available while an update is running.
+if [ -z "${DO_VERSION}${DO_CHECK}${DO_SIZE}${DO_TEST}${DO_MIRROR}${DO_ORIGIN}${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
+	# Services restarted by package hooks may inherit the environment. Only a
+	# descendant of the live owner can participate in its synchronous update.
+	if [ -n "${OPNSENSE_KERNEL_TRANSACTION}" -a "${OPNSENSE_KERNEL_TRANSACTION}" != "locked" ]; then
+		KERNEL_LOCK_PARENT=${PPID}
+		KERNEL_LOCK_NESTED=
+		while [ -n "${KERNEL_LOCK_PARENT}" -a "${KERNEL_LOCK_PARENT}" != "0" -a "${KERNEL_LOCK_PARENT}" != "1" ]; do
+			if [ "${KERNEL_LOCK_PARENT}" = "${OPNSENSE_KERNEL_OWNER}" ]; then
+				KERNEL_LOCK_NESTED=1
+				break
+			fi
+			KERNEL_LOCK_PARENT=$(ps -p "${KERNEL_LOCK_PARENT}" -o ppid= | tr -d '[:space:]')
+		done
+		if [ -z "${KERNEL_LOCK_NESTED}" ]; then
+			unset OPNSENSE_KERNEL_TRANSACTION OPNSENSE_KERNEL_OWNER
+			exec "${0}" "${@}"
+		fi
+	fi
+	if [ -z "${OPNSENSE_KERNEL_TRANSACTION}" ]; then
+		exec lockf -k -t 0 /var/run/opnsense-update.lock \
+		    env OPNSENSE_KERNEL_TRANSACTION=locked "${0}" "${@}"
+	elif [ "${OPNSENSE_KERNEL_TRANSACTION}" = "locked" ]; then
+		OPNSENSE_KERNEL_TRANSACTION=$(uuidgen)
+		OPNSENSE_KERNEL_OWNER=${$}
+		export OPNSENSE_KERNEL_TRANSACTION OPNSENSE_KERNEL_OWNER
+		KERNEL_CLEANUP=/usr/local/opnsense/scripts/firmware/kernel_cleanup.py
+
+		# A durable sentinel also disables cleanup if a callback cannot be run.
+		mkdir -p ${VERSIONDIR}
+		touch ${VERSIONDIR}/kernel-cleanup.pending
+		sync
+		if [ -x "${KERNEL_CLEANUP}" ]; then
+			${KERNEL_CLEANUP} begin || true
+		fi
+
+		kernel_cleanup_finish()
+		{
+			local RET=${1}
+			if [ -x "${KERNEL_CLEANUP}" ]; then
+				${KERNEL_CLEANUP} finish ${RET} || true
+			fi
+		}
+		trap 'kernel_cleanup_finish ${?}' EXIT
+	fi
 fi
 
 if [ -n "${DO_VERBOSE}" ]; then
@@ -987,6 +1043,12 @@ install_kernel()
 		if ! kldxref ${KERNELDIR}; then
 			exit_msg " failed, kldxref error ${?}"
 		fi
+	fi
+
+	# Capture ownership only after the kernel and modules were installed. The
+	# outer transaction confirms success after base/packages and deferred stages.
+	if [ -x /usr/local/opnsense/scripts/firmware/kernel_cleanup.py ]; then
+		/usr/local/opnsense/scripts/firmware/kernel_cleanup.py record || true
 	fi
 
 	echo " done"
