@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2023 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -45,28 +45,28 @@ while getopts ao:qT:w: OPT; do
 done
 
 ERRFILE=$(mktemp -q /tmp/opnsense-fetch.out.XXXXXX)
-PIDFILE=$(mktemp -q /tmp/opnsense-fetch.pid.XXXXXX)
 
-# clear the output file for exit code detection
 if [ -n "${OUTFILE}" -a -f "${OUTFILE}" ]; then
 	rm -f "${OUTFILE}"
 fi
 
-daemon -f -m 2 -o ${ERRFILE} -p ${PIDFILE} fetch ${@}
-
-while :; do
+(while :; do
 	sleep 1
 	printf %s .
-	[ ! -f ${PIDFILE} ] && break
-	pgrep -qF ${PIDFILE} || break
-done
+done) &
+PRINT_PID=${!}
 
-# emit a download failure when the file was not written
-if [ -n "${OUTFILE}" -a ! -f "${OUTFILE}" ]; then
+fetch "${@}" > /dev/null 2> "${ERRFILE}" &
+FETCH_PID=${!}
+
+wait ${FETCH_PID} || EXIT=${?}
+kill ${PRINT_PID} || true
+wait ${PRINT_PID} || true
+
+if [ ${EXIT} != "0" ]; then
 	printf %s "[$(cat ${ERRFILE})]"
-	EXIT=1
 fi
 
-rm -f ${ERRFILE} ${PIDFILE}
+rm -f ${ERRFILE}
 
 exit ${EXIT}
