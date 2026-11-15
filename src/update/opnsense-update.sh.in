@@ -922,7 +922,7 @@ fetch_set()
 	printf %s "Fetching ${1}: ."
 
 	if ! mkdir -p ${WORKDIR}; then
-		exit_msg " failed, mkdir error ${?}"
+		exit_msg " failed, mkdir error"
 	fi
 
 	if ! ${STAGE1}; then
@@ -955,7 +955,7 @@ install_tests()
 	rm -rf /usr/tests
 
 	if ! tar -C / -xpf ${WORKDIR}/${TESTSSET} --exclude="^.abi_hint"; then
-		exit_msg " failed, tar error ${?}"
+		exit_msg " failed, tar error"
 	fi
 
 	echo " done"
@@ -965,29 +965,40 @@ install_kernel()
 {
 	printf %s "Installing ${KERNELSET}..."
 
+	# clear remainder from a previous unsuccesful attempt
 	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
-		if [ -d ${DIR}.old ]; then
-			if ! rm -r ${DIR}.old; then
-				exit_msg " failed, rm error ${?}"
-			fi
-		fi
-
-		if [ -d ${DIR} ]; then
-			if ! mv ${DIR} ${DIR}.old; then
-				exit_msg " failed, mv error ${?}"
-			fi
-		fi
+		rm -rf ${DIR}.new
 	done
 
-	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET} --exclude="^.abi_hint"; then
-		exit_msg " failed, tar error ${?}"
+	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET} --exclude="^.abi_hint" \
+	    -s ",^\.${DEBUGDIR}${KERNELDIR}"'$'",${DEBUGDIR#/}${KERNELDIR}.new," \
+	    -s ",^\.${DEBUGDIR}${KERNELDIR}/,${DEBUGDIR#/}${KERNELDIR}.new/," \
+	    -s ",^\.${KERNELDIR}"'$'",${KERNELDIR#/}.new," \
+	    -s ",^\.${KERNELDIR}/,${KERNELDIR#/}.new/,"; then
+		exit_msg " failed, tar error"
 	fi
 
 	if [ -z "${DO_UPGRADE}" ]; then
-		if ! kldxref ${KERNELDIR}; then
-			exit_msg " failed, kldxref error ${?}"
+		if ! kldxref ${KERNELDIR}.new; then
+			exit_msg " failed, kldxref error"
 		fi
 	fi
+
+	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
+		rm -rf ${DIR}.old
+
+		if [ ${DIR} = ${KERNELDIR} -o -d ${DIR} ]; then
+			if ! mv ${DIR} ${DIR}.old; then
+				exit_msg " failed, mv error on ${DIR}"
+			fi
+		fi
+
+		if [ ${DIR} = ${KERNELDIR} -o -d ${DIR}.new ]; then
+			if ! mv ${DIR}.new ${DIR}; then
+				exit_msg " failed, mv error on ${DIR}.new"
+			fi
+		fi
+	done
 
 	echo " done"
 }
@@ -999,11 +1010,11 @@ install_base()
 	printf %s "Installing ${BASESET}..."
 
 	if ! mkdir -p ${NOSCHGDIRS}; then
-		exit_msg " failed, mkdir error ${?}"
+		exit_msg " failed, mkdir error"
 	fi
 
 	if ! chflags -R noschg ${NOSCHGDIRS}; then
-		exit_msg " failed, chflags error ${?}"
+		exit_msg " failed, chflags error"
 	fi
 
 	if ! tar -C / -xpf ${WORKDIR}/${BASESET} \
@@ -1025,11 +1036,11 @@ install_base()
 	    --exclude="^proc" \
 	    --exclude="^root/.cshrc" \
 	    --exclude="^root/.profile"; then
-		exit_msg " failed, tar error ${?}"
+		exit_msg " failed, tar error"
 	fi
 
 	if ! kldxref ${KERNELDIR}; then
-		exit_msg " failed, kldxref error ${?}"
+		exit_msg " failed, kldxref error"
 	fi
 
 	echo " done"
