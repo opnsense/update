@@ -102,8 +102,8 @@ opnsense-prefetch
 
 This tool is mainly for debugging and recovery in cases where upgrade
 sets need to be fetched while the system is in a broken state that would
-still allow running a script connecting while to the Internet.  It only
-loosely integrates with opnsense-update(8) -l for local directory option
-and is not called from anywhere.
+still allow running a script and has a working connection to the Internet.
+It only loosely integrates with opnsense-update(8) -l for local directory
+option and is not called from anywhere.
 
 The utility was first introduced in September 2026.
