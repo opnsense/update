@@ -966,13 +966,15 @@ install_kernel()
 	printf %s "Installing ${KERNELSET}..."
 
 	# clear remainder from a previous unsuccesful attempt
-	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
+	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR} ${VERSIONDIR}; do
 		rm -rf ${DIR}.new
 	done
 
 	if ! tar -C / -xpf ${WORKDIR}/${KERNELSET} --exclude="^.abi_hint" \
 	    -s ",^\.${DEBUGDIR}${KERNELDIR}"'$'",${DEBUGDIR#/}${KERNELDIR}.new," \
 	    -s ",^\.${DEBUGDIR}${KERNELDIR}/,${DEBUGDIR#/}${KERNELDIR}.new/," \
+	    -s ",^\.${VERSIONDIR}"'$'",${VERSIONDIR#/}.new," \
+	    -s ",^\.${VERSIONDIR}/,${VERSIONDIR#/}.new/," \
 	    -s ",^\.${KERNELDIR}"'$'",${KERNELDIR#/}.new," \
 	    -s ",^\.${KERNELDIR}/,${KERNELDIR#/}.new/,"; then
 		exit_msg " failed, tar error"
@@ -1013,6 +1015,13 @@ install_kernel()
 			fi
 		fi
 	done
+
+	# we refresh version metadata after everything succeeded
+	if ! mv ${VERSIONDIR}.new/* ${VERSIONDIR}; then
+		exit_msg " failed, mv error on ${VERSIONDIR}.new"
+	fi
+
+	rm -rf ${VERSIONDIR}.new
 
 	echo " done"
 }
