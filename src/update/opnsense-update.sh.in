@@ -985,7 +985,21 @@ install_kernel()
 	fi
 
 	for DIR in ${KERNELDIR} ${DEBUGDIR}${KERNELDIR}; do
-		rm -rf ${DIR}.old
+		# In a failure scenario leave the old kernel in place if
+		# there is no current kernel to replace it, but always
+		# remove the optional debug directory so it does not stick
+		# around forever.
+
+		if [ ${DIR} = ${DEBUGDIR}${KERNELDIR} -o -d ${DIR} ]; then
+			rm -rf ${DIR}.old
+		fi
+
+		# Worst-case failure points for KERNELDIR rotation
+		# are the move operations below.  If one fails the
+		# next boot may not work without manual intervention.
+		# Trying to roll back the rotation may also be futile
+		# as we assume a failed move can be fixed by issuing
+		# another move.
 
 		if [ ${DIR} = ${KERNELDIR} -o -d ${DIR} ]; then
 			if ! mv ${DIR} ${DIR}.old; then
