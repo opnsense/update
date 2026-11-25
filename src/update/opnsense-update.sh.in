@@ -130,26 +130,30 @@ mirror_abi()
 	local DIR="\2"
 	local OPT=${1}
 
-	if [ -n "${DO_SNAPSHOT}" ]; then
-		DIR="snapshots"
-	fi
-
 	ABI=$(opnsense-verify -a)
 
 	if [ -n "${DO_ABI}" ]; then
 		ABIPARTS=${DO_ABI#"-a "}
 
-		ABI=${ABIPARTS%%/*}
-		SUB=${ABIPARTS#*/}
+		_ABI=${ABIPARTS%%/*}
+		_SUB=${ABIPARTS#*/}
 
-		if [ -z "${SUB%%*/*}" ]; then
+		if [ -z "${_SUB%%*/*}" ]; then
 			echo "Mirror has too many subdirectories." >&2
 			exit 1
 		fi
 
-		if [ "${ABI}" != "${SUB}" ]; then
-			DIR=${SUB}
+		if [ "${_ABI}" = "${_SUB}" ]; then
+			# leave ABI
+			DIR=${_SUB}
+		elif [ "${_ABI}" != "${_SUB}" ]; then
+			ABI=${_ABI}
+			DIR=${_SUB}
 		fi
+	fi
+
+	if [ -n "${DO_SNAPSHOT}" ]; then
+		DIR="snapshots"
 	fi
 
 	# The first part after ABI is our suffix and
@@ -390,11 +394,11 @@ while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 	r)
 		DO_RELEASE="-r ${OPTARG}"
 		;;
-	s)
-		DO_SKIP="-s"
-		;;
 	S)
 		DO_SIZE="-S"
+		;;
+	s)
+		DO_SKIP="-s"
 		;;
 	T)
 		DO_TEST="-T"
@@ -481,20 +485,6 @@ if [ -n "${DO_VERSION}" ]; then
 	exit 0
 fi
 
-if [ -n "${DO_DEFAULTS}" ]; then
-	# restore defaults before potential replace
-	for FILE in ${ORIGIN} ${ORIGIN_AUX} ${ORIGIN_FBSD}; do
-		if [ -f ${FILE}.sample ]; then
-			cp ${FILE}.sample ${FILE}
-		fi
-	done
-fi
-
-if [ ! -f ${ORIGIN} ]; then
-	echo "Missing ${ORIGIN}" >&2
-	exit 1
-fi
-
 mod_mirrorurl()
 {
 	if [ ! -f ${1} ]; then
@@ -550,47 +540,75 @@ mod_enablerepo()
 	sed -i '' '/^[[:space:]]*enabled:[[:space:]]*/s/no/yes/' ${1}
 }
 
-if [ -n "${DO_MIRRORURL}" ]; then
-	mod_mirrorurl ${ORIGIN}
-	mod_mirrorurl ${ORIGIN_AUX}
-fi
-
-if [ -n "${DO_MIRRORABI}" ]; then
-	mod_mirrorabi ${ORIGIN}
-	mod_mirrorabi ${ORIGIN_AUX}
-fi
-
-if [ -n "${DO_MIRRORDIR}" ]; then
-	mod_mirrordir ${ORIGIN}
-	mod_mirrordir ${ORIGIN_AUX} aux
-fi
-
-if [ -n "${DO_ENABLEREPO}" ]; then
-	# since we cannot disable ignore ORIGIN
-	mod_enablerepo ${ORIGIN_AUX}
-fi
-
-if [ "${DO_MIRROR}" = "-M" ]; then
-	# only print mirror URL
-	mirror_abi
-	exit 0
-elif [ "${DO_MIRROR}" = "-x" ]; then
-	# only print mirror subscription key
-	mirror_sub
-	exit 0
-elif [ "${DO_MIRROR}" = "-X" ]; then
-	# print bogons/changelog fetch URL
-	# appropriate for the configuration
-	# requiring pre and postprocessing
-	if [ -z "$(mirror_sub)" ]; then
-		ORIGIN=${ORIGIN}.sample
-		if [ ! -f ${ORIGIN} ]; then
-			echo "Missing ${ORIGIN}" >&2
-			exit 1
+if [ -z "${DO_MIRROR}" -a -n "${DO_DEFAULTS}" ]; then
+	# restore defaults before potential replace, but not in mirror mode
+	for FILE in ${ORIGIN} ${ORIGIN_AUX} ${ORIGIN_FBSD}; do
+		if [ -f ${FILE}.sample ]; then
+			cp ${FILE}.sample ${FILE}
 		fi
+	done
+fi
+
+if [ ! -f ${ORIGIN} ]; then
+	echo "Missing ${ORIGIN}" >&2
+	exit 1
+fi
+
+if [ -z "${DO_MIRROR}" ]; then
+	if [ -n "${DO_MIRRORURL}" ]; then
+		mod_mirrorurl ${ORIGIN}
+		mod_mirrorurl ${ORIGIN_AUX}
 	fi
-	URL=$(mirror_abi)
-	echo ${URL%/*}/$(opnsense-version -x)
+
+	if [ -n "${DO_MIRRORABI}" ]; then
+		mod_mirrorabi ${ORIGIN}
+		mod_mirrorabi ${ORIGIN_AUX}
+	fi
+
+	if [ -n "${DO_MIRRORDIR}" ]; then
+		mod_mirrordir ${ORIGIN}
+		mod_mirrordir ${ORIGIN_AUX} aux
+	fi
+
+	if [ -n "${DO_ENABLEREPO}" ]; then
+		# since we cannot disable ignore ORIGIN
+		mod_enablerepo ${ORIGIN_AUX}
+	fi
+fi
+
+if [ -n "${DO_SKIP}" ]; then
+	# only invoke mirror replacements
+	exit 0
+fi
+
+if [ -n "${DO_MIRROR}" ]; then
+	if [ "${DO_MIRROR}" = "-M" ]; then
+		# only print mirror URL
+		if [ -n "${DO_DEFAULTS}" ]; then
+			ORIGIN=${ORIGIN}.sample
+			if [ ! -f ${ORIGIN} ]; then
+				echo "Missing ${ORIGIN}" >&2
+				exit 1
+			fi
+		fi
+		mirror_abi
+	elif [ "${DO_MIRROR}" = "-x" ]; then
+		# only print mirror subscription key
+		mirror_sub
+	elif [ "${DO_MIRROR}" = "-X" ]; then
+		# print bogons/changelog fetch URL
+		# appropriate for the configuration
+		# requiring pre and postprocessing
+		if [ -z "$(mirror_sub)" ]; then
+			ORIGIN=${ORIGIN}.sample
+			if [ ! -f ${ORIGIN} ]; then
+				echo "Missing ${ORIGIN}" >&2
+				exit 1
+			fi
+		fi
+		URL=$(mirror_abi)
+		echo ${URL%/*}/$(opnsense-version -x)
+	fi
 	exit 0
 elif  [ -n "${DO_ORIGIN}" ]; then
 	# only print repository configuration
@@ -606,9 +624,6 @@ elif  [ -n "${DO_LOGFILEg}${DO_LOGFILEG}" ]; then
 		[ "${LOG}" = "-g" ] && LOGFILE=${LOGFILE_UPDATE}
 		[ -f ${LOGFILE} ] && cat ${LOGFILE}
 	done
-	exit 0
-elif [ -n "${DO_SKIP}" ]; then
-	# only invoke mirror replacements
 	exit 0
 fi
 
