@@ -88,7 +88,7 @@ export ASSUME_ALWAYS_YES=yes
 MIRROR=
 MIRROR_CMD="opnsense-update -M"
 if [ -n "${DO_COMMUNITY}" ]; then
-	MIRROR_CMD="${MIRROR_CMD} -d -A $(opnsense-version -X)"
+	MIRROR_CMD="${MIRROR_CMD} -d -a $(opnsense-version -X)"
 fi
 
 if [ "${DO_RELEASE}" = "-z" ]; then
