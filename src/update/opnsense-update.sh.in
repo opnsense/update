@@ -299,7 +299,7 @@ if [ "${IDENT}" != "${IDENT#*-}" ]; then
 	DO_DEVICE="-D ${IDENT#*-}"
 fi
 
-while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
+while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXYz OPT; do
 	case ${OPT} in
 	A)
 		DO_MIRRORABI="-A ${OPTARG}"
@@ -426,7 +426,11 @@ while getopts A:a:BbCcD:dEeFfGgiKkLl:Mm:n:OPpQRr:SsTt:UuVvxXz OPT; do
 		DO_MIRROR="-X"
 		;;
 	x)
+		# XXX reuse this for something nicer
 		DO_MIRROR="-x"
+		;;
+	Y)
+		DO_MIRROR="-Y"
 		;;
 	z)
 		DO_SNAPSHOT="-z"
@@ -592,7 +596,7 @@ if [ -n "${DO_MIRROR}" ]; then
 			fi
 		fi
 		mirror_abi
-	elif [ "${DO_MIRROR}" = "-x" ]; then
+	elif [ "${DO_MIRROR}" = "-x" -o "${DO_MIRROR}" = "-Y" ]; then
 		# only print mirror subscription key
 		mirror_sub
 	elif [ "${DO_MIRROR}" = "-X" ]; then
