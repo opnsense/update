@@ -80,14 +80,15 @@ Change the set fetch and package release ABI to
 .It Fl a Ar abi_hint
 Change the
 .Ar abi_hint
-from the detected default
-.Pq output of Sq opnsense-verify Fl a
-to a specific value.
-If a subdirectory is appended,
-.Fl A Ar mirror_abi
-is emulated for it but not written to the configuration.
-Thus it does not affect
-.Sq Fl p .
+from the detected default of the output of
+.Sq opnsense-verify Fl a
+combined with the release ABI as a subdirectory.
+If only a single directory name is given, the OS ABI variable is
+automatically set for it as the parent directory.
+This is similar to
+.Sq Fl A ,
+but it does not affect packages, because it is not written
+to the package configuration.
 .It Fl B
 Execute single-step base system upgrade after use of
 .Sq Fl u .
