@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2016-2024 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2016-2026 Franco Fichtner <franco@opnsense.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -36,11 +36,13 @@ WORKPREFIX="/tmp/opnsense-revert"
 WORKDIR=${WORKPREFIX}/${$}
 PKG="pkg-static"
 
+DO_COMMUNITY=
 DO_INSECURE=
 DO_LOCKKEEP=
 DO_RELEASE=
+DO_VERBOSE=
 
-while getopts ilr:z OPT; do
+while getopts ilr:xVz OPT; do
 	case ${OPT} in
 	i)
 		DO_INSECURE="-i"
@@ -51,8 +53,14 @@ while getopts ilr:z OPT; do
 	r)
 		DO_RELEASE="-r ${OPTARG}"
 		;;
+	V)
+		DO_VERBOSE="-V"
+		;;
 	z)
 		DO_RELEASE="-z"
+		;;
+	x)
+		DO_COMMUNITY="-x"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -63,6 +71,10 @@ done
 
 shift $((OPTIND - 1))
 
+if [ -n "${DO_VERBOSE}" ]; then
+	set -x
+fi
+
 for PACKAGE in ${@}; do
 	if ! ${PKG} query %n ${PACKAGE} > /dev/null; then
 		echo "Package '${PACKAGE}' is not installed" >&2
@@ -72,13 +84,27 @@ done
 
 export ASSUME_ALWAYS_YES=yes
 
-MIRROR="$(opnsense-update -M)/MINT/${DO_RELEASE#-r }/latest/Latest"
-COREPKG=$(opnsense-version -n 2> /dev/null || true)
-COREDEP=
+
+MIRROR=
+MIRROR_CMD="opnsense-update -M"
+if [ -n "${DO_COMMUNITY}" ]; then
+	MIRROR_CMD="${MIRROR_CMD} -d -A $(opnsense-version -X)"
+fi
 
 if [ "${DO_RELEASE}" = "-z" ]; then
-	MIRROR="$(opnsense-update -Mz)/latest/Latest"
+	# snapshots do not have a MINT structure per release
+	MIRROR="$(${MIRROR_CMD} -z)/latest/Latest"
+elif [ -n "${DO_RELEASE}" ]; then
+	MIRROR="$(${MIRROR_CMD})/MINT/${DO_RELEASE#-r }/latest/Latest"
 fi
+
+if [ -n "${DO_COMMUNITY}" -a -z "${MIRROR}" ]; then
+	echo "Community mode not compatible with default revert" >&2
+	exit 1
+fi
+
+COREPKG=$(opnsense-version -n 2> /dev/null || true)
+COREDEP=
 
 if [ -n "${COREPKG}" ]; then
 	COREDEP=$(echo ${COREPKG}; ${PKG} query %dn ${COREPKG})
@@ -133,7 +159,7 @@ for PACKAGE in ${@}; do
 	if [ -z "${DO_RELEASE}" ]; then
 		${PKG} install -f ${PACKAGE}
 	else
-		${PKG} add -f ${WORKDIR}/${PACKAGE}.pkg
+		${PKG} install -f ${WORKDIR}/${PACKAGE}.pkg
 	fi
 
 	${PKG} set -A ${AUTOMATIC} ${PACKAGE}
