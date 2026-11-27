@@ -34,6 +34,7 @@ fi
 
 WORKPREFIX="/tmp/opnsense-revert"
 WORKDIR=${WORKPREFIX}/${$}
+PRODUCT="OPNsense"
 PKG="pkg-static"
 
 DO_INSECURE=
@@ -82,21 +83,17 @@ for PACKAGE in ${@}; do
 	fi
 done
 
-export ASSUME_ALWAYS_YES=yes
-
-MIRROR=
 MIRROR_CMD="opnsense-update -M ${DO_XINSTALL:+-d -a $(opnsense-version -X)}"
+MIRROR=/latest/Latest
 
 if [ "${DO_RELEASE}" = "-z" ]; then
 	# snapshots do not have a MINT structure per release
-	MIRROR="$(${MIRROR_CMD} -z)/latest/Latest"
+	MIRROR="$(${MIRROR_CMD} -z)${MIRROR}"
 elif [ -n "${DO_RELEASE}" ]; then
-	MIRROR="$(${MIRROR_CMD})/MINT/${DO_RELEASE#-r }/latest/Latest"
-fi
-
-if [ -n "${DO_XINSTALL}" -a -z "${MIRROR}" ]; then
-	echo "Cross-install mode is not compatible with default revert" >&2
-	exit 1
+	# use the known per stable release structure
+	MIRROR="$(${MIRROR_CMD})/MINT/${DO_RELEASE#-r }${MIRROR}"
+else
+	MIRROR="$(${MIRROR_CMD})${MIRROR}"
 fi
 
 COREPKG=$(opnsense-version -n 2> /dev/null || true)
@@ -128,12 +125,10 @@ fetch()
 }
 
 for PACKAGE in ${@}; do
-	if [ -z "${DO_RELEASE}" ]; then
-		${PKG} fetch ${PACKAGE}
-	else
-		fetch ${PACKAGE}.pkg
-	fi
+	fetch ${PACKAGE}.pkg
 done
+
+export ASSUME_ALWAYS_YES=yes
 
 for PACKAGE in ${@}; do
 	# reset automatic, vital as per package metadata
@@ -152,12 +147,8 @@ for PACKAGE in ${@}; do
 		${PKG} unlock ${PACKAGE}
 	fi
 
-	if [ -z "${DO_RELEASE}" ]; then
-		${PKG} install -f ${PACKAGE}
-	else
-		${PKG} install -f ${WORKDIR}/${PACKAGE}.pkg
-	fi
-
+	${PKG} add -f ${WORKDIR}/${PACKAGE}.pkg
+	${PKG} annotate -M ${PACKAGE} repository ${PRODUCT}
 	${PKG} set -A ${AUTOMATIC} ${PACKAGE}
 done
 
