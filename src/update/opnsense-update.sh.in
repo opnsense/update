@@ -999,6 +999,10 @@ install_kernel()
 		exit_msg " failed, tar error"
 	fi
 
+	if [ ! -s "${KERNELDIR}.new/kernel" ]; then
+		exit_msg " failed, kernel invalid"
+	fi
+
 	if [ -z "${DO_UPGRADE}" ]; then
 		if ! kldxref ${KERNELDIR}.new; then
 			exit_msg " failed, kldxref error"
@@ -1022,7 +1026,7 @@ install_kernel()
 		# as we assume a failed move can be fixed by issuing
 		# another move.
 
-		if [ ${DIR} = ${KERNELDIR} -o -d ${DIR} ]; then
+		if [ -d ${DIR} ]; then
 			if ! mv ${DIR} ${DIR}.old; then
 				exit_msg " failed, mv error on ${DIR}"
 			fi
