@@ -36,11 +36,11 @@ WORKPREFIX="/tmp/opnsense-revert"
 WORKDIR=${WORKPREFIX}/${$}
 PKG="pkg-static"
 
-DO_COMMUNITY=
 DO_INSECURE=
 DO_LOCKKEEP=
 DO_RELEASE=
 DO_VERBOSE=
+DO_XINSTALL=
 
 while getopts ilr:xVz OPT; do
 	case ${OPT} in
@@ -60,7 +60,7 @@ while getopts ilr:xVz OPT; do
 		DO_RELEASE="-z"
 		;;
 	x)
-		DO_COMMUNITY="-x"
+		DO_XINSTALL="-x"
 		;;
 	*)
 		echo "Usage: man ${0##*/}" >&2
@@ -84,12 +84,8 @@ done
 
 export ASSUME_ALWAYS_YES=yes
 
-
 MIRROR=
-MIRROR_CMD="opnsense-update -M"
-if [ -n "${DO_COMMUNITY}" ]; then
-	MIRROR_CMD="${MIRROR_CMD} -d -a $(opnsense-version -X)"
-fi
+MIRROR_CMD="opnsense-update -M ${DO_XINSTALL:+-d -a $(opnsense-version -X)}"
 
 if [ "${DO_RELEASE}" = "-z" ]; then
 	# snapshots do not have a MINT structure per release
@@ -98,8 +94,8 @@ elif [ -n "${DO_RELEASE}" ]; then
 	MIRROR="$(${MIRROR_CMD})/MINT/${DO_RELEASE#-r }/latest/Latest"
 fi
 
-if [ -n "${DO_COMMUNITY}" -a -z "${MIRROR}" ]; then
-	echo "Community mode not compatible with default revert" >&2
+if [ -n "${DO_XINSTALL}" -a -z "${MIRROR}" ]; then
+	echo "Cross-install mode is not compatible with default revert" >&2
 	exit 1
 fi
 
